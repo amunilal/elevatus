@@ -1,35 +1,54 @@
-name: Neon Database Branching
+name: Create/Delete Branch for Pull Request
 
 on:
   pull_request:
-    types: [opened, synchronize, closed]
+    types:
+      - opened
+      - reopened
+      - synchronize
+      - closed
 
-env:
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
-  NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
-  NEON_DATABASE_NAME: ${{ secrets.NEON_DATABASE_NAME }}
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+permissions:
+  contents: read
+  pull-requests: write
 
 jobs:
-  create-branch:
-    runs-on: ubuntu-latest
-    if: github.event.action != 'closed'
+  setup:
+    name: Setup
     outputs:
-      branch: ${{ steps.create-branch.outputs.branch }}
-      db-url: ${{ steps.create-branch.outputs.db-url }}
+      branch: ${{ steps.branch_name.outputs.current_branch }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get branch name
+        id: branch_name
+        uses: tj-actions/branch-names@v8
+
+  create_neon_branch:
+    name: Create Neon Branch
+    outputs:
+      db_url: ${{ steps.create_neon_branch.outputs.db_url }}
+      db_url_with_pooler: ${{ steps.create_neon_branch.outputs.db_url_with_pooler }}
+    needs: setup
+    if: |
+      github.event_name == 'pull_request' && (
+      github.event.action == 'synchronize'
+      || github.event.action == 'opened'
+      || github.event.action == 'reopened')
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Create Neon database branch
-        id: create-branch
+      - name: Create Neon Branch
+        id: create_neon_branch
         uses: neondatabase/create-branch-action@v5
         with:
-          project_id: ${{ env.NEON_PROJECT_ID }}
-          api_key: ${{ env.NEON_API_KEY }}
-          branch_name: pr-${{ github.event.number }}-${{ github.sha }}
-          username: ${{ secrets.NEON_DATABASE_USER }}
-          database: ${{ env.NEON_DATABASE_NAME }}
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch_name: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          api_key: ${{ secrets.NEON_API_KEY }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -40,63 +59,57 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run database migrations
-        env:
-          DATABASE_URL: ${{ steps.create-branch.outputs.db_url }}
+      - name: Run Migrations
         run: |
           npx prisma generate
           npx prisma db push --accept-data-loss
+        env:
+          DATABASE_URL: "${{ steps.create_neon_branch.outputs.db_url_with_pooler }}"
 
       - name: Seed database
         env:
-          DATABASE_URL: ${{ steps.create-branch.outputs.db_url }}
+          DATABASE_URL: "${{ steps.create_neon_branch.outputs.db_url_with_pooler }}"
         run: npx tsx prisma/seed-simple.ts
 
       - name: Run tests
         env:
-          DATABASE_URL: ${{ steps.create-branch.outputs.db_url }}
+          DATABASE_URL: "${{ steps.create_neon_branch.outputs.db_url_with_pooler }}"
         run: npm run test || echo "No tests configured yet"
 
       - name: Build application
         env:
-          DATABASE_URL: ${{ steps.create-branch.outputs.db_url }}
+          DATABASE_URL: "${{ steps.create_neon_branch.outputs.db_url_with_pooler }}"
         run: npm run build
 
-      - name: Comment PR
+      - name: Post Schema Diff Comment to PR
+        uses: neondatabase/schema-diff-action@v1
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          compare_branch: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+      - name: Comment PR Success
         uses: thollander/actions-comment-pull-request@v2
         with:
           message: |
             🚀 **Preview Database Created!**
             
-            A new database branch has been created for this PR:
-            - **Branch**: `${{ steps.create-branch.outputs.branch }}`
-            - **Database URL**: Available in workflow secrets
+            A new Neon database branch has been created for this PR:
+            - **Branch**: `preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}`
+            - **Status**: ✅ Migrations applied and database seeded
+            - **Build**: ✅ Application built successfully
             
             This branch will be automatically deleted when the PR is closed.
 
-  delete-branch:
+  deploy_preview:
+    name: Deploy Preview
     runs-on: ubuntu-latest
-    if: github.event.action == 'closed'
-    steps:
-      - name: Delete Neon database branch
-        uses: neondatabase/delete-branch-action@v3
-        with:
-          project_id: ${{ env.NEON_PROJECT_ID }}
-          api_key: ${{ env.NEON_API_KEY }}
-          branch_name: pr-${{ github.event.number }}-${{ github.sha }}
-
-      - name: Comment PR
-        uses: thollander/actions-comment-pull-request@v2
-        with:
-          message: |
-            🗑️ **Preview Database Deleted**
-            
-            The database branch for this PR has been cleaned up automatically.
-
-  deploy-preview:
-    runs-on: ubuntu-latest
-    needs: create-branch
-    if: github.event.action != 'closed'
+    needs: create_neon_branch
+    if: |
+      github.event_name == 'pull_request' && (
+      github.event.action == 'synchronize'
+      || github.event.action == 'opened'
+      || github.event.action == 'reopened')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -108,4 +121,25 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-comment: true
-          vercel-args: '--env DATABASE_URL="${{ needs.create-branch.outputs.db-url }}"'
+          vercel-args: '--env DATABASE_URL="${{ needs.create_neon_branch.outputs.db_url_with_pooler }}"'
+
+  delete_neon_branch:
+    name: Delete Neon Branch
+    needs: setup
+    if: github.event_name == 'pull_request' && github.event.action == 'closed'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete Neon Branch
+        uses: neondatabase/delete-branch-action@v3
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch: preview/pr-${{ github.event.number }}-${{ needs.setup.outputs.branch }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+      - name: Comment PR Cleanup
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            🗑️ **Preview Database Deleted**
+            
+            The database branch for this PR has been cleaned up automatically.
