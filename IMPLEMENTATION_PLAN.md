@@ -3,7 +3,7 @@
 ## Project Overview
 **Product Name:** Employee Tracker (Catalyst Brand)  
 **Technology:** Next.js 14+ with TypeScript  
-**Timeline:** 11-13 weeks for MVP (includes Learning & Development module)  
+**Timeline:** 15-16 weeks for MVP (includes enhanced Review module and Learning & Development)  
 **Team Size:** 2-3 developers recommended  
 **Target Market:** South African businesses  
 **Localization:** South African metrics, currency (ZAR), and compliance  
@@ -509,51 +509,225 @@ The application will feature two distinct portals with separate authentication f
 - [ ] Team availability checker
 - [ ] Download leave certificates
 
-## Phase 6: Performance Review Module (Week 8-9)
+## Phase 6: Performance Review Module (Week 8-10)
 
-### 6.1 Employer Portal - Review Management
-- [ ] Review Administration (/employer/reviews)
-  - [ ] Create and schedule review cycles
-  - [ ] Assign reviewers and reviewees
-  - [ ] Custom review form builder
-  - [ ] Review template management
-  - [ ] Bulk review initiation
+### 6.1 Modern Review Interface Design
+
+#### Review Dashboard (Card-Based Layout)
+- [ ] Employee Review Cards
+  - [ ] Profile photo and employee information
+  - [ ] Review status badges (Not Started, In Progress, Completed)
+  - [ ] Progress indicators (circular progress bars)
+  - [ ] Quick action buttons (Start Review, Continue, View)
+  - [ ] Last review date and next review due
+  - [ ] Filter and search functionality
+  - [ ] Sort by department, status, due date
+
+#### Individual Review Process (Step-by-Step Flow)
+- [ ] Step 1: Employee Selection
+  - [ ] Search bar with autocomplete
+  - [ ] Filter by department, team, review status
+  - [ ] Employee cards with hover effects
+  - [ ] Bulk selection for batch operations
+- [ ] Step 2: Review Form (Linear, Guided Process)
+  - [ ] Progress indicator showing current step
+  - [ ] Accordion-style category sections
+  - [ ] Modern rating components (sliders, star ratings)
+  - [ ] Rich text editor for detailed feedback
+  - [ ] Auto-save with visual indicators
+  - [ ] Draft/Preview functionality
+- [ ] Step 3: Review Summary
+  - [ ] Visual summary of ratings
+  - [ ] Key highlights section
+  - [ ] Goal setting interface
+  - [ ] Final submission with confirmation
+
+### 6.2 Employer Portal - Review Management
+
+#### Review Administration (/employer/reviews)
+- [ ] Modern Dashboard View
+  - [ ] Review cycle management cards
+  - [ ] Visual timeline of review periods
+  - [ ] Real-time completion statistics
+  - [ ] Department-wise progress tracking
+- [ ] Review Cycle Creation
+  - [ ] Wizard-style cycle setup
+  - [ ] Template selection interface
+  - [ ] Automated reviewer assignment
+  - [ ] Deadline and reminder configuration
 - [ ] Review Monitoring
-  - [ ] Track review completion status
-  - [ ] Send reminders and escalations
-  - [ ] Override and edit submissions
-  - [ ] Generate performance reports
-  - [ ] Calibration sessions management
+  - [ ] Live dashboard with status updates
+  - [ ] Kanban board for review stages
+  - [ ] Automated reminder system
+  - [ ] Manager calibration tools
+  - [ ] Export and reporting features
 
-### 6.2 Employee Portal - Reviews
-- [ ] My Reviews (/employee/reviews)
-  - [ ] View pending reviews
-  - [ ] Complete self-assessments
-  - [ ] View past review history
-  - [ ] Download review documents
-  - [ ] Goal tracking interface
-- [ ] Peer Reviews
-  - [ ] Submit feedback for colleagues
-  - [ ] Anonymous feedback options
-  - [ ] 360-degree review participation
+#### Review Templates
+- [ ] Template Builder
+  - [ ] Drag-and-drop category creation
+  - [ ] Custom rating scale configuration
+  - [ ] Competency framework integration
+  - [ ] Role-specific template variants
+- [ ] Template Library
+  - [ ] Pre-built industry templates
+  - [ ] Department-specific templates
+  - [ ] Quick customization options
 
-### 6.3 Review Workflow Features
-- [ ] Multi-stage review process
-  - [ ] Self-assessment phase
-  - [ ] Manager review phase
-  - [ ] Calibration phase
-  - [ ] Final approval phase
-- [ ] Goal Management
-  - [ ] Set SMART goals
-  - [ ] Track goal progress
-  - [ ] Link goals to reviews
-- [ ] Analytics & Insights
-  - [ ] Performance trends
-  - [ ] Rating distributions
-  - [ ] Department comparisons
-  - [ ] Individual growth tracking
+### 6.3 Employee Portal - Reviews
 
-## Phase 7: Learning & Development Module (Week 9-10)
+#### My Reviews Interface (/employee/reviews)
+- [ ] Personal Review Dashboard
+  - [ ] Timeline view of review history
+  - [ ] Current review status card
+  - [ ] Performance trend graphs
+  - [ ] Goal tracking widgets
+- [ ] Self-Assessment Flow
+  - [ ] Guided self-evaluation process
+  - [ ] Achievement documentation
+  - [ ] Challenge and opportunity sections
+  - [ ] Development goals input
+- [ ] Review History
+  - [ ] Interactive timeline
+  - [ ] Performance trend visualization
+  - [ ] Document download center
+  - [ ] Achievement badges display
+
+#### 360-Degree Feedback
+- [ ] Peer Review Interface
+  - [ ] Anonymous feedback option
+  - [ ] Structured feedback forms
+  - [ ] Constructive feedback guidelines
+  - [ ] Skip-level review capability
+
+### 6.4 Modern UI Components
+
+#### Core Components
+- [ ] Review Cards
+  ```typescript
+  interface ReviewCard {
+    employeeInfo: EmployeeBasicInfo;
+    reviewStatus: ReviewStatus;
+    progressIndicator: CircularProgress;
+    actions: QuickActions[];
+    dueDate: Date;
+  }
+  ```
+- [ ] Rating Components
+  - [ ] Slider ratings with labels
+  - [ ] Star ratings with half-star precision
+  - [ ] Numeric scale with descriptions
+  - [ ] Visual competency matrices
+- [ ] Progress Indicators
+  - [ ] Step progress bars
+  - [ ] Circular progress charts
+  - [ ] Status badges with colors
+  - [ ] Completion percentages
+
+#### Interactive Elements
+- [ ] Modal Dialogs
+  - [ ] Quick review preview
+  - [ ] Confirmation dialogs
+  - [ ] Help and guidance modals
+- [ ] Slideover Panels
+  - [ ] Employee details view
+  - [ ] Review history timeline
+  - [ ] Quick edit capabilities
+- [ ] Toast Notifications
+  - [ ] Auto-save confirmations
+  - [ ] Review submission alerts
+  - [ ] Reminder notifications
+- [ ] Loading States
+  - [ ] Skeleton screens
+  - [ ] Progressive loading
+  - [ ] Smooth transitions
+
+### 6.5 Review Analytics & Insights
+
+#### Analytics Dashboard
+- [ ] Performance Visualizations
+  - [ ] Team performance heatmaps
+  - [ ] Rating distribution charts
+  - [ ] Year-over-year comparisons
+  - [ ] Department benchmarking
+- [ ] AI-Powered Insights
+  - [ ] Sentiment analysis of comments
+  - [ ] Bias detection algorithms
+  - [ ] Performance prediction models
+  - [ ] Automated insight generation
+- [ ] Reporting Tools
+  - [ ] Custom report builder
+  - [ ] Scheduled report delivery
+  - [ ] Export to multiple formats
+  - [ ] Integration with BI tools
+
+### 6.6 Technical Implementation
+
+#### Frontend Architecture
+```typescript
+// Component Structure
+components/
+├── reviews/
+│   ├── Dashboard/
+│   │   ├── ReviewDashboard.tsx
+│   │   ├── EmployeeCard.tsx
+│   │   └── FilterBar.tsx
+│   ├── Form/
+│   │   ├── ReviewForm.tsx
+│   │   ├── RatingSlider.tsx
+│   │   ├── CommentEditor.tsx
+│   │   └── CategoryAccordion.tsx
+│   ├── Analytics/
+│   │   ├── PerformanceChart.tsx
+│   │   ├── TeamHeatmap.tsx
+│   │   └── InsightsPanel.tsx
+│   └── Common/
+│       ├── ProgressIndicator.tsx
+│       ├── StatusBadge.tsx
+│       └── ActionButtons.tsx
+```
+
+#### State Management
+```typescript
+// Review State Interface
+interface ReviewState {
+  currentReview: Review | null;
+  reviewCycle: ReviewCycle;
+  employees: Employee[];
+  filters: ReviewFilters;
+  analytics: AnalyticsData;
+  uiState: {
+    currentStep: number;
+    isSaving: boolean;
+    errors: ValidationError[];
+  };
+}
+```
+
+#### API Endpoints
+```typescript
+// Review API Routes
+/api/reviews/
+├── cycles/          // Review cycle management
+├── templates/       // Template CRUD operations
+├── employees/       // Employee review data
+├── analytics/       // Analytics and insights
+├── export/          // Report generation
+└── notifications/   // Reminder system
+```
+
+### 6.7 Mobile Responsiveness
+- [ ] Responsive Design
+  - [ ] Mobile-first approach
+  - [ ] Touch-friendly interfaces
+  - [ ] Swipe gestures for navigation
+  - [ ] Optimized form inputs
+- [ ] Progressive Web App Features
+  - [ ] Offline review drafts
+  - [ ] Push notifications
+  - [ ] Home screen installation
+  - [ ] Background sync
+
+## Phase 7: Learning & Development Module (Week 11-12)
 
 ### 7.1 Employer Portal - Learning Management
 - [ ] Course Administration (/employer/learning)
@@ -682,7 +856,7 @@ model UserBadge {
 }
 ```
 
-## Phase 8: Integration & Polish (Week 10-11)
+## Phase 8: Integration & Polish (Week 13-14)
 
 ### 8.1 Third-party Integrations
 - [ ] Email notification service
@@ -705,7 +879,7 @@ model UserBadge {
 - [ ] Input sanitization
 - [ ] GDPR compliance
 
-## Phase 9: Testing & QA (Week 11-12)
+## Phase 9: Testing & QA (Week 14-15)
 
 ### 8.1 Testing Implementation
 - [ ] Unit tests (Jest)
@@ -721,7 +895,7 @@ model UserBadge {
 - [ ] Mobile responsiveness
 - [ ] Accessibility testing (WCAG)
 
-## Phase 10: Deployment & Launch (Week 12-13)
+## Phase 10: Deployment & Launch (Week 15-16)
 
 ### 9.1 Deployment Setup
 - [ ] CI/CD pipeline (GitHub Actions)
