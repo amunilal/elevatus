@@ -21,6 +21,12 @@ A sophisticated, user-friendly employee management system designed for South Afr
 - **South African Localization**: ZAR currency, SA date formats, public holidays
 - **UIF Integration**: Unemployment Insurance Fund documentation
 
+### Deployment Flexibility
+- **Traditional Hosting**: Docker-based development with VPS/cloud hosting
+- **Serverless Ready**: Vercel deployment with 50-75% cost savings
+- **Global Performance**: Edge network optimization for South African users
+- **Auto-scaling**: Handle traffic spikes without infrastructure management
+
 ## 🛠 Tech Stack
 
 - **Framework**: Next.js 14+ with App Router
@@ -107,6 +113,21 @@ Working on Phase 2: Core UI Components and Infrastructure
 - **Database Migrations**: `npm run db:migrate`
 - **Database Seeding**: `npm run db:seed`
 
+## 🏗️ Architecture Options
+
+The application is designed to support both traditional and serverless deployments:
+
+### Current: Traditional Server Architecture
+- **Development**: Docker with PostgreSQL, Redis, MailHog
+- **Production**: VPS/Server hosting with managed databases
+- **Cost**: R3,800-R10,070/month
+
+### Available: Serverless Architecture
+- **Platform**: Vercel + Neon PostgreSQL (recommended)
+- **Benefits**: 50-75% cost reduction, auto-scaling, global edge network
+- **Cost**: R950-R2,375/month
+- **Migration**: See [SERVERLESS_MIGRATION_PLAN.md](./SERVERLESS_MIGRATION_PLAN.md)
+
 ## 📁 Project Structure
 
 ```
@@ -124,6 +145,12 @@ elevatus-tracker/
 ├── types/                # TypeScript type definitions
 └── public/               # Static assets
 ```
+
+## 📚 Documentation
+
+- **[IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)** - Complete 16-week development roadmap
+- **[ROADMAP.md](./ROADMAP.md)** - GitHub-compatible project roadmap with milestones
+- **[SERVERLESS_MIGRATION_PLAN.md](./SERVERLESS_MIGRATION_PLAN.md)** - Comprehensive serverless deployment guide
 
 ## 🗺 Development Roadmap
 
