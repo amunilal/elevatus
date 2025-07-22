@@ -26,6 +26,12 @@ dist/
 build/
 out/
 target/
+.next/
+*/.next/
+
+# Next.js specific
+*.tsbuildinfo
+next-env.d.ts
 
 # Test coverage
 coverage/
