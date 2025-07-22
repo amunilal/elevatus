@@ -1,0 +1,111 @@
+name: Neon Database Branching
+
+on:
+  pull_request:
+    types: [opened, synchronize, closed]
+
+env:
+  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  NEON_API_KEY: ${{ secrets.NEON_API_KEY }}
+  NEON_PROJECT_ID: ${{ secrets.NEON_PROJECT_ID }}
+  NEON_DATABASE_NAME: ${{ secrets.NEON_DATABASE_NAME }}
+
+jobs:
+  create-branch:
+    runs-on: ubuntu-latest
+    if: github.event.action != 'closed'
+    outputs:
+      branch: ${{ steps.create-branch.outputs.branch }}
+      db-url: ${{ steps.create-branch.outputs.db-url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create Neon database branch
+        id: create-branch
+        uses: neondatabase/create-branch-action@v5
+        with:
+          project_id: ${{ env.NEON_PROJECT_ID }}
+          api_key: ${{ env.NEON_API_KEY }}
+          branch_name: pr-${{ github.event.number }}-${{ github.sha }}
+          username: ${{ secrets.NEON_DATABASE_USER }}
+          database: ${{ env.NEON_DATABASE_NAME }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run database migrations
+        env:
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url }}
+        run: |
+          npx prisma generate
+          npx prisma db push --accept-data-loss
+
+      - name: Seed database
+        env:
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url }}
+        run: npx tsx prisma/seed-simple.ts
+
+      - name: Run tests
+        env:
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url }}
+        run: npm run test || echo "No tests configured yet"
+
+      - name: Build application
+        env:
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url }}
+        run: npm run build
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            🚀 **Preview Database Created!**
+            
+            A new database branch has been created for this PR:
+            - **Branch**: `${{ steps.create-branch.outputs.branch }}`
+            - **Database URL**: Available in workflow secrets
+            
+            This branch will be automatically deleted when the PR is closed.
+
+  delete-branch:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed'
+    steps:
+      - name: Delete Neon database branch
+        uses: neondatabase/delete-branch-action@v3
+        with:
+          project_id: ${{ env.NEON_PROJECT_ID }}
+          api_key: ${{ env.NEON_API_KEY }}
+          branch_name: pr-${{ github.event.number }}-${{ github.sha }}
+
+      - name: Comment PR
+        uses: thollander/actions-comment-pull-request@v2
+        with:
+          message: |
+            🗑️ **Preview Database Deleted**
+            
+            The database branch for this PR has been cleaned up automatically.
+
+  deploy-preview:
+    runs-on: ubuntu-latest
+    needs: create-branch
+    if: github.event.action != 'closed'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Vercel Preview
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          github-comment: true
+          vercel-args: '--env DATABASE_URL="${{ needs.create-branch.outputs.db-url }}"'

@@ -8,8 +8,10 @@ async function main() {
 
   // Create admin user
   const adminPassword = await bcrypt.hash('admin123', 10)
-  const adminUser = await prisma.user.create({
-    data: {
+  const adminUser = await prisma.user.upsert({
+    where: { email: 'admin@company.co.za' },
+    update: {},
+    create: {
       email: 'admin@company.co.za',
       password: adminPassword,
       userType: UserType.EMPLOYER,
@@ -28,8 +30,10 @@ async function main() {
 
   // Create HR admin
   const hrPassword = await bcrypt.hash('hr123', 10)
-  const hrUser = await prisma.user.create({
-    data: {
+  const hrUser = await prisma.user.upsert({
+    where: { email: 'hr@company.co.za' },
+    update: {},
+    create: {
       email: 'hr@company.co.za',
       password: hrPassword,
       userType: UserType.EMPLOYER,
@@ -52,15 +56,19 @@ async function main() {
   console.log('✅ Created HR admin:', hrUser.email)
 
   // Create departments/teams
-  const engineeringTeam = await prisma.team.create({
-    data: {
+  const engineeringTeam = await prisma.team.upsert({
+    where: { name: 'Engineering' },
+    update: {},
+    create: {
       name: 'Engineering',
       description: 'Software development team'
     }
   })
 
-  const salesTeam = await prisma.team.create({
-    data: {
+  const salesTeam = await prisma.team.upsert({
+    where: { name: 'Sales' },
+    update: {},
+    create: {
       name: 'Sales',
       description: 'Sales and business development'
     }
@@ -70,8 +78,10 @@ async function main() {
 
   // Create manager
   const managerPassword = await bcrypt.hash('manager123', 10)
-  const managerUser = await prisma.user.create({
-    data: {
+  const managerUser = await prisma.user.upsert({
+    where: { email: 'manager@company.co.za' },
+    update: {},
+    create: {
       email: 'manager@company.co.za',
       password: managerPassword,
       userType: UserType.EMPLOYER,
@@ -135,8 +145,10 @@ async function main() {
   ]
 
   for (const emp of employees) {
-    const user = await prisma.user.create({
-      data: {
+    const user = await prisma.user.upsert({
+      where: { email: emp.email },
+      update: {},
+      create: {
         email: emp.email,
         password: employeePassword,
         userType: UserType.EMPLOYEE,

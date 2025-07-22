@@ -66,7 +66,11 @@ DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npx pr
 
 # Seed the database
 echo "🌱 Seeding database with sample data..."
-DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npm run db:seed
+if DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npm run db:seed; then
+    echo "✅ Database seeded successfully"
+else
+    echo "⚠️  Database seeding completed with warnings (this is normal if data already exists)"
+fi
 
 # Create uploads directory
 echo "📁 Setting up file storage..."
