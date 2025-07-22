@@ -55,11 +55,14 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
+          cache-dependency-path: './elevatus-tracker/package-lock.json'
 
       - name: Install dependencies
+        working-directory: ./elevatus-tracker
         run: npm ci
 
       - name: Run Migrations
+        working-directory: ./elevatus-tracker
         run: |
           npx prisma generate
           npx prisma db push --accept-data-loss
@@ -67,16 +70,19 @@ jobs:
           DATABASE_URL: "${{ steps.create_neon_branch.outputs.db_url_with_pooler }}"
 
       - name: Seed database
+        working-directory: ./elevatus-tracker
         env:
           DATABASE_URL: "${{ steps.create_neon_branch.outputs.db_url_with_pooler }}"
         run: npx tsx prisma/seed-simple.ts
 
       - name: Run tests
+        working-directory: ./elevatus-tracker
         env:
           DATABASE_URL: "${{ steps.create_neon_branch.outputs.db_url_with_pooler }}"
         run: npm run test || echo "No tests configured yet"
 
       - name: Build application
+        working-directory: ./elevatus-tracker
         env:
           DATABASE_URL: "${{ steps.create_neon_branch.outputs.db_url_with_pooler }}"
         run: npm run build
@@ -121,6 +127,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
           github-comment: true
+          working-directory: './elevatus-tracker'
           vercel-args: '--env DATABASE_URL="${{ needs.create_neon_branch.outputs.db_url_with_pooler }}"'
 
   delete_neon_branch:
