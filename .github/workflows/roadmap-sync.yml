@@ -1,0 +1,124 @@
+# .github/workflows/roadmap-sync.yml
+name: Sync Roadmap to Issues
+
+on:
+  push:
+    paths:
+      - 'ROADMAP.md'
+  workflow_dispatch:
+
+jobs:
+  sync-roadmap:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        
+    - name: Parse Roadmap and Create Issues
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          
+          // Read and parse ROADMAP.md
+          const roadmapContent = fs.readFileSync('ROADMAP.md', 'utf8');
+          const lines = roadmapContent.split('\n');
+          
+          let currentMilestone = null;
+          const items = [];
+          
+          for (const line of lines) {
+            // Match ## for milestones
+            const milestoneMatch = line.match(/^## (.+)/);
+            if (milestoneMatch) {
+              if (currentMilestone) {
+                items.push(currentMilestone);
+              }
+              
+              const title = milestoneMatch[1];
+              const dueDateMatch = title.match(/Due:\s*(\d{4}-\d{2}-\d{2})/);
+              
+              currentMilestone = {
+                title: dueDateMatch ? title.replace(/\s*-\s*Due:\s*\d{4}-\d{2}-\d{2}/, '') : title,
+                dueDate: dueDateMatch ? dueDateMatch[1] : null,
+                description: '',
+                tasks: []
+              };
+            }
+            // Match ### for tasks
+            else if (line.match(/^### (.+)/) && currentMilestone) {
+              const taskTitle = line.replace(/^### /, '');
+              currentMilestone.tasks.push(taskTitle);
+            }
+            // Add to description
+            else if (currentMilestone && line.trim()) {
+              currentMilestone.description += line + '\n';
+            }
+          }
+          
+          if (currentMilestone) {
+            items.push(currentMilestone);
+          }
+          
+          // Create milestones and issues
+          for (const item of items) {
+            try {
+              // Create milestone if due date exists
+              let milestoneNumber = null;
+              if (item.dueDate) {
+                const milestone = await github.rest.issues.createMilestone({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: item.title,
+                  description: item.description,
+                  due_on: `${item.dueDate}T23:59:59Z`
+                });
+                milestoneNumber = milestone.data.number;
+                console.log(`Created milestone: ${item.title}`);
+              }
+              
+              // Create main issue
+              const issueData = {
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: item.title,
+                body: item.description,
+                labels: ['roadmap', 'milestone']
+              };
+              
+              if (milestoneNumber) {
+                issueData.milestone = milestoneNumber;
+              }
+              
+              const issue = await github.rest.issues.create(issueData);
+              console.log(`Created issue: ${item.title}`);
+              
+              // Create task issues
+              for (const task of item.tasks) {
+                const taskData = {
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  title: task,
+                  body: `Part of milestone: ${item.title}`,
+                  labels: ['roadmap', 'task']
+                };
+                
+                if (milestoneNumber) {
+                  taskData.milestone = milestoneNumber;
+                }
+                
+                await github.rest.issues.create(taskData);
+                console.log(`Created task: ${task}`);
+              }
+              
+            } catch (error) {
+              console.error(`Error processing ${item.title}:`, error.message);
+            }
+          }
+          
+          console.log('Roadmap sync completed!');
