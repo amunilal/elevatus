@@ -5,6 +5,8 @@
 **Technology:** Next.js 14+ with TypeScript  
 **Timeline:** 11-13 weeks for MVP (includes Learning & Development module)  
 **Team Size:** 2-3 developers recommended  
+**Target Market:** South African businesses  
+**Localization:** South African metrics, currency (ZAR), and compliance  
 
 ## Dual Portal Architecture
 
@@ -74,17 +76,242 @@ The application will feature two distinct portals with separate authentication f
 - [ ] Configure ESLint and Prettier
 - [ ] Set up commit hooks with Husky
 
-### 1.2 Development Environment
-- [ ] Set up environment variables (.env.local, .env.production)
-- [ ] Configure VS Code settings and extensions
-- [ ] Create Docker setup for consistent development
-- [ ] Set up debugging configuration
+### 1.2 Local Development Environment Setup
 
-### 1.3 Design System Setup
+#### Prerequisites
+- [ ] Install Node.js (v18+ recommended)
+- [ ] Install PostgreSQL locally or use Docker
+- [ ] Install Git
+- [ ] Install VS Code or preferred IDE
+- [ ] Install Docker Desktop (optional but recommended)
+
+#### Local Environment Configuration
+- [ ] Clone repository and install dependencies
+  ```bash
+  git clone <repository-url>
+  cd elevatus-tracker
+  npm install
+  ```
+- [ ] Set up environment variables
+  ```bash
+  # Create .env.local file
+  cp .env.example .env.local
+  ```
+  ```env
+  # .env.local
+  DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev"
+  NEXTAUTH_URL="http://localhost:3000"
+  NEXTAUTH_SECRET="your-secret-key-here"
+  
+  # Email Service
+  SMTP_HOST="localhost"
+  SMTP_PORT="1025"
+  SMTP_USER=""
+  SMTP_PASS=""
+  
+  # Storage (Local Development)
+  STORAGE_TYPE="local"
+  UPLOAD_DIR="./uploads"
+  
+  # Redis (for sessions/caching)
+  REDIS_URL="redis://localhost:6379"
+  ```
+
+#### Docker Compose Setup
+- [ ] Create docker-compose.yml for local services
+  ```yaml
+  version: '3.8'
+  services:
+    postgres:
+      image: postgres:15-alpine
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: password
+        POSTGRES_DB: elevatus_dev
+      ports:
+        - "5432:5432"
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
+    
+    redis:
+      image: redis:7-alpine
+      ports:
+        - "6379:6379"
+    
+    mailhog:
+      image: mailhog/mailhog
+      ports:
+        - "1025:1025" # SMTP
+        - "8025:8025" # Web UI
+  
+  volumes:
+    postgres_data:
+  ```
+- [ ] Start local services
+  ```bash
+  docker-compose up -d
+  ```
+
+#### Database Setup
+- [ ] Run database migrations
+  ```bash
+  npx prisma migrate dev --name init
+  npx prisma generate
+  ```
+- [ ] Seed development data
+  ```bash
+  npm run db:seed
+  ```
+
+#### Development Scripts
+- [ ] Configure package.json scripts
+  ```json
+  {
+    "scripts": {
+      "dev": "next dev",
+      "build": "next build",
+      "start": "next start",
+      "lint": "next lint",
+      "type-check": "tsc --noEmit",
+      "db:migrate": "prisma migrate dev",
+      "db:seed": "ts-node prisma/seed.ts",
+      "db:studio": "prisma studio",
+      "test": "jest",
+      "test:watch": "jest --watch"
+    }
+  }
+  ```
+
+#### VS Code Configuration
+- [ ] Create .vscode/settings.json
+  ```json
+  {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": true
+    },
+    "typescript.preferences.importModuleSpecifier": "non-relative"
+  }
+  ```
+- [ ] Recommended extensions (.vscode/extensions.json)
+  ```json
+  {
+    "recommendations": [
+      "dbaeumer.vscode-eslint",
+      "esbenp.prettier-vscode",
+      "prisma.prisma",
+      "bradlc.vscode-tailwindcss",
+      "ms-vscode.vscode-typescript-next"
+    ]
+  }
+  ```
+
+#### Local Development Workflow
+- [ ] Start development server
+  ```bash
+  npm run dev
+  ```
+- [ ] Access applications
+  - Employer Portal: http://localhost:3000/employer
+  - Employee Portal: http://localhost:3000/employee
+  - Prisma Studio: http://localhost:5555
+  - MailHog UI: http://localhost:8025
+- [ ] Development accounts (seeded)
+  ```
+  Employer Admin:
+  Email: admin@company.com
+  Password: admin123
+  
+  Employee:
+  Email: john.doe@company.com
+  Password: employee123
+  ```
+
+### 1.3 Local Development Troubleshooting
+
+#### Common Issues & Solutions
+- [ ] **Port conflicts**
+  ```bash
+  # Check if ports are in use
+  lsof -i :3000  # Next.js
+  lsof -i :5432  # PostgreSQL
+  lsof -i :6379  # Redis
+  
+  # Kill process using port
+  kill -9 <PID>
+  ```
+- [ ] **Database connection issues**
+  ```bash
+  # Verify PostgreSQL is running
+  docker ps | grep postgres
+  
+  # Test connection
+  psql -h localhost -U postgres -d elevatus_dev
+  ```
+- [ ] **Permission errors**
+  ```bash
+  # Fix npm permissions
+  sudo chown -R $(whoami) ~/.npm
+  
+  # Fix uploads directory
+  mkdir -p ./uploads && chmod 755 ./uploads
+  ```
+- [ ] **Environment variable issues**
+  ```bash
+  # Verify env vars are loaded
+  npm run env:check
+  
+  # Generate NEXTAUTH_SECRET
+  openssl rand -base64 32
+  ```
+
+### 1.4 Design System Setup
 - [ ] Import Figma design tokens
 - [ ] Configure Tailwind with custom theme
 - [ ] Create base component library structure
 - [ ] Set up Storybook for component documentation
+
+## South African Localization Requirements
+
+### Regional Configuration
+- **Currency:** South African Rand (ZAR) - R symbol
+- **Date Format:** DD/MM/YYYY
+- **Time Format:** 24-hour format (HH:mm)
+- **Phone Format:** +27 XX XXX XXXX
+- **ID Number:** South African ID validation
+- **Tax:** VAT (15%) calculations
+- **Public Holidays:** South African calendar
+
+### Compliance & Legal
+- **Labour Laws:** Basic Conditions of Employment Act (BCEA)
+- **Leave Requirements:**
+  - Annual Leave: 21 consecutive days (or 1 day per 17 days worked)
+  - Sick Leave: 30 days in 3-year cycle
+  - Family Responsibility Leave: 3 days per year
+  - Maternity Leave: 4 consecutive months
+  - Parental Leave: 10 consecutive days
+- **Working Hours:** Maximum 45 hours per week
+- **Overtime:** 1.5x rate (max 3 hours/day, 10 hours/week)
+- **UIF Contributions:** Unemployment Insurance Fund integration
+- **Skills Development Levy:** 1% of payroll
+
+### Localization Implementation
+- [ ] Configure i18n for South African English
+- [ ] Set up ZAR currency formatting
+  ```typescript
+  const formatCurrency = (amount: number) => {
+    return new Intl.NumberFormat('en-ZA', {
+      style: 'currency',
+      currency: 'ZAR'
+    }).format(amount);
+  };
+  ```
+- [ ] Implement SA ID number validation
+- [ ] Configure SA public holidays
+- [ ] Set up BCEA-compliant leave calculations
+- [ ] Add UIF contribution calculator
+- [ ] Implement overtime rules per BCEA
 
 ## Phase 2: Infrastructure & Backend (Week 2-3)
 
@@ -257,23 +484,30 @@ The application will feature two distinct portals with separate authentication f
   - [ ] Office proximity validation
   - [ ] Remote work tracking
 
-### 5.3 Leave Management
+### 5.3 Leave Management (South African Compliance)
 
 #### Employer Portal (/employer/leave)
 - [ ] Leave requests dashboard
 - [ ] Approval/rejection workflow
-- [ ] Leave balance management
+- [ ] Leave balance management per BCEA
+  - [ ] Annual leave: 21 days tracking
+  - [ ] Sick leave: 30 days/3-year cycle
+  - [ ] Family responsibility: 3 days/year
+  - [ ] Maternity leave: 4 months
+  - [ ] Parental leave: 10 days
 - [ ] Leave policy configuration
-- [ ] Team calendar view
-- [ ] Leave reports and analytics
+- [ ] South African public holidays calendar
+- [ ] Leave reports for Department of Labour
+- [ ] UIF documentation generation
 
 #### Employee Portal (/employee/leave)
-- [ ] Apply for leave
-- [ ] View leave balance
+- [ ] Apply for leave with BCEA categories
+- [ ] View leave balances by type
 - [ ] Track request status
-- [ ] Leave history
-- [ ] Holiday calendar
+- [ ] Leave history with cycle tracking
+- [ ] SA public holidays calendar
 - [ ] Team availability checker
+- [ ] Download leave certificates
 
 ## Phase 6: Performance Review Module (Week 8-9)
 
@@ -534,12 +768,16 @@ model UserBadge {
 - HTTPS everywhere
 - Data encryption at rest
 - Regular security audits
-- GDPR/CCPA compliance
+- POPIA (Protection of Personal Information Act) compliance
+- GDPR compliance for international employees
 - Role-based access control
 - Separate authentication tokens for employer/employee portals
 - Session isolation between portals
 - API rate limiting per portal type
 - Data access logging and audit trails
+- Local data residency requirements (South African servers)
+- Biometric data protection per POPIA
+- Employee consent management
 
 ### Scalability Plan
 - Horizontal scaling capability
@@ -600,20 +838,28 @@ model UserBadge {
 - Training materials
 - Support processes
 
-## Budget Estimation
+## Budget Estimation (South African Rand)
 
 ### Development Costs
-- Frontend development: 300-400 hours
-- Backend development: 200-300 hours
-- Testing & QA: 100-150 hours
-- Project management: 80-100 hours
+- Frontend development: 300-400 hours @ R450-650/hour
+- Backend development: 200-300 hours @ R550-750/hour
+- Testing & QA: 100-150 hours @ R350-450/hour
+- Project management: 80-100 hours @ R650-850/hour
+- **Total Development:** R495,000 - R825,000
 
 ### Infrastructure Costs (Monthly)
-- Hosting (Vercel Pro): $20-100
-- Database (PostgreSQL): $50-200
-- Storage (S3): $20-50
-- Monitoring tools: $50-100
-- SSL & Domain: $20-50
+- Hosting (Vercel Pro): R380 - R1,900
+- Database (PostgreSQL): R950 - R3,800
+- Storage (S3): R380 - R950
+- Monitoring tools: R950 - R1,900
+- SSL & Domain: R380 - R950
+- Email service: R190 - R570
+- **Total Monthly:** R3,230 - R10,070
+
+### Compliance & Legal Costs
+- POPIA compliance audit: R25,000 - R45,000
+- Labour law consultation: R15,000 - R25,000
+- Data hosting (local requirement): R2,000/month
 
 ## Next Steps
 
