@@ -108,22 +108,34 @@ export default function EmployerDashboardPage() {
           <div className="px-4 py-5 sm:p-6">
             <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <button className="bg-primary-50 hover:bg-primary-100 p-4 rounded-lg text-left transition-colors">
+              <a 
+                href="/employer/employees/new"
+                className="bg-primary-50 hover:bg-primary-100 p-4 rounded-lg text-left transition-colors block"
+              >
                 <h4 className="font-medium text-primary-900">Add Employee</h4>
                 <p className="text-sm text-primary-600 mt-1">Create new employee profile</p>
-              </button>
-              <button className="bg-green-50 hover:bg-green-100 p-4 rounded-lg text-left transition-colors">
+              </a>
+              <a 
+                href="/employer/attendance"
+                className="bg-green-50 hover:bg-green-100 p-4 rounded-lg text-left transition-colors block"
+              >
                 <h4 className="font-medium text-green-900">View Attendance</h4>
                 <p className="text-sm text-green-600 mt-1">Check daily attendance</p>
-              </button>
-              <button className="bg-yellow-50 hover:bg-yellow-100 p-4 rounded-lg text-left transition-colors">
-                <h4 className="font-medium text-yellow-900">Start Review</h4>
-                <p className="text-sm text-yellow-600 mt-1">Begin performance review</p>
-              </button>
-              <button className="bg-purple-50 hover:bg-purple-100 p-4 rounded-lg text-left transition-colors">
+              </a>
+              <a 
+                href="/employer/leave"
+                className="bg-yellow-50 hover:bg-yellow-100 p-4 rounded-lg text-left transition-colors block"
+              >
+                <h4 className="font-medium text-yellow-900">Manage Leave</h4>
+                <p className="text-sm text-yellow-600 mt-1">Review leave requests</p>
+              </a>
+              <a 
+                href="/employer/attendance/reports"
+                className="bg-purple-50 hover:bg-purple-100 p-4 rounded-lg text-left transition-colors block"
+              >
                 <h4 className="font-medium text-purple-900">Generate Report</h4>
                 <p className="text-sm text-purple-600 mt-1">Export analytics data</p>
-              </button>
+              </a>
             </div>
           </div>
         </div>
