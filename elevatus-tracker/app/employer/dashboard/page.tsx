@@ -1,10 +1,34 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/Badge'
 import { Logo } from '@/components/ui/Logo'
 
 export default function EmployerDashboardPage() {
+  const [totalEmployees, setTotalEmployees] = useState<number>(0)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchEmployeeCount()
+  }, [])
+
+  const fetchEmployeeCount = async () => {
+    try {
+      const response = await fetch('/api/employees')
+      if (response.ok) {
+        const employees = await response.json()
+        if (Array.isArray(employees)) {
+          setTotalEmployees(employees.length)
+        }
+      }
+    } catch (error) {
+      console.error('Failed to fetch employee count:', error)
+      setTotalEmployees(0)
+    } finally {
+      setLoading(false)
+    }
+  }
   return (
     <div className="min-h-screen bg-bg-base">
       {/* Simple Header - matching Figma */}
@@ -55,7 +79,9 @@ export default function EmployerDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-hover-teal mb-1">Total Employees</p>
-                  <p className="text-2xl font-bold text-secondary-900">24</p>
+                  <p className="text-2xl font-bold text-secondary-900">
+                    {loading ? '...' : totalEmployees}
+                  </p>
                 </div>
               </div>
             </div>
