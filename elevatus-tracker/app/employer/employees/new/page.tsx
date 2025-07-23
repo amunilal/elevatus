@@ -80,7 +80,7 @@ export default function NewEmployeePage() {
         router.push('/employer/employees')
       } else {
         const error = await response.json()
-        setErrors({ submit: error.message || 'Failed to create employee' })
+        setErrors({ submit: error.error || 'Failed to create employee' })
       }
     } catch (error) {
       setErrors({ submit: 'Network error. Please try again.' })

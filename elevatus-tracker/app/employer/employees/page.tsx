@@ -7,13 +7,14 @@ interface Employee {
   id: string
   firstName: string
   lastName: string
-  email: string
-  employeeNumber: string
-  position: string
+  personalEmail: string
+  employeeCode: string
+  designation: string
   department: string
-  status: 'ACTIVE' | 'INACTIVE' | 'TERMINATED'
-  hireDate: string
-  salary: number
+  employmentStatus: 'ACTIVE' | 'INACTIVE' | 'TERMINATED'
+  hiredDate: string
+  phoneNumber: string | null
+  idNumber: string | null
 }
 
 export default function EmployeesPage() {
@@ -31,19 +32,20 @@ export default function EmployeesPage() {
     try {
       const response = await fetch('/api/employees')
       const data = await response.json()
-      setEmployees(data)
+      setEmployees(Array.isArray(data) ? data : [])
     } catch (error) {
       console.error('Failed to fetch employees:', error)
+      setEmployees([])
     } finally {
       setLoading(false)
     }
   }
 
   const filteredEmployees = employees.filter(employee => {
-    const matchesSearch = `${employee.firstName} ${employee.lastName} ${employee.email} ${employee.employeeNumber}`
+    const matchesSearch = `${employee.firstName} ${employee.lastName} ${employee.personalEmail} ${employee.employeeCode}`
       .toLowerCase().includes(searchTerm.toLowerCase())
     const matchesDepartment = !filterDepartment || employee.department === filterDepartment
-    const matchesStatus = !filterStatus || employee.status === filterStatus
+    const matchesStatus = !filterStatus || employee.employmentStatus === filterStatus
     
     return matchesSearch && matchesDepartment && matchesStatus
   })
@@ -159,7 +161,7 @@ export default function EmployeesPage() {
                     Hire Date
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Salary (ZAR)
+                    Phone Number
                   </th>
                   <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
@@ -182,33 +184,33 @@ export default function EmployeesPage() {
                           <div className="text-sm font-medium text-gray-900">
                             {employee.firstName} {employee.lastName}
                           </div>
-                          <div className="text-sm text-gray-500">{employee.email}</div>
-                          <div className="text-xs text-gray-400">#{employee.employeeNumber}</div>
+                          <div className="text-sm text-gray-500">{employee.personalEmail}</div>
+                          <div className="text-xs text-gray-400">#{employee.employeeCode}</div>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {employee.position}
+                      {employee.designation}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {employee.department}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        employee.status === 'ACTIVE' 
+                        employee.employmentStatus === 'ACTIVE' 
                           ? 'bg-green-100 text-green-800'
-                          : employee.status === 'INACTIVE'
+                          : employee.employmentStatus === 'INACTIVE'
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
                       }`}>
-                        {employee.status}
+                        {employee.employmentStatus}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {new Date(employee.hireDate).toLocaleDateString('en-ZA')}
+                      {new Date(employee.hiredDate).toLocaleDateString('en-ZA')}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      R{employee.salary.toLocaleString('en-ZA')}
+                      {employee.phoneNumber || 'N/A'}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
                       <Link

@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     
     // Validate required fields
-    const requiredFields = ['firstName', 'lastName', 'email', 'employeeNumber', 'position', 'department']
+    const requiredFields = ['firstName', 'lastName', 'email', 'employeeNumber', 'position', 'department', 'hireDate']
     for (const field of requiredFields) {
       if (!body[field]) {
         return NextResponse.json(
@@ -71,6 +71,14 @@ export async function POST(request: NextRequest) {
           { status: 400 }
         )
       }
+    }
+
+    // Validate hireDate is a valid date
+    if (body.hireDate && isNaN(new Date(body.hireDate).getTime())) {
+      return NextResponse.json(
+        { error: 'Invalid hire date format' },
+        { status: 400 }
+      )
     }
 
     // Check if user email already exists
@@ -143,6 +151,31 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(employee, { status: 201 })
   } catch (error) {
     console.error('Error creating employee:', error)
+    
+    // Handle specific Prisma errors
+    if (error instanceof Error) {
+      if (error.message.includes('Unique constraint failed')) {
+        if (error.message.includes('employeeCode')) {
+          return NextResponse.json(
+            { error: 'Employee number already exists' },
+            { status: 409 }
+          )
+        }
+        if (error.message.includes('email')) {
+          return NextResponse.json(
+            { error: 'Email address already exists' },
+            { status: 409 }
+          )
+        }
+      }
+      
+      // Return the actual error message for debugging
+      return NextResponse.json(
+        { error: `Failed to create employee: ${error.message}` },
+        { status: 500 }
+      )
+    }
+    
     return NextResponse.json(
       { error: 'Failed to create employee' },
       { status: 500 }
