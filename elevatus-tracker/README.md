@@ -11,7 +11,7 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 - **Attendance Tracking**: Real-time monitoring with reports, exports, settings, and bulk operations
 - **Leave Management**: BCEA-compliant leave with policies, reports, exports, and bulk operations
 - **Quick Actions Dashboard**: Fully functional navigation to all management features
-- **Performance Reviews**: Employee selection and review initiation system
+- **Performance Reviews**: Complete Kanban-style review system with task management
 - **Learning & Development**: Training and development tracking (planned)
 - **Reports & Analytics**: Comprehensive reporting dashboard (planned)
 
@@ -21,6 +21,15 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 - **Leave Requests**: Submit and track leave applications
 - **Performance View**: Review personal performance metrics (planned)
 - **Learning Portal**: Access training materials and progress (planned)
+
+### Performance Review System
+- **Kanban Task Board**: Visual task management with To do/In Progress/Complete/On hold columns
+- **Employee Selection**: Choose from active employees to start reviews
+- **Review History**: Track completed, in-progress, and draft reviews with progress indicators
+- **Task Management**: Add, move, and complete review tasks with date tracking
+- **Review Notes**: Expandable notes section for detailed feedback
+- **Status Tracking**: Visual progress bars and color-coded status indicators
+- **Modern Interface**: Consistent design system with intuitive navigation
 
 ### Technical Features
 - **Dual Authentication**: Separate login systems for employers and employees
@@ -253,7 +262,9 @@ The repository includes a GitHub Actions workflow that:
 - BCEA-compliant leave management with policies and bulk operations
 - Employee self-service portal with updated design system
 - Fully functional Quick Actions dashboard with color-coordinated actions
-- Performance review system with employee selection interface
+- Complete performance review system with Kanban-style task boards
+- Individual review pages with To do/In Progress/Complete/On hold columns
+- Review history dashboard with progress tracking and status management
 - Advanced export and import capabilities
 - South African compliance features
 - Responsive mobile-first design with brand-consistent styling
@@ -266,7 +277,8 @@ The repository includes a GitHub Actions workflow that:
 - Enhanced user experience with consistent navigation and branding
 
 ### Planned Features 🚧
-- Complete performance review workflow and evaluation forms
+- Advanced review analytics and reporting features
+- Review templates and automated task generation
 - Learning & development portal
 - Advanced reporting and analytics
 - Mobile app (React Native)
@@ -393,13 +405,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - ✅ **Core Features**: Complete employee management, attendance tracking, leave management
 - ✅ **Quick Actions**: All employer dashboard quick actions fully functional with color coordination
-- ✅ **Performance Reviews**: Employee selection interface and review initiation
+- ✅ **Performance Reviews**: Complete Kanban-style system with task management and history tracking
 - ✅ **Modern Design**: Consistent design system applied across all pages
 - ✅ **Advanced Operations**: Bulk operations, exports, reports, and policy management
 - ✅ **CI/CD Pipeline**: GitHub Actions with Neon database branching
 - ✅ **Production Ready**: Fully tested and documented
 - ✅ **Setup Verified**: Automated installation with `./setup.sh`
-- ⚠️ **In Progress**: Complete review workflow, learning modules (Phase 2)
+- ⚠️ **In Progress**: Advanced review analytics, learning modules (Phase 2)
 
 ---
 
