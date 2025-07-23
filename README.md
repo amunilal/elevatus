@@ -272,6 +272,7 @@ The application is designed to support both traditional and serverless deploymen
    - Go to [vercel.com](https://vercel.com) and sign in
    - Click "Add New" → "Project"
    - Import your GitHub repository
+   - **IMPORTANT**: Set the Root Directory to `elevatus-tracker` in project settings
    - Vercel will auto-detect Next.js settings
 
 3. **Set Environment Variables**:
