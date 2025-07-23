@@ -27,10 +27,5 @@
         }
       ]
     }
-  ],
-  "env": {
-    "DATABASE_URL": "@database_url",
-    "NEXTAUTH_URL": "@nextauth_url",
-    "NEXTAUTH_SECRET": "@nextauth_secret"
-  }
+  ]
 }

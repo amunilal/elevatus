@@ -14,7 +14,7 @@ export async function GET(
         user: {
           select: {
             email: true,
-            role: true
+            userType: true
           }
         }
       }
