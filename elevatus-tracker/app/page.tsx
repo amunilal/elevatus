@@ -11,17 +11,45 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 py-16 sm:px-6 lg:px-8">
           <div className="text-center">
             {/* Logo */}
-            <div className="flex justify-center mb-12">
-              <Logo size="lg" />
+            <div className="flex flex-col items-center mb-12">
+              <div className="mb-6">
+                <svg 
+                  className="h-32 w-32 md:h-40 md:w-40 lg:h-48 lg:w-48" 
+                  viewBox="0 0 488 488" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path 
+                    d="M408.958 219.563L289.681 305.482M205.84 176.563L86.5632 262.482M419.5 266C279.125 393.908 218.826 405.627 117 299M371.501 194C237.5 65.4999 195 128 17.5 264.5M479 244C479 373.787 373.787 479 244 479C114.213 479 9 373.787 9 244C9 114.213 114.213 9 244 9C373.787 9 479 114.213 479 244ZM323 242C323 284.526 288.526 319 246 319C203.474 319 169 284.526 169 242C169 199.474 203.474 165 246 165C288.526 165 323 199.474 323 242Z" 
+                    stroke="url(#paint0_linear_62_289)" 
+                    strokeWidth="18" 
+                    strokeLinecap="round"
+                  />
+                  <defs>
+                    <linearGradient 
+                      id="paint0_linear_62_289" 
+                      x1="61.5" 
+                      y1="95.5" 
+                      x2="421" 
+                      y2="403" 
+                      gradientUnits="userSpaceOnUse"
+                    >
+                      <stop stopColor="#F2A5A3"/>
+                      <stop offset="0.581731" stopColor="#EE7DBD"/>
+                      <stop offset="1" stopColor="#816CC4"/>
+                    </linearGradient>
+                  </defs>
+                </svg>
+              </div>
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-brand-start via-brand-middle to-brand-end bg-clip-text text-transparent">
+                ElevateUs
+              </h1>
             </div>
             
             {/* Hero Text */}
-            <h1 className="text-4xl font-bold tracking-tight text-secondary-900 sm:text-5xl md:text-6xl">
-              <span className="block mb-4">Welcome to</span>
-              <span className="block bg-gradient-to-r from-brand-start via-brand-middle to-brand-end bg-clip-text text-transparent">
-                ElevateUs Employee Tracker
-              </span>
-            </h1>
+            <h2 className="text-3xl font-bold tracking-tight text-secondary-900 sm:text-4xl md:text-5xl mb-4">
+              Employee Tracker
+            </h2>
             <p className="mt-6 max-w-2xl mx-auto text-lg text-secondary-600 md:text-xl">
               A comprehensive employee management system designed for South African businesses. 
               Foster continuous growth and streamline performance management.
