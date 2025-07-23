@@ -14,7 +14,7 @@ export default function HomePage() {
             <div className="flex flex-col items-center mb-12">
               <div className="mb-6">
                 <svg 
-                  className="h-64 w-64 md:h-80 md:w-80 lg:h-96 lg:w-96" 
+                  className="h-32 w-32 md:h-40 md:w-40 lg:h-48 lg:w-48" 
                   viewBox="0 0 488 488" 
                   fill="none" 
                   xmlns="http://www.w3.org/2000/svg"
