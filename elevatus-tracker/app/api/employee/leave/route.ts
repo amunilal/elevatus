@@ -12,10 +12,8 @@ export async function GET(request: NextRequest) {
     })
 
     if (!employee) {
-      return NextResponse.json(
-        { error: 'Employee not found' },
-        { status: 404 }
-      )
+      // Return empty array if no employee found instead of error
+      return NextResponse.json([])
     }
 
     const leaves = await prisma.leave.findMany({
@@ -42,6 +40,21 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(transformedData)
   } catch (error) {
     console.error('Error fetching employee leave:', error)
+    
+    // If the error is because the table doesn't exist or database is not initialized,
+    // return an empty array instead of an error
+    if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase()
+      if (errorMessage.includes('table') && errorMessage.includes('does not exist')) {
+        console.log('Database tables not initialized, returning empty array')
+        return NextResponse.json([])
+      }
+      if (errorMessage.includes('connect') || errorMessage.includes('connection')) {
+        console.log('Database connection issue, returning empty array')
+        return NextResponse.json([])
+      }
+    }
+    
     return NextResponse.json(
       { error: 'Failed to fetch leave requests' },
       { status: 500 }

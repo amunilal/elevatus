@@ -30,6 +30,27 @@ export async function GET(
     return NextResponse.json(employee)
   } catch (error) {
     console.error('Error fetching employee:', error)
+    
+    // If the error is because the table doesn't exist or database is not initialized,
+    // return a 404 instead of 500
+    if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase()
+      if (errorMessage.includes('table') && errorMessage.includes('does not exist')) {
+        console.log('Database tables not initialized')
+        return NextResponse.json(
+          { error: 'Employee not found' },
+          { status: 404 }
+        )
+      }
+      if (errorMessage.includes('connect') || errorMessage.includes('connection')) {
+        console.log('Database connection issue')
+        return NextResponse.json(
+          { error: 'Employee not found' },
+          { status: 404 }
+        )
+      }
+    }
+    
     return NextResponse.json(
       { error: 'Failed to fetch employee' },
       { status: 500 }

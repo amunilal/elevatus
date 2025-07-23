@@ -42,15 +42,15 @@ export interface TestAttendanceRecord {
 }
 
 export const getTestEmployees = (): TestEmployee[] => {
-  return testData.employees
+  return testData.employees as TestEmployee[]
 }
 
 export const getTestLeaveRequests = (): TestLeaveRequest[] => {
-  return testData.leaveRequests
+  return testData.leaveRequests as TestLeaveRequest[]
 }
 
 export const getTestAttendanceRecords = (): TestAttendanceRecord[] => {
-  return testData.attendanceRecords
+  return testData.attendanceRecords as TestAttendanceRecord[]
 }
 
 export const getBankingDetails = () => {

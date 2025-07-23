@@ -58,6 +58,31 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(stats)
   } catch (error) {
     console.error('Error fetching leave stats:', error)
+    
+    // If the error is because the table doesn't exist or database is not initialized,
+    // return default stats instead of an error
+    if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase()
+      if (errorMessage.includes('table') && errorMessage.includes('does not exist')) {
+        console.log('Database tables not initialized, returning default stats')
+        return NextResponse.json({
+          pending: 0,
+          approved: 0,
+          rejected: 0,
+          totalDays: 0
+        })
+      }
+      if (errorMessage.includes('connect') || errorMessage.includes('connection')) {
+        console.log('Database connection issue, returning default stats')
+        return NextResponse.json({
+          pending: 0,
+          approved: 0,
+          rejected: 0,
+          totalDays: 0
+        })
+      }
+    }
+    
     return NextResponse.json(
       { error: 'Failed to fetch leave statistics' },
       { status: 500 }

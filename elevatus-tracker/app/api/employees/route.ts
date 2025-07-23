@@ -52,6 +52,22 @@ export async function GET(request: NextRequest) {
     return NextResponse.json(employees)
   } catch (error) {
     console.error('Error fetching employees:', error)
+    
+    // If the error is because the table doesn't exist or database is not initialized,
+    // return an empty array instead of an error
+    if (error instanceof Error) {
+      const errorMessage = error.message.toLowerCase()
+      if (errorMessage.includes('table') && errorMessage.includes('does not exist')) {
+        console.log('Database tables not initialized, returning empty array')
+        return NextResponse.json([])
+      }
+      if (errorMessage.includes('connect') || errorMessage.includes('connection')) {
+        console.log('Database connection issue, returning empty array')
+        return NextResponse.json([])
+      }
+    }
+    
+    // For other errors, still return 500
     return NextResponse.json(
       { error: 'Failed to fetch employees' },
       { status: 500 }

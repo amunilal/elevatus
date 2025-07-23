@@ -5,6 +5,10 @@ import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/contexts/ToastContext'
 import { getDepartments, getPositionsForDepartment, isValidDepartmentPosition } from '@/lib/departmentPositions'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
+import { Button } from '@/components/ui/Button'
+import { Badge } from '@/components/ui/Badge'
+import { Logo } from '@/components/ui/Logo'
 import { 
   getRandomEmployee, 
   getRandomBankDetails, 
@@ -174,43 +178,52 @@ export default function NewEmployeePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">Add New Employee</h1>
-            <p className="text-gray-600 mt-2">Create a new employee profile</p>
-          </div>
-          <div className="flex space-x-3">
-            <Link
-              href="/employer/dashboard"
-              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
-            >
-              Dashboard
-            </Link>
-            {isDevelopment() && (
-              <button
-                type="button"
-                onClick={fillWithTestData}
-                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
-              >
-                Fill Test Data
-              </button>
-            )}
-            <Link
-              href="/employer/employees"
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
-            >
-              Back to Employees
-            </Link>
+    <div className="min-h-screen bg-bg-base">
+      {/* Header */}
+      <header className="bg-nav-white border-b border-secondary-200 shadow-soft">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center space-x-4">
+              <Logo size="md" />
+              <Badge variant="mint" size="sm">Add Employee</Badge>
+            </div>
+            <div className="flex items-center space-x-3">
+              <Button variant="secondary" size="sm" asChild>
+                <Link href="/employer/dashboard">Dashboard</Link>
+              </Button>
+              {isDevelopment() && (
+                <Button
+                  variant="gradient"
+                  size="sm"
+                  onClick={fillWithTestData}
+                >
+                  Fill Test Data
+                </Button>
+              )}
+              <Button variant="outline" size="sm" asChild>
+                <Link href="/employer/employees">Back to Employees</Link>
+              </Button>
+            </div>
           </div>
         </div>
+      </header>
 
-        <form onSubmit={handleSubmit} className="space-y-8">
+      {/* Main Content */}
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Header */}
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-secondary-900">Add New Employee</h1>
+          <p className="text-secondary-600 mt-2">Create a new employee profile with all required information</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Personal Information */}
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Personal Information</h2>
+          <Card className="bg-light-mint">
+            <CardHeader>
+              <CardTitle>Personal Information</CardTitle>
+              <CardDescription>Basic employee details and contact information</CardDescription>
+            </CardHeader>
+            <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -316,12 +329,17 @@ export default function NewEmployeePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-            </div>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Employment Information */}
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Employment Information</h2>
+          <Card className="bg-light-yellow">
+            <CardHeader>
+              <CardTitle>Employment Information</CardTitle>
+              <CardDescription>Job role, department, and employment details</CardDescription>
+            </CardHeader>
+            <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -434,12 +452,17 @@ export default function NewEmployeePage() {
                   <option value="INACTIVE">Inactive</option>
                 </select>
               </div>
-            </div>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Banking Information */}
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Banking Information</h2>
+          <Card className="bg-light-purple">
+            <CardHeader>
+              <CardTitle>Banking Information</CardTitle>
+              <CardDescription>Bank account details for salary payments</CardDescription>
+            </CardHeader>
+            <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -484,12 +507,17 @@ export default function NewEmployeePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-            </div>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Emergency Contact */}
-          <div className="bg-white p-6 rounded-lg shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-900 mb-6">Emergency Contact</h2>
+          <Card className="bg-light-pink">
+            <CardHeader>
+              <CardTitle>Emergency Contact</CardTitle>
+              <CardDescription>Contact information for emergencies</CardDescription>
+            </CardHeader>
+            <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -517,31 +545,36 @@ export default function NewEmployeePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
-            </div>
-          </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Submit Buttons */}
-          <div className="flex justify-end space-x-4">
-            <Link
-              href="/employer/employees"
-              className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors"
-            >
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {loading ? 'Creating...' : 'Create Employee'}
-            </button>
-          </div>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex justify-end space-x-4">
+                <Button variant="outline" asChild>
+                  <Link href="/employer/employees">Cancel</Link>
+                </Button>
+                <Button
+                  type="submit"
+                  variant="gradient"
+                  disabled={loading}
+                  className="min-w-[160px]"
+                >
+                  {loading ? 'Creating...' : 'Create Employee'}
+                </Button>
+              </div>
 
-          {errors.submit && (
-            <div className="text-red-500 text-center mt-4">{errors.submit}</div>
-          )}
+              {errors.submit && (
+                <div className="mt-4 p-3 bg-hover-coral text-white rounded-lg text-center">
+                  {errors.submit}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </form>
-      </div>
+      </main>
     </div>
   )
 }
