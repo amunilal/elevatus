@@ -3,6 +3,10 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { Logo } from '@/components/ui/Logo'
+import { Button } from '@/components/ui/Button'
+import { Input } from '@/components/ui/Input'
+import { Card, CardContent } from '@/components/ui/Card'
 
 export default function EmployerLoginPage() {
   const router = useRouter()
@@ -34,106 +38,114 @@ export default function EmployerLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-bg-base flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
-        <div>
-          <Link href="/" className="flex justify-center">
-            <h1 className="text-3xl font-bold text-primary-600">ElevateUs</h1>
-          </Link>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+        {/* Logo and Header */}
+        <div className="text-center">
+          <div className="flex justify-center mb-8">
+            <Logo size="lg" />
+          </div>
+          <h2 className="text-3xl font-bold text-secondary-900 mb-2">
             Employer Portal
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
+          <p className="text-secondary-600">
             Sign in to manage your organization
           </p>
         </div>
         
-        <form className="mt-8 space-y-6 bg-white p-8 rounded-xl shadow-lg" onSubmit={handleSubmit}>
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="admin@company.co.za"
-              />
-            </div>
-            
-            <div className="mt-4">
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
-                placeholder="••••••••"
-              />
-            </div>
+        {/* Login Form */}
+        <Card className="bg-nav-white shadow-medium">
+          <CardContent className="p-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium text-secondary-700 mb-2">
+                    Email address
+                  </label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="admin@company.co.za"
+                    error={!!error}
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="password" className="block text-sm font-medium text-secondary-700 mb-2">
+                    Password
+                  </label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    error={!!error}
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <div className="rounded-lg bg-light-pink border border-hover-coral p-4">
+                  <p className="text-sm text-secondary-900">{error}</p>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <input
+                    id="remember-me"
+                    name="remember-me"
+                    type="checkbox"
+                    className="h-4 w-4 text-brand-middle focus:ring-brand-middle border-secondary-300 rounded"
+                  />
+                  <label htmlFor="remember-me" className="ml-2 block text-sm text-secondary-700">
+                    Remember me
+                  </label>
+                </div>
+
+                <div className="text-sm">
+                  <a href="#" className="font-medium text-brand-middle hover:text-hover-magenta transition-colors">
+                    Forgot your password?
+                  </a>
+                </div>
+              </div>
+
+              <Button
+                type="submit"
+                variant="gradient"
+                disabled={isLoading}
+                className="w-full"
+              >
+                {isLoading ? 'Signing in...' : 'Sign in'}
+              </Button>
+
+              <div className="text-center">
+                <span className="text-sm text-secondary-600">
+                  Are you an employee?{' '}
+                  <Link href="/employee/login" className="font-medium text-brand-middle hover:text-hover-magenta transition-colors">
+                    Sign in here
+                  </Link>
+                </span>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* Demo Credentials */}
+        <div className="text-center">
+          <div className="inline-block bg-light-yellow rounded-lg px-4 py-3">
+            <p className="text-sm font-medium text-secondary-900 mb-1">Demo credentials:</p>
+            <p className="text-sm font-mono text-secondary-700">admin@company.co.za / admin123</p>
           </div>
-
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <p className="text-sm text-red-800">{error}</p>
-            </div>
-          )}
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
-            </div>
-
-            <div className="text-sm">
-              <a href="#" className="font-medium text-primary-600 hover:text-primary-500">
-                Forgot your password?
-              </a>
-            </div>
-          </div>
-
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-
-          <div className="text-center">
-            <span className="text-sm text-gray-600">
-              Are you an employee?{' '}
-              <Link href="/employee/login" className="font-medium text-primary-600 hover:text-primary-500">
-                Sign in here
-              </Link>
-            </span>
-          </div>
-        </form>
-
-        <div className="text-center text-xs text-gray-500">
-          <p>Demo credentials:</p>
-          <p className="font-mono">admin@company.co.za / admin123</p>
         </div>
       </div>
     </div>
