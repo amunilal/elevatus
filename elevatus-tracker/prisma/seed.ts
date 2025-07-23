@@ -116,7 +116,7 @@ async function main() {
       employeeCode: 'EMP001',
       idNumber: '9001015800084',
       designation: 'Senior Developer',
-      department: 'Engineering',
+      department: 'Backend',
       teamId: engineeringTeam.id,
       phoneNumber: '+27 82 123 4567'
     },
@@ -126,8 +126,8 @@ async function main() {
       lastName: 'Smith',
       employeeCode: 'EMP002',
       idNumber: '9203045800085',
-      designation: 'Software Developer',
-      department: 'Engineering',
+      designation: 'Developer',
+      department: 'Frontend',
       teamId: engineeringTeam.id,
       phoneNumber: '+27 83 234 5678'
     },
@@ -137,7 +137,7 @@ async function main() {
       lastName: 'Jones',
       employeeCode: 'EMP003',
       idNumber: '8801015800086',
-      designation: 'Sales Executive',
+      designation: 'Sales Manager',
       department: 'Sales',
       teamId: salesTeam.id,
       phoneNumber: '+27 84 345 6789'

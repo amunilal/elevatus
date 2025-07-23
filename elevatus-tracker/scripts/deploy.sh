@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Elevatus Employee Tracker - Vercel Deployment Script"
+echo "🚀 ElevateUs Employee Tracker - Vercel Deployment Script"
 echo "============================================================="
 echo ""
 
@@ -134,7 +134,7 @@ if [ $? -eq 0 ]; then
     echo "     npx prisma migrate deploy"
     echo "     npx prisma db seed (optional)"
     echo ""
-    echo -e "${GREEN}🌐 Your Elevatus Employee Tracker is now live!${NC}"
+    echo -e "${GREEN}🌐 Your ElevateUs Employee Tracker is now live!${NC}"
 else
     echo -e "${RED}❌ Deployment failed. Please check the error messages above.${NC}"
     exit 1

@@ -64,7 +64,7 @@ async function main() {
       lastName: 'Doe',
       employeeCode: 'EMP001',
       designation: 'Senior Developer',
-      department: 'Information Technology',
+      department: 'Backend',
       hiredDate: new Date('2023-01-15'),
       idNumber: '9001015800084'
     },
@@ -73,8 +73,8 @@ async function main() {
       firstName: 'Jane',
       lastName: 'Smith',
       employeeCode: 'EMP002',
-      designation: 'Software Developer',
-      department: 'Information Technology',
+      designation: 'Developer',
+      department: 'Frontend',
       hiredDate: new Date('2023-02-01'),
       idNumber: '9203045800085'
     },
@@ -83,7 +83,7 @@ async function main() {
       firstName: 'Peter',
       lastName: 'Jones',
       employeeCode: 'EMP003',
-      designation: 'Sales Executive',
+      designation: 'Sales Manager',
       department: 'Sales',
       hiredDate: new Date('2023-03-01'),
       idNumber: '8801015800086'

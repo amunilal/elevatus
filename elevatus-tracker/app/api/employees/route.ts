@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { isValidDepartmentPosition } from '@/lib/departmentPositions'
 
 const prisma = new PrismaClient()
 
@@ -77,6 +78,14 @@ export async function POST(request: NextRequest) {
     if (body.hireDate && isNaN(new Date(body.hireDate).getTime())) {
       return NextResponse.json(
         { error: 'Invalid hire date format' },
+        { status: 400 }
+      )
+    }
+
+    // Validate department-position combination
+    if (!isValidDepartmentPosition(body.department, body.position)) {
+      return NextResponse.json(
+        { error: `Invalid position "${body.position}" for department "${body.department}"` },
         { status: 400 }
       )
     }

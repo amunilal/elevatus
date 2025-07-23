@@ -12,7 +12,7 @@ export default function EmployeeDashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">Elevatus</h1>
+              <h1 className="text-2xl font-bold text-gray-900">ElevateUs</h1>
               <span className="ml-2 px-2 py-1 text-xs bg-secondary-100 text-secondary-800 rounded-full">
                 Employee Portal
               </span>

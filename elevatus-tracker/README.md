@@ -1,4 +1,4 @@
-# Elevatus Employee Tracker
+# ElevateUs Employee Tracker
 
 A comprehensive employee management system built with Next.js 14, TypeScript, Prisma, and Neon database. Features dual portal architecture for employers and employees with South African compliance (BCEA, POPIA).
 
@@ -322,7 +322,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Contact
 
 - **Developer**: Ashveer Munil
-- **Company**: Elevatus
+- **Company**: ElevateUs
 - **Email**: ashveer@elevatus.co.za
 - **Website**: [elevatus.co.za](https://elevatus.co.za)
 

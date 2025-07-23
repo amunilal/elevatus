@@ -1,11 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { useToast } from '@/contexts/ToastContext'
+import { getDepartments, getPositionsForDepartment, isValidDepartmentPosition } from '@/lib/departmentPositions'
 
 export default function NewEmployeePage() {
   const router = useRouter()
+  const { showToast } = useToast()
   const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     firstName: '',
@@ -29,6 +32,24 @@ export default function NewEmployeePage() {
   })
 
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [availablePositions, setAvailablePositions] = useState<string[]>([])
+  const [departments] = useState<string[]>(getDepartments())
+
+  // Update available positions when department changes
+  useEffect(() => {
+    if (formData.department) {
+      const positions = getPositionsForDepartment(formData.department)
+      setAvailablePositions(positions)
+      
+      // Clear position if it's not valid for the new department
+      if (formData.position && !positions.includes(formData.position)) {
+        setFormData(prev => ({ ...prev, position: '' }))
+      }
+    } else {
+      setAvailablePositions([])
+      setFormData(prev => ({ ...prev, position: '' }))
+    }
+  }, [formData.department, formData.position])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -46,8 +67,11 @@ export default function NewEmployeePage() {
     if (!formData.email.trim()) newErrors.email = 'Email is required'
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = 'Email is invalid'
     if (!formData.employeeNumber.trim()) newErrors.employeeNumber = 'Employee number is required'
-    if (!formData.position.trim()) newErrors.position = 'Position is required'
     if (!formData.department.trim()) newErrors.department = 'Department is required'
+    if (!formData.position.trim()) newErrors.position = 'Position is required'
+    else if (formData.department && !isValidDepartmentPosition(formData.department, formData.position)) {
+      newErrors.position = 'Invalid position for selected department'
+    }
     if (!formData.hireDate) newErrors.hireDate = 'Hire date is required'
     if (!formData.salary) newErrors.salary = 'Salary is required'
     else if (isNaN(Number(formData.salary)) || Number(formData.salary) <= 0) {
@@ -77,12 +101,29 @@ export default function NewEmployeePage() {
       })
 
       if (response.ok) {
+        showToast({
+          type: 'success',
+          title: 'Employee created successfully',
+          duration: 4000
+        })
         router.push('/employer/employees')
       } else {
         const error = await response.json()
+        showToast({
+          type: 'error',
+          title: 'Failed to create employee',
+          message: error.error || 'Please check the form and try again',
+          duration: 6000
+        })
         setErrors({ submit: error.error || 'Failed to create employee' })
       }
     } catch (error) {
+      showToast({
+        type: 'error',
+        title: 'Failed to create employee',
+        message: 'Network error. Please try again.',
+        duration: 6000
+      })
       setErrors({ submit: 'Network error. Please try again.' })
     } finally {
       setLoading(false)
@@ -243,15 +284,24 @@ export default function NewEmployeePage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Position *
                 </label>
-                <input
-                  type="text"
+                <select
                   name="position"
                   value={formData.position}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  disabled={!formData.department}
+                  className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed ${
                     errors.position ? 'border-red-500' : 'border-gray-300'
                   }`}
-                />
+                >
+                  <option value="">
+                    {formData.department ? 'Select Position' : 'Select Department First'}
+                  </option>
+                  {availablePositions.map(position => (
+                    <option key={position} value={position}>
+                      {position}
+                    </option>
+                  ))}
+                </select>
                 {errors.position && <p className="text-red-500 text-sm mt-1">{errors.position}</p>}
               </div>
 
@@ -268,13 +318,11 @@ export default function NewEmployeePage() {
                   }`}
                 >
                   <option value="">Select Department</option>
-                  <option value="Human Resources">Human Resources</option>
-                  <option value="Information Technology">Information Technology</option>
-                  <option value="Finance">Finance</option>
-                  <option value="Marketing">Marketing</option>
-                  <option value="Sales">Sales</option>
-                  <option value="Operations">Operations</option>
-                  <option value="Customer Service">Customer Service</option>
+                  {departments.map(department => (
+                    <option key={department} value={department}>
+                      {department}
+                    </option>
+                  ))}
                 </select>
                 {errors.department && <p className="text-red-500 text-sm mt-1">{errors.department}</p>}
               </div>
