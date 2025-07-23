@@ -125,18 +125,18 @@ export async function POST(request: NextRequest) {
         emergencyContact: body.emergencyContactName ? {
           name: body.emergencyContactName,
           phone: body.emergencyContactPhone || ''
-        } : null,
+        } : undefined,
         bankDetails: body.bankAccount ? {
           accountNumber: body.bankAccount,
           bankName: body.bankName || '',
           branchCode: body.branchCode || ''
-        } : null,
+        } : undefined,
         taxDetails: body.taxNumber ? {
           taxNumber: body.taxNumber
-        } : null,
+        } : undefined,
         address: body.address ? {
           physical: body.address
-        } : null
+        } : undefined
       }
     })
 
