@@ -2,15 +2,26 @@
 
 This guide will help you properly configure environment variables for your Elevatus deployment on Vercel.
 
-## Required Environment Variables
+## Option 1: Using Neon Vercel Integration (Recommended)
 
-You need to set up the following environment variables in your Vercel project:
+The easiest way to set up your database is using the Neon Vercel Integration:
 
-1. **DATABASE_URL** - Your Neon PostgreSQL connection string
-2. **NEXTAUTH_URL** - Your application URL
-3. **NEXTAUTH_SECRET** - A secure random string for NextAuth.js
+1. **In your Vercel project dashboard**, go to the "Integrations" tab
+2. Search for "Neon" and click "Add Integration"
+3. Follow the setup process to:
+   - Create a new Neon project or connect an existing one
+   - The integration will automatically add the DATABASE_URL to your Vercel project
+4. The integration manages the DATABASE_URL for you across all environments
 
-## Step-by-Step Setup
+### Benefits of Using the Integration:
+- Automatic DATABASE_URL management
+- Separate databases for production, preview, and development
+- Automatic database branching for preview deployments
+- No manual connection string handling
+
+## Option 2: Manual Setup
+
+If you prefer to set up the database connection manually:
 
 ### 1. Get Your Neon Database URL
 
@@ -36,9 +47,15 @@ Or use an online generator: https://generate-secret.vercel.app/32
 1. Go to your [Vercel Dashboard](https://vercel.com/dashboard)
 2. Select your project
 3. Navigate to "Settings" → "Environment Variables"
-4. Add each variable:
 
-   **DATABASE_URL**
+   **For Neon Integration Users:**
+   - DATABASE_URL is already set up by the integration
+   - Only add NEXTAUTH_URL and NEXTAUTH_SECRET
+
+   **For Manual Setup:**
+   Add each variable:
+
+   **DATABASE_URL** (only if not using Neon integration)
    - Key: `DATABASE_URL`
    - Value: Your Neon connection string (from step 1)
    - Environment: ✓ Production, ✓ Preview, ✓ Development

@@ -279,13 +279,16 @@ The application is designed to support both traditional and serverless deploymen
    - Vercel will auto-detect Next.js settings once the root directory is set
 
 3. **Set Environment Variables**:
-   In your Vercel project settings (Settings → Environment Variables), add:
    
-   - **DATABASE_URL**: Your Neon connection string (paste the actual value, not @database_url)
+   **Option A - Using Neon Integration (Recommended):**
+   - Add the Neon integration from Vercel's Integrations marketplace
+   - DATABASE_URL will be automatically managed
+   - Only add: NEXTAUTH_URL and NEXTAUTH_SECRET
+   
+   **Option B - Manual Setup:**
+   - **DATABASE_URL**: Your Neon connection string (paste actual value)
    - **NEXTAUTH_URL**: `https://your-app.vercel.app` (use your actual domain)
    - **NEXTAUTH_SECRET**: Generate with `openssl rand -base64 32`
-   
-   ⚠️ **IMPORTANT**: Do NOT use the `@secret_name` format - paste the actual values directly!
    
    See [VERCEL_ENV_SETUP.md](./VERCEL_ENV_SETUP.md) for detailed instructions.
 
