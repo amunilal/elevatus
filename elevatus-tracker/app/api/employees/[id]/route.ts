@@ -64,7 +64,7 @@ export async function PUT(
             { id: { not: params.id } },
             {
               OR: [
-                ...(body.email ? [{ email: body.email }] : []),
+                ...(body.email ? [{ user: { email: body.email } }] : []),
                 ...(body.employeeNumber ? [{ employeeCode: body.employeeNumber }] : [])
               ]
             }
