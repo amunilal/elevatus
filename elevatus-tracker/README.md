@@ -26,12 +26,13 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 - **Kanban Task Board**: Visual task management with To do/In Progress/Complete/On hold columns
 - **Employee Selection**: Choose from active employees to start reviews
 - **Review History**: Track completed, in-progress, and draft reviews with progress indicators
-- **Task Management**: Create, edit, delete, and move review tasks with drag & drop functionality
-- **Interactive Task Operations**: Add tasks directly to any column with dedicated + buttons
+- **Complete Task Management**: Full CRUD operations with drag & drop functionality
+- **Interactive Task Creation**: Add tasks directly to any column with dedicated + buttons in headers
 - **Inline Task Editing**: Edit task titles with keyboard shortcuts (Enter to save, Escape to cancel)
-- **Review Notes**: Expandable notes section with character count and save functionality
+- **Task Operations**: Delete tasks with confirmation dialogs and visual feedback
+- **Review Notes**: Expandable notes section with character count, save functionality, and loading states
 - **Status Tracking**: Visual progress bars and color-coded status indicators
-- **Modern Interface**: Consistent design system with intuitive navigation
+- **Modern Interface**: Consistent design system with intuitive hover effects and transitions
 
 ### Technical Features
 - **Dual Authentication**: Separate login systems for employers and employees
@@ -264,11 +265,12 @@ The repository includes a GitHub Actions workflow that:
 - BCEA-compliant leave management with policies and bulk operations
 - Employee self-service portal with updated design system
 - Fully functional Quick Actions dashboard with color-coordinated actions
-- Complete performance review system with interactive Kanban-style task boards
-- Individual review pages with drag & drop task management across columns
-- Add, edit, and delete tasks with inline editing and keyboard shortcuts
+- Complete performance review system with fully interactive Kanban-style task boards
+- Individual review pages with seamless drag & drop task management across all columns
+- Comprehensive task operations: create, edit, delete, and move with real-time updates
+- Column-specific add task buttons with color-coded hover states and auto-focus editing
 - Review history dashboard with progress tracking and status management
-- Expandable review notes section with save functionality
+- Advanced review notes section with character counting, save states, and loading indicators
 - Advanced export and import capabilities
 - South African compliance features
 - Responsive mobile-first design with brand-consistent styling
@@ -409,7 +411,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - ✅ **Core Features**: Complete employee management, attendance tracking, leave management
 - ✅ **Quick Actions**: All employer dashboard quick actions fully functional with color coordination
-- ✅ **Performance Reviews**: Complete Kanban-style system with task management and history tracking
+- ✅ **Performance Reviews**: Complete interactive Kanban system with full task lifecycle management
 - ✅ **Modern Design**: Consistent design system applied across all pages
 - ✅ **Advanced Operations**: Bulk operations, exports, reports, and policy management
 - ✅ **CI/CD Pipeline**: GitHub Actions with Neon database branching
