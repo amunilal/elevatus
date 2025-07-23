@@ -25,6 +25,8 @@ export default function EmployeesPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterDepartment, setFilterDepartment] = useState('')
   const [filterStatus, setFilterStatus] = useState('')
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     fetchEmployees()
@@ -58,6 +60,16 @@ export default function EmployeesPage() {
   })
 
   const departments = [...new Set(employees.map(emp => emp.department))]
+
+  const handleRowClick = (employee: Employee) => {
+    setSelectedEmployee(employee)
+    setSidebarOpen(true)
+  }
+
+  const closeSidebar = () => {
+    setSidebarOpen(false)
+    setSelectedEmployee(null)
+  }
 
   if (loading) {
     return (
@@ -229,20 +241,15 @@ export default function EmployeesPage() {
                   <th className="px-8 py-4 text-left text-xs font-semibold text-secondary-700 uppercase tracking-wider">
                     Status
                   </th>
-                  <th className="px-8 py-4 text-left text-xs font-semibold text-secondary-700 uppercase tracking-wider">
-                    Hire Date
-                  </th>
-                  <th className="px-8 py-4 text-left text-xs font-semibold text-secondary-700 uppercase tracking-wider">
-                    Phone Number
-                  </th>
-                  <th className="px-8 py-4 text-right text-xs font-semibold text-secondary-700 uppercase tracking-wider">
-                    Actions
-                  </th>
                 </tr>
               </thead>
               <tbody className="bg-nav-white divide-y divide-secondary-100">
                 {filteredEmployees.map((employee) => (
-                  <tr key={employee.id} className="hover:bg-light-purple transition-colors duration-150">
+                  <tr 
+                    key={employee.id} 
+                    className="hover:bg-light-purple transition-colors duration-150 cursor-pointer"
+                    onClick={() => handleRowClick(employee)}
+                  >
                     <td className="px-8 py-6 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-12 w-12">
@@ -256,8 +263,6 @@ export default function EmployeesPage() {
                           <div className="text-sm font-semibold text-secondary-900">
                             {employee.firstName} {employee.lastName}
                           </div>
-                          <div className="text-sm text-secondary-600">{employee.personalEmail}</div>
-                          <div className="text-xs text-secondary-500 font-mono">#{employee.employeeCode}</div>
                         </div>
                       </div>
                     </td>
@@ -277,26 +282,6 @@ export default function EmployeesPage() {
                       }`}>
                         {employee.employmentStatus}
                       </span>
-                    </td>
-                    <td className="px-8 py-6 whitespace-nowrap text-sm text-secondary-700">
-                      {new Date(employee.hiredDate).toLocaleDateString('en-ZA')}
-                    </td>
-                    <td className="px-8 py-6 whitespace-nowrap text-sm text-secondary-700">
-                      {employee.phoneNumber || 'N/A'}
-                    </td>
-                    <td className="px-8 py-6 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                      <Link
-                        href={`/employer/employees/${employee.id}`}
-                        className="text-brand-middle hover:text-hover-magenta font-medium transition-colors duration-150"
-                      >
-                        View
-                      </Link>
-                      <Link
-                        href={`/employer/employees/${employee.id}/edit`}
-                        className="text-hover-teal hover:text-success-600 font-medium transition-colors duration-150"
-                      >
-                        Edit
-                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -322,6 +307,127 @@ export default function EmployeesPage() {
             </div>
           )}
         </div>
+
+        {/* Employee Detail Sidebar */}
+        {sidebarOpen && selectedEmployee && (
+          <>
+            {/* Backdrop */}
+            <div 
+              className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+              onClick={closeSidebar}
+            />
+            
+            {/* Sidebar */}
+            <div className="fixed right-0 top-0 h-full w-96 bg-nav-white shadow-2xl z-50 transform transition-transform duration-300 ease-in-out">
+              <div className="flex flex-col h-full">
+                {/* Header */}
+                <div className="flex items-center justify-between p-6 border-b border-secondary-200">
+                  <h2 className="text-xl font-bold text-secondary-900">Employee Details</h2>
+                  <button
+                    onClick={closeSidebar}
+                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-light-purple transition-colors"
+                  >
+                    <svg className="w-5 h-5 text-secondary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 overflow-y-auto p-6">
+                  {/* Employee Avatar and Basic Info */}
+                  <div className="text-center mb-8">
+                    <div className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-brand-gradient shadow-soft mb-4">
+                      <span className="text-xl font-bold text-white">
+                        {selectedEmployee.firstName.charAt(0)}{selectedEmployee.lastName.charAt(0)}
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-bold text-secondary-900 mb-1">
+                      {selectedEmployee.firstName} {selectedEmployee.lastName}
+                    </h3>
+                    <p className="text-sm text-secondary-600 mb-2">{selectedEmployee.designation}</p>
+                    <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
+                      selectedEmployee.employmentStatus === 'ACTIVE' 
+                        ? 'bg-success-100 text-success-700'
+                        : selectedEmployee.employmentStatus === 'INACTIVE'
+                        ? 'bg-warning-100 text-warning-700'
+                        : 'bg-error-100 text-error-700'
+                    }`}>
+                      {selectedEmployee.employmentStatus}
+                    </span>
+                  </div>
+
+                  {/* Employee Details */}
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-sm font-semibold text-secondary-700 uppercase tracking-wider mb-3">Contact Information</h4>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-xs text-secondary-500 uppercase tracking-wider">Email</label>
+                          <p className="text-sm font-medium text-secondary-900">{selectedEmployee.personalEmail}</p>
+                        </div>
+                        {selectedEmployee.phoneNumber && (
+                          <div>
+                            <label className="text-xs text-secondary-500 uppercase tracking-wider">Phone</label>
+                            <p className="text-sm font-medium text-secondary-900">{selectedEmployee.phoneNumber}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h4 className="text-sm font-semibold text-secondary-700 uppercase tracking-wider mb-3">Work Information</h4>
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-xs text-secondary-500 uppercase tracking-wider">Employee Code</label>
+                          <p className="text-sm font-medium text-secondary-900 font-mono">#{selectedEmployee.employeeCode}</p>
+                        </div>
+                        <div>
+                          <label className="text-xs text-secondary-500 uppercase tracking-wider">Department</label>
+                          <p className="text-sm font-medium text-secondary-900">{selectedEmployee.department}</p>
+                        </div>
+                        <div>
+                          <label className="text-xs text-secondary-500 uppercase tracking-wider">Position</label>
+                          <p className="text-sm font-medium text-secondary-900">{selectedEmployee.designation}</p>
+                        </div>
+                        <div>
+                          <label className="text-xs text-secondary-500 uppercase tracking-wider">Hire Date</label>
+                          <p className="text-sm font-medium text-secondary-900">
+                            {new Date(selectedEmployee.hiredDate).toLocaleDateString('en-ZA')}
+                          </p>
+                        </div>
+                        {selectedEmployee.idNumber && (
+                          <div>
+                            <label className="text-xs text-secondary-500 uppercase tracking-wider">ID Number</label>
+                            <p className="text-sm font-medium text-secondary-900">{selectedEmployee.idNumber}</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Actions */}
+                <div className="border-t border-secondary-200 p-6">
+                  <div className="flex space-x-3">
+                    <Link
+                      href={`/employer/employees/${selectedEmployee.id}`}
+                      className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-secondary-300 bg-white text-secondary-900 hover:bg-light-purple hover:border-hover-lavender focus:ring-brand-middle h-10 px-4 py-2"
+                    >
+                      View Full Profile
+                    </Link>
+                    <Link
+                      href={`/employer/employees/${selectedEmployee.id}/edit`}
+                      className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle transform hover:-translate-y-0.5 shadow-soft hover:shadow-medium h-10 px-4 py-2"
+                    >
+                      Edit Employee
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

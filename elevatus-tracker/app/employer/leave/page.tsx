@@ -149,19 +149,19 @@ function LeaveContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-bg-base p-6">
         <div className="max-w-7xl mx-auto">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-64 mb-8"></div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-white p-6 rounded-lg shadow-sm">
+                <div key={i} className="bg-nav-white p-6 rounded-2xl shadow-soft">
                   <div className="h-4 bg-gray-200 rounded mb-2"></div>
                   <div className="h-8 bg-gray-200 rounded"></div>
                 </div>
               ))}
             </div>
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-nav-white rounded-2xl shadow-soft p-6">
               <div className="space-y-4">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="h-16 bg-gray-200 rounded"></div>
@@ -175,11 +175,11 @@ function LeaveContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-bg-base p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Leave Management</h1>
+          <h1 className="text-3xl font-bold text-secondary-900">Leave Management</h1>
           <div className="flex space-x-3">
             <Link
               href="/employer/dashboard"
@@ -205,58 +205,58 @@ function LeaveContent() {
         {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-nav-white p-6 rounded-2xl shadow-soft">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
-                    <span className="text-yellow-600 font-semibold text-sm">⏳</span>
+                  <div className="w-10 h-10 bg-warning-100 rounded-lg flex items-center justify-center">
+                    <span className="text-warning-600 font-semibold text-sm">⏳</span>
                   </div>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-gray-500">Pending</p>
-                  <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+                  <p className="text-sm text-secondary-600">Pending</p>
+                  <p className="text-2xl font-bold text-secondary-900">{stats.pending}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-nav-white p-6 rounded-2xl shadow-soft">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                    <span className="text-green-600 font-semibold text-sm">✅</span>
+                  <div className="w-10 h-10 bg-success-100 rounded-lg flex items-center justify-center">
+                    <span className="text-success-600 font-semibold text-sm">✅</span>
                   </div>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-gray-500">Approved</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.approved}</p>
+                  <p className="text-sm text-secondary-600">Approved</p>
+                  <p className="text-2xl font-bold text-secondary-900">{stats.approved}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-nav-white p-6 rounded-2xl shadow-soft">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center">
-                    <span className="text-red-600 font-semibold text-sm">❌</span>
+                  <div className="w-10 h-10 bg-error-100 rounded-lg flex items-center justify-center">
+                    <span className="text-error-600 font-semibold text-sm">❌</span>
                   </div>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-gray-500">Rejected</p>
-                  <p className="text-2xl font-bold text-red-600">{stats.rejected}</p>
+                  <p className="text-sm text-secondary-600">Rejected</p>
+                  <p className="text-2xl font-bold text-secondary-900">{stats.rejected}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-lg shadow-sm">
+            <div className="bg-nav-white p-6 rounded-2xl shadow-soft">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
-                  <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                    <span className="text-purple-600 font-semibold text-sm">📊</span>
+                  <div className="w-10 h-10 bg-hover-lavender rounded-lg flex items-center justify-center">
+                    <span className="text-brand-middle font-semibold text-sm">📊</span>
                   </div>
                 </div>
                 <div className="ml-4">
-                  <p className="text-sm text-gray-500">Total Days</p>
-                  <p className="text-2xl font-bold text-purple-600">{stats.totalDays}</p>
+                  <p className="text-sm text-secondary-600">Total Days</p>
+                  <p className="text-2xl font-bold text-secondary-900">{stats.totalDays}</p>
                 </div>
               </div>
             </div>
@@ -264,7 +264,7 @@ function LeaveContent() {
         )}
 
         {/* Filters */}
-        <div className="bg-white p-6 rounded-lg shadow-sm mb-6">
+        <div className="bg-nav-white p-6 rounded-2xl shadow-soft mb-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -332,16 +332,16 @@ function LeaveContent() {
         </div>
 
         {/* Leave Requests */}
-        <div className="bg-white shadow-sm rounded-lg overflow-hidden">
-          <div className="px-6 py-4 bg-gray-50 border-b">
-            <h2 className="text-lg font-semibold text-gray-900">
+        <div className="bg-nav-white shadow-soft rounded-2xl overflow-hidden">
+          <div className="px-6 py-4 bg-light-purple border-b">
+            <h2 className="text-lg font-semibold text-secondary-900">
               Leave Requests ({requests.length})
             </h2>
           </div>
           
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+              <thead className="bg-light-purple">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Employee
@@ -366,9 +366,9 @@ function LeaveContent() {
                   </th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-nav-white divide-y divide-secondary-100">
                 {requests.map((request) => (
-                  <tr key={request.id} className="hover:bg-gray-50">
+                  <tr key={request.id} className="hover:bg-light-purple">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="flex-shrink-0 h-8 w-8">
@@ -451,8 +451,8 @@ function LeaveContent() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white p-6 rounded-lg shadow-sm mt-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <div className="bg-nav-white p-6 rounded-2xl shadow-soft mt-6">
+          <h2 className="text-lg font-semibold text-secondary-900 mb-4">Quick Actions</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             <Link
               href="/employer/leave/reports"
@@ -492,19 +492,19 @@ function LeaveContent() {
 export default function LeavePage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen bg-bg-base p-6">
         <div className="max-w-7xl mx-auto">
           <div className="animate-pulse">
             <div className="h-8 bg-gray-200 rounded w-64 mb-8"></div>
             <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="bg-white p-6 rounded-lg shadow-sm">
+                <div key={i} className="bg-nav-white p-6 rounded-2xl shadow-soft">
                   <div className="h-4 bg-gray-200 rounded mb-2"></div>
                   <div className="h-8 bg-gray-200 rounded"></div>
                 </div>
               ))}
             </div>
-            <div className="bg-white rounded-lg shadow-sm p-6">
+            <div className="bg-nav-white rounded-2xl shadow-soft p-6">
               <div className="space-y-4">
                 {[1, 2, 3, 4, 5].map((i) => (
                   <div key={i} className="h-16 bg-gray-200 rounded"></div>
