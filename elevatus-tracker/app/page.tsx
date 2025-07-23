@@ -57,22 +57,22 @@ export default function HomePage() {
             
             {/* Portal Buttons */}
             <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
-              <Button variant="gradient" size="lg" asChild>
-                <Link href="/employer/login" className="flex items-center justify-start">
+              <div className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white border border-secondary-200 text-secondary-900 hover:bg-brand-gradient hover:text-white hover:border-transparent focus:ring-brand-middle transform hover:-translate-y-0.5 shadow-soft hover:shadow-large h-11 px-8">
+                <Link href="/employer/login" className="flex items-center justify-start w-full">
                   <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                   </svg>
                   <span>Employer Portal</span>
                 </Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link href="/employee/login" className="flex items-center justify-start">
+              </div>
+              <div className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-white border border-secondary-200 text-secondary-900 hover:bg-brand-gradient hover:text-white hover:border-transparent focus:ring-brand-middle transform hover:-translate-y-0.5 shadow-soft hover:shadow-large h-11 px-8">
+                <Link href="/employee/login" className="flex items-center justify-start w-full">
                   <svg className="w-5 h-5 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                   </svg>
                   <span>Employee Portal</span>
                 </Link>
-              </Button>
+              </div>
             </div>
           </div>
         </div>
