@@ -26,8 +26,10 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 - **Kanban Task Board**: Visual task management with To do/In Progress/Complete/On hold columns
 - **Employee Selection**: Choose from active employees to start reviews
 - **Review History**: Track completed, in-progress, and draft reviews with progress indicators
-- **Task Management**: Add, move, and complete review tasks with date tracking
-- **Review Notes**: Expandable notes section for detailed feedback
+- **Task Management**: Create, edit, delete, and move review tasks with drag & drop functionality
+- **Interactive Task Operations**: Add tasks directly to any column with dedicated + buttons
+- **Inline Task Editing**: Edit task titles with keyboard shortcuts (Enter to save, Escape to cancel)
+- **Review Notes**: Expandable notes section with character count and save functionality
 - **Status Tracking**: Visual progress bars and color-coded status indicators
 - **Modern Interface**: Consistent design system with intuitive navigation
 
@@ -262,9 +264,11 @@ The repository includes a GitHub Actions workflow that:
 - BCEA-compliant leave management with policies and bulk operations
 - Employee self-service portal with updated design system
 - Fully functional Quick Actions dashboard with color-coordinated actions
-- Complete performance review system with Kanban-style task boards
-- Individual review pages with To do/In Progress/Complete/On hold columns
+- Complete performance review system with interactive Kanban-style task boards
+- Individual review pages with drag & drop task management across columns
+- Add, edit, and delete tasks with inline editing and keyboard shortcuts
 - Review history dashboard with progress tracking and status management
+- Expandable review notes section with save functionality
 - Advanced export and import capabilities
 - South African compliance features
 - Responsive mobile-first design with brand-consistent styling
