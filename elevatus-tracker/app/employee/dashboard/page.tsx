@@ -1,3 +1,5 @@
+'use client'
+
 export default function EmployeeDashboardPage() {
   const currentDate = new Date().toLocaleDateString('en-ZA', {
     weekday: 'long',
@@ -19,7 +21,17 @@ export default function EmployeeDashboardPage() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">john.doe@company.co.za</span>
-              <button className="text-sm text-red-600 hover:text-red-800">
+              <button 
+                onClick={() => {
+                  // Clear any stored auth data and redirect to login
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('user')
+                    sessionStorage.clear()
+                    window.location.href = '/employee/login'
+                  }
+                }}
+                className="text-sm text-red-600 hover:text-red-800"
+              >
                 Sign out
               </button>
             </div>

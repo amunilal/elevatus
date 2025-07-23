@@ -29,6 +29,7 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 - **Responsive Design**: Mobile-first design with Tailwind CSS
 - **Database Branching**: Automatic preview environments with Neon
 - **CI/CD Pipeline**: GitHub Actions with automated testing and deployment
+- **Development Test Data**: Auto-fill forms with realistic South African test data
 
 ## 🏗️ Tech Stack
 
@@ -143,6 +144,16 @@ npm run db:push      # Push schema to database
 npm run db:seed      # Seed database
 ```
 
+### Development Test Data
+In development mode (`NODE_ENV=development`), forms include "Fill Test Data" buttons that automatically populate forms with realistic South African data:
+
+- **Employee Forms**: Names, SA ID numbers, banking details, addresses across provinces
+- **Attendance Forms**: Realistic attendance records with different statuses  
+- **Leave Forms**: BCEA-compliant leave requests with proper reasons
+- **Smart Dropdowns**: Department-specific positions, major SA banks, realistic addresses
+
+This feature speeds up testing and development by eliminating manual data entry.
+
 ### Database Management
 ```bash
 # View database in browser
@@ -247,6 +258,7 @@ The repository includes a GitHub Actions workflow that:
 - Responsive mobile-first design
 - Database branching for PRs
 - Automated CI/CD pipeline
+- Development test data with auto-fill functionality
 
 ### Planned Features 🚧
 - Performance review system

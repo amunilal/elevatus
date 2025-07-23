@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { getTestAttendanceRecords, getTestEmployees, isDevelopment } from '../../../../lib/test-data'
 
 interface Employee {
   id: string
@@ -28,6 +29,24 @@ export default function ManualAttendancePage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
 
+  // Auto-fill with test data in development
+  const fillWithTestData = () => {
+    const testRecords = getTestAttendanceRecords()
+    if (testRecords.length > 0) {
+      const randomRecord = testRecords[Math.floor(Math.random() * testRecords.length)]
+      setFormData({
+        employeeId: randomRecord.employeeId,
+        date: randomRecord.date,
+        clockIn: randomRecord.clockIn || '08:00',
+        clockOut: randomRecord.clockOut || '17:00',
+        breakDuration: randomRecord.breakDuration?.toString() || '30',
+        status: randomRecord.status,
+        notes: randomRecord.notes || ''
+      })
+      setErrors({})
+    }
+  }
+
   useEffect(() => {
     fetchEmployees()
   }, [])
@@ -36,9 +55,16 @@ export default function ManualAttendancePage() {
     try {
       const response = await fetch('/api/employees')
       const data = await response.json()
-      setEmployees(data)
+      
+      if (response.ok && Array.isArray(data)) {
+        setEmployees(data)
+      } else {
+        console.error('Failed to fetch employees:', data.error || 'Invalid response')
+        setEmployees([])
+      }
     } catch (error) {
       console.error('Failed to fetch employees:', error)
+      setEmployees([])
     }
   }
 
@@ -143,12 +169,23 @@ export default function ManualAttendancePage() {
             <h1 className="text-3xl font-bold text-gray-900">Manual Attendance Entry</h1>
             <p className="text-gray-600 mt-2">Add attendance record manually</p>
           </div>
-          <Link
-            href="/employer/attendance"
-            className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
-          >
-            Back to Attendance
-          </Link>
+          <div className="flex space-x-3">
+            {isDevelopment() && (
+              <button
+                type="button"
+                onClick={fillWithTestData}
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
+              >
+                Fill Test Data
+              </button>
+            )}
+            <Link
+              href="/employer/attendance"
+              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+            >
+              Back to Attendance
+            </Link>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">

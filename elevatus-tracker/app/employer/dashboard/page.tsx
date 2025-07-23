@@ -1,3 +1,5 @@
+'use client'
+
 import Link from 'next/link'
 
 export default function EmployerDashboardPage() {
@@ -14,7 +16,17 @@ export default function EmployerDashboardPage() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">admin@company.co.za</span>
-              <button className="text-sm text-red-600 hover:text-red-800">
+              <button 
+                onClick={() => {
+                  // Clear any stored auth data and redirect to login
+                  if (typeof window !== 'undefined') {
+                    localStorage.removeItem('user')
+                    sessionStorage.clear()
+                    window.location.href = '/employer/login'
+                  }
+                }}
+                className="text-sm text-red-600 hover:text-red-800"
+              >
                 Sign out
               </button>
             </div>

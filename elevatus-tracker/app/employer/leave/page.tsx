@@ -97,9 +97,16 @@ function LeaveContent() {
     try {
       const response = await fetch('/api/employees')
       const data = await response.json()
-      setEmployees(data)
+      
+      if (response.ok && Array.isArray(data)) {
+        setEmployees(data)
+      } else {
+        console.error('Failed to fetch employees:', data.error || 'Invalid response')
+        setEmployees([])
+      }
     } catch (error) {
       console.error('Failed to fetch employees:', error)
+      setEmployees([])
     }
   }
 
