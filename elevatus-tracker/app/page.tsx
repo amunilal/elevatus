@@ -41,7 +41,7 @@ export default function HomePage() {
                   </defs>
                 </svg>
               </div>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-brand-start via-brand-middle to-brand-end bg-clip-text text-transparent">
+              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-brand-left via-brand-middle to-brand-right bg-clip-text text-transparent">
                 ElevateUs
               </h1>
             </div>
