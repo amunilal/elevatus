@@ -213,6 +213,12 @@ export default function EditEmployeePage() {
           </div>
           <div className="flex space-x-3">
             <Link
+              href="/employer/dashboard"
+              className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 transition-colors"
+            >
+              Dashboard
+            </Link>
+            <Link
               href={`/employer/employees/${params.id}`}
               className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
             >

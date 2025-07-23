@@ -82,12 +82,20 @@ export default function EmployeesPage() {
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Employee Management</h1>
-          <Link
-            href="/employer/employees/new"
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
-          >
-            Add New Employee
-          </Link>
+          <div className="flex space-x-3">
+            <Link
+              href="/employer/dashboard"
+              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+            >
+              Dashboard
+            </Link>
+            <Link
+              href="/employer/employees/new"
+              className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+            >
+              Add New Employee
+            </Link>
+          </div>
         </div>
 
         {/* Filters */}
