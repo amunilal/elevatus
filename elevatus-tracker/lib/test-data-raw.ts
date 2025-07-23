@@ -1,0 +1,394 @@
+export const testData = {
+  "employees": [
+    {
+      "firstName": "Thabo",
+      "lastName": "Mthembu",
+      "email": "thabo.mthembu@elevatus.co.za",
+      "employeeNumber": "EMP001",
+      "position": "Senior Software Engineer",
+      "department": "Engineering",
+      "hiredDate": "2023-03-15",
+      "salary": 85000,
+      "idNumber": "9206285487089",
+      "phoneNumber": "+27 82 456 7890",
+      "address": "45 Sandton Drive, Sandton, Johannesburg, 2196",
+      "taxNumber": "9206285487089",
+      "bankName": "Standard Bank",
+      "branchCode": "051001",
+      "bankAccount": "123456789",
+      "emergencyContactName": "Nomsa Mthembu",
+      "emergencyContactPhone": "+27 83 234 5678",
+      "status": "ACTIVE"
+    },
+    {
+      "firstName": "Sarah",
+      "lastName": "van der Merwe",
+      "email": "sarah.vandermerwe@elevatus.co.za",
+      "employeeNumber": "EMP002",
+      "position": "Marketing Manager",
+      "department": "Marketing",
+      "hiredDate": "2022-08-01",
+      "salary": 75000,
+      "idNumber": "8811134567082",
+      "phoneNumber": "+27 71 987 6543",
+      "address": "12 Kloof Street, Cape Town, 8001",
+      "taxNumber": "8811134567082",
+      "bankName": "FNB",
+      "branchCode": "250655",
+      "bankAccount": "987654321",
+      "emergencyContactName": "Johan van der Merwe",
+      "emergencyContactPhone": "+27 72 345 6789",
+      "status": "ACTIVE"
+    },
+    {
+      "firstName": "Mandla",
+      "lastName": "Nkomo",
+      "email": "mandla.nkomo@elevatus.co.za",
+      "employeeNumber": "EMP003",
+      "position": "HR Specialist",
+      "department": "Human Resources",
+      "hiredDate": "2023-01-10",
+      "salary": 55000,
+      "idNumber": "9509153458076",
+      "phoneNumber": "+27 84 111 2233",
+      "address": "78 Church Street, Pretoria, 0002",
+      "taxNumber": "9509153458076",
+      "bankName": "ABSA",
+      "branchCode": "632005",
+      "bankAccount": "456789123",
+      "emergencyContactName": "Lindiwe Nkomo",
+      "emergencyContactPhone": "+27 85 444 5566",
+      "status": "ACTIVE"
+    },
+    {
+      "firstName": "Priya",
+      "lastName": "Patel",
+      "email": "priya.patel@elevatus.co.za",
+      "employeeNumber": "EMP004",
+      "position": "Financial Analyst",
+      "department": "Finance",
+      "hiredDate": "2023-05-20",
+      "salary": 68000,
+      "idNumber": "9312087856043",
+      "phoneNumber": "+27 73 789 0123",
+      "address": "156 Smith Street, Durban, 4001",
+      "taxNumber": "9312087856043",
+      "bankName": "Nedbank",
+      "branchCode": "198765",
+      "bankAccount": "321654987",
+      "emergencyContactName": "Raj Patel",
+      "emergencyContactPhone": "+27 74 567 8901",
+      "status": "ACTIVE"
+    },
+    {
+      "firstName": "Jacques",
+      "lastName": "Rousseau",
+      "email": "jacques.rousseau@elevatus.co.za",
+      "employeeNumber": "EMP005",
+      "position": "Sales Representative",
+      "department": "Sales",
+      "hiredDate": "2022-11-03",
+      "salary": 52000,
+      "idNumber": "8705129876054",
+      "phoneNumber": "+27 76 234 5678",
+      "address": "23 Main Road, Stellenbosch, 7600",
+      "taxNumber": "8705129876054",
+      "bankName": "Capitec Bank",
+      "branchCode": "470010",
+      "bankAccount": "789123456",
+      "emergencyContactName": "Marie Rousseau",
+      "emergencyContactPhone": "+27 77 345 6789",
+      "status": "ACTIVE"
+    },
+    {
+      "firstName": "Zinhle",
+      "lastName": "Dlamini",
+      "email": "zinhle.dlamini@elevatus.co.za",
+      "employeeNumber": "EMP006",
+      "position": "Junior Developer",
+      "department": "Engineering",
+      "hiredDate": "2023-07-01",
+      "salary": 45000,
+      "idNumber": "9804156789012",
+      "phoneNumber": "+27 78 456 7890",
+      "address": "67 Victoria Street, Pietermaritzburg, 3201",
+      "taxNumber": "9804156789012",
+      "bankName": "Standard Bank",
+      "branchCode": "051001",
+      "bankAccount": "654321987",
+      "emergencyContactName": "Sipho Dlamini",
+      "emergencyContactPhone": "+27 79 567 8901",
+      "status": "ACTIVE"
+    },
+    {
+      "firstName": "Michael",
+      "lastName": "O'Connor",
+      "email": "michael.oconnor@elevatus.co.za",
+      "employeeNumber": "EMP007",
+      "position": "Operations Manager",
+      "department": "Operations",
+      "hiredDate": "2021-04-12",
+      "salary": 95000,
+      "idNumber": "8209174563082",
+      "phoneNumber": "+27 81 789 0123",
+      "address": "89 Sea Point Promenade, Cape Town, 8005",
+      "taxNumber": "8209174563082",
+      "bankName": "FNB",
+      "branchCode": "250655",
+      "bankAccount": "147258369",
+      "emergencyContactName": "Emma O'Connor",
+      "emergencyContactPhone": "+27 82 890 1234",
+      "status": "ACTIVE"
+    },
+    {
+      "firstName": "Fatima",
+      "lastName": "Khan",
+      "email": "fatima.khan@elevatus.co.za",
+      "employeeNumber": "EMP008",
+      "position": "UX Designer",
+      "department": "Design",
+      "hiredDate": "2023-02-14",
+      "salary": 62000,
+      "idNumber": "9108235647089",
+      "phoneNumber": "+27 83 012 3456",
+      "address": "34 Long Street, Cape Town, 8000",
+      "taxNumber": "9108235647089",
+      "bankName": "ABSA",
+      "branchCode": "632005",
+      "bankAccount": "258369147",
+      "emergencyContactName": "Ahmed Khan",
+      "emergencyContactPhone": "+27 84 123 4567",
+      "status": "ACTIVE"
+    },
+    {
+      "firstName": "Pieter",
+      "lastName": "Botha",
+      "email": "pieter.botha@elevatus.co.za",
+      "employeeNumber": "EMP009",
+      "position": "Quality Assurance Specialist",
+      "department": "Engineering",
+      "hiredDate": "2022-09-05",
+      "salary": 58000,
+      "idNumber": "8603147896054",
+      "phoneNumber": "+27 72 345 6789",
+      "address": "15 Voortrekker Road, Bloemfontein, 9301",
+      "taxNumber": "8603147896054",
+      "bankName": "Nedbank",
+      "branchCode": "198765",
+      "bankAccount": "369147258",
+      "emergencyContactName": "Annelie Botha",
+      "emergencyContactPhone": "+27 73 456 7890",
+      "status": "ACTIVE"
+    },
+    {
+      "firstName": "Nomfundo",
+      "lastName": "Mnguni",
+      "email": "nomfundo.mnguni@elevatus.co.za",
+      "employeeNumber": "EMP010",
+      "position": "Data Analyst",
+      "department": "IT",
+      "hiredDate": "2023-06-08",
+      "salary": 65000,
+      "idNumber": "9401258963074",
+      "phoneNumber": "+27 75 678 9012",
+      "address": "102 Nelson Mandela Avenue, Port Elizabeth, 6001",
+      "taxNumber": "9401258963074",
+      "bankName": "Capitec Bank",
+      "branchCode": "470010",
+      "bankAccount": "741852963",
+      "emergencyContactName": "Themba Mnguni",
+      "emergencyContactPhone": "+27 76 789 0123",
+      "status": "ACTIVE"
+    }
+  ],
+  "leaveRequests": [
+    {
+      "employeeId": "EMP001",
+      "type": "ANNUAL",
+      "startDate": "2024-02-12",
+      "endDate": "2024-02-16",
+      "reason": "Family vacation to Kruger National Park",
+      "days": 5,
+      "status": "APPROVED"
+    },
+    {
+      "employeeId": "EMP002",
+      "type": "SICK",
+      "startDate": "2024-01-20",
+      "endDate": "2024-01-22",
+      "reason": "Flu symptoms and recovery",
+      "days": 3,
+      "status": "APPROVED"
+    },
+    {
+      "employeeId": "EMP003",
+      "type": "MATERNITY",
+      "startDate": "2024-03-01",
+      "endDate": "2024-06-29",
+      "reason": "Maternity leave for new born",
+      "days": 120,
+      "status": "PENDING"
+    },
+    {
+      "employeeId": "EMP004",
+      "type": "STUDY",
+      "startDate": "2024-02-05",
+      "endDate": "2024-02-09",
+      "reason": "CFA Level 2 examination preparation and exam",
+      "days": 5,
+      "status": "APPROVED"
+    },
+    {
+      "employeeId": "EMP005",
+      "type": "ANNUAL",
+      "startDate": "2024-03-15",
+      "endDate": "2024-03-22",
+      "reason": "Easter holiday with family in Western Cape",
+      "days": 8,
+      "status": "PENDING"
+    }
+  ],
+  "attendanceRecords": [
+    {
+      "employeeId": "EMP001",
+      "date": "2024-01-15",
+      "status": "PRESENT",
+      "clockIn": "08:00",
+      "clockOut": "17:00",
+      "breakDuration": 60,
+      "notes": "Regular day, attended team standup"
+    },
+    {
+      "employeeId": "EMP002",
+      "date": "2024-01-16",
+      "status": "LATE",
+      "clockIn": "08:45",
+      "clockOut": "17:30",
+      "breakDuration": 45,
+      "notes": "Traffic delay on N1 highway"
+    },
+    {
+      "employeeId": "EMP003",
+      "date": "2024-01-17",
+      "status": "HALF_DAY",
+      "clockIn": "08:00",
+      "clockOut": "13:00",
+      "breakDuration": 30,
+      "notes": "Medical appointment in afternoon"
+    },
+    {
+      "employeeId": "EMP004",
+      "date": "2024-01-18",
+      "status": "ABSENT",
+      "notes": "Approved sick leave - flu symptoms"
+    },
+    {
+      "employeeId": "EMP005",
+      "date": "2024-01-19",
+      "status": "PRESENT",
+      "clockIn": "07:45",
+      "clockOut": "16:45",
+      "breakDuration": 30,
+      "notes": "Early start for client presentation prep"
+    }
+  ],
+  "bankingDetails": [
+    {
+      "bankName": "Standard Bank",
+      "branchCode": "051001",
+      "branches": ["Sandton City", "Rosebank", "Cape Town CBD"]
+    },
+    {
+      "bankName": "FNB",
+      "branchCode": "250655",
+      "branches": ["Canal Walk", "V&A Waterfront", "Tyger Valley"]
+    },
+    {
+      "bankName": "ABSA",
+      "branchCode": "632005",
+      "branches": ["Menlyn Park", "Brooklyn Mall", "Hatfield"]
+    },
+    {
+      "bankName": "Nedbank",
+      "branchCode": "198765",
+      "branches": ["Gateway", "Pavilion", "La Lucia Mall"]
+    },
+    {
+      "bankName": "Capitec Bank",
+      "branchCode": "470010",
+      "branches": ["Stellenbosch", "Paarl", "Wellington"]
+    }
+  ],
+  "addresses": [
+    {
+      "province": "Gauteng",
+      "cities": ["Johannesburg", "Pretoria", "Sandton", "Randburg", "Midrand"],
+      "sampleAddresses": [
+        "123 Jan Smuts Avenue, Rosebank, Johannesburg, 2196",
+        "45 Church Street, Pretoria Central, Pretoria, 0002",
+        "67 Rivonia Road, Sandton, 2196",
+        "89 Beyers Naude Drive, Randburg, 2194"
+      ]
+    },
+    {
+      "province": "Western Cape",
+      "cities": ["Cape Town", "Stellenbosch", "Paarl", "Somerset West"],
+      "sampleAddresses": [
+        "15 Long Street, Cape Town CBD, 8000",
+        "34 Kloof Street, Gardens, Cape Town, 8001",
+        "78 Main Road, Stellenbosch, 7600",
+        "92 Church Street, Somerset West, 7130"
+      ]
+    },
+    {
+      "province": "KwaZulu-Natal",
+      "cities": ["Durban", "Pietermaritzburg", "Newcastle", "Richards Bay"],
+      "sampleAddresses": [
+        "156 Smith Street, Durban Central, 4001",
+        "234 Church Street, Pietermaritzburg, 3201",
+        "67 Scott Street, Newcastle, 2940"
+      ]
+    }
+  ],
+  "phoneNumberFormats": [
+    "+27 82 XXX XXXX (Vodacom)",
+    "+27 83 XXX XXXX (MTN)",
+    "+27 84 XXX XXXX (Cell C)",
+    "+27 76 XXX XXXX (Vodacom)",
+    "+27 78 XXX XXXX (MTN)",
+    "+27 81 XXX XXXX (Vodacom)",
+    "+27 71 XXX XXXX (Vodacom)",
+    "+27 72 XXX XXXX (Vodacom)",
+    "+27 73 XXX XXXX (MTN)",
+    "+27 74 XXX XXXX (Cell C)"
+  ],
+  "southAfricanIdExamples": [
+    "9206285487089 (Born: 28 June 1992, Male, SA Citizen)",
+    "8811134567082 (Born: 13 November 1988, Female, SA Citizen)",
+    "9509153458076 (Born: 15 September 1995, Male, SA Citizen)",
+    "9312087856043 (Born: 08 December 1993, Female, SA Citizen)"
+  ],
+  "departments": [
+    "Engineering",
+    "Marketing",
+    "Human Resources",
+    "Finance",
+    "Sales",
+    "Design",
+    "Operations",
+    "IT",
+    "Customer Service",
+    "Legal",
+    "Research & Development"
+  ],
+  "positions": {
+    "Engineering": ["Senior Software Engineer", "Junior Developer", "DevOps Engineer", "Quality Assurance Specialist", "Technical Lead"],
+    "Marketing": ["Marketing Manager", "Digital Marketing Specialist", "Content Creator", "Brand Manager"],
+    "Human Resources": ["HR Specialist", "HR Manager", "Recruitment Specialist", "Training Coordinator"],
+    "Finance": ["Financial Analyst", "Accountant", "Finance Manager", "Bookkeeper"],
+    "Sales": ["Sales Representative", "Sales Manager", "Account Executive", "Business Development Manager"],
+    "Design": ["UX Designer", "UI Designer", "Graphic Designer", "Product Designer"],
+    "Operations": ["Operations Manager", "Supply Chain Specialist", "Process Analyst"],
+    "IT": ["Data Analyst", "System Administrator", "IT Support Specialist", "Database Administrator"]
+  }
+}

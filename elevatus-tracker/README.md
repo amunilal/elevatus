@@ -1,4 +1,4 @@
-# Elevatus Employee Tracker
+# ElevateUs Employee Tracker
 
 A comprehensive employee management system built with Next.js 14, TypeScript, Prisma, and Neon database. Features dual portal architecture for employers and employees with South African compliance (BCEA, POPIA).
 
@@ -29,6 +29,7 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 - **Responsive Design**: Mobile-first design with Tailwind CSS
 - **Database Branching**: Automatic preview environments with Neon
 - **CI/CD Pipeline**: GitHub Actions with automated testing and deployment
+- **Development Test Data**: Auto-fill forms with realistic South African test data
 
 ## 🏗️ Tech Stack
 
@@ -143,6 +144,16 @@ npm run db:push      # Push schema to database
 npm run db:seed      # Seed database
 ```
 
+### Development Test Data
+In development mode (`NODE_ENV=development`), forms include "Fill Test Data" buttons that automatically populate forms with realistic South African data:
+
+- **Employee Forms**: Names, SA ID numbers, banking details, addresses across provinces
+- **Attendance Forms**: Realistic attendance records with different statuses  
+- **Leave Forms**: BCEA-compliant leave requests with proper reasons
+- **Smart Dropdowns**: Department-specific positions, major SA banks, realistic addresses
+
+This feature speeds up testing and development by eliminating manual data entry.
+
 ### Database Management
 ```bash
 # View database in browser
@@ -247,6 +258,7 @@ The repository includes a GitHub Actions workflow that:
 - Responsive mobile-first design
 - Database branching for PRs
 - Automated CI/CD pipeline
+- Development test data with auto-fill functionality
 
 ### Planned Features 🚧
 - Performance review system
@@ -271,6 +283,52 @@ Each PR gets its own isolated database branch for testing, ensuring:
 - Safe schema changes
 - Parallel development
 - Clean environments
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### Database Connection Errors
+If you see `password authentication failed for user 'neondb_owner'`:
+
+1. **Check environment files**: The `.env.development.local` file (created by Vercel CLI) may be overriding local settings
+   ```bash
+   mv .env.development.local .env.development.local.backup
+   ```
+
+2. **Ensure Docker is running**: Start Docker Desktop and run:
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **Apply database schema**:
+   ```bash
+   DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npx prisma db push
+   ```
+
+4. **Seed the database**:
+   ```bash
+   DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npm run db:seed
+   ```
+
+#### Port Conflicts
+If port 3000 is in use:
+- The app will automatically try port 3001
+- Or manually kill the process: `lsof -i :3000` then `kill -9 <PID>`
+
+#### Docker Issues
+```bash
+# Reset Docker services
+docker-compose down -v
+docker-compose up -d
+```
+
+#### Environment Variables Not Loading
+Ensure you're in the correct directory and the `.env.local` file exists:
+```bash
+pwd  # Should be /path/to/elevatus-tracker
+ls -la .env*  # Should show .env.local
+```
 
 ## 📖 API Documentation
 
@@ -322,7 +380,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Contact
 
 - **Developer**: Ashveer Munil
-- **Company**: Elevatus
+- **Company**: ElevateUs
 - **Email**: ashveer@elevatus.co.za
 - **Website**: [elevatus.co.za](https://elevatus.co.za)
 

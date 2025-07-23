@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { ToastProvider } from '@/contexts/ToastContext'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Elevatus - Employee Tracker',
+  title: 'ElevateUs - Employee Tracker',
   description: 'A sophisticated employee management system for South African businesses',
 }
 
@@ -17,7 +18,9 @@ export default function RootLayout({
   return (
     <html lang="en-ZA" suppressHydrationWarning>
       <body className={inter.className}>
-        {children}
+        <ToastProvider>
+          {children}
+        </ToastProvider>
       </body>
     </html>
   )

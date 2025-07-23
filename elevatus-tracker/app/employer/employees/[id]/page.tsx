@@ -14,18 +14,18 @@ interface Employee {
   department: string
   status: 'ACTIVE' | 'INACTIVE' | 'TERMINATED'
   hireDate: string
-  salary: number
-  phoneNumber: string
-  address: string
-  idNumber: string
-  taxNumber: string
-  bankAccount: string
-  bankName: string
-  branchCode: string
-  emergencyContactName: string
-  emergencyContactPhone: string
-  createdAt: string
-  updatedAt: string
+  salary?: number
+  phoneNumber?: string
+  address?: string
+  idNumber?: string
+  taxNumber?: string
+  bankAccount?: string
+  bankName?: string
+  branchCode?: string
+  emergencyContactName?: string
+  emergencyContactPhone?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export default function EmployeeDetailsPage() {
@@ -174,7 +174,7 @@ export default function EmployeeDetailsPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">ID Number:</span>
-                <span className="font-medium">{employee.idNumber}</span>
+                <span className="font-medium">{employee.idNumber || 'N/A'}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Tax Number:</span>
@@ -214,7 +214,7 @@ export default function EmployeeDetailsPage() {
               <div className="flex justify-between">
                 <span className="text-gray-500">Monthly Salary:</span>
                 <span className="font-medium text-green-600">
-                  R{employee.salary.toLocaleString('en-ZA')}
+                  R{employee.salary ? employee.salary.toLocaleString('en-ZA') : 'Not specified'}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -306,10 +306,10 @@ export default function EmployeeDetailsPage() {
         <div className="bg-gray-50 p-4 rounded-lg mt-6">
           <div className="text-sm text-gray-600 grid grid-cols-2 gap-4">
             <div>
-              <span className="font-medium">Created:</span> {new Date(employee.createdAt).toLocaleString('en-ZA')}
+              <span className="font-medium">Created:</span> {employee.createdAt ? new Date(employee.createdAt).toLocaleString('en-ZA') : 'Unknown'}
             </div>
             <div>
-              <span className="font-medium">Last Updated:</span> {new Date(employee.updatedAt).toLocaleString('en-ZA')}
+              <span className="font-medium">Last Updated:</span> {employee.updatedAt ? new Date(employee.updatedAt).toLocaleString('en-ZA') : 'Unknown'}
             </div>
           </div>
         </div>

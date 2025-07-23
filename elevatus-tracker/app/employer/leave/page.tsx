@@ -97,9 +97,16 @@ function LeaveContent() {
     try {
       const response = await fetch('/api/employees')
       const data = await response.json()
-      setEmployees(data)
+      
+      if (response.ok && Array.isArray(data)) {
+        setEmployees(data)
+      } else {
+        console.error('Failed to fetch employees:', data.error || 'Invalid response')
+        setEmployees([])
+      }
     } catch (error) {
       console.error('Failed to fetch employees:', error)
+      setEmployees([])
     }
   }
 
@@ -174,6 +181,12 @@ function LeaveContent() {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900">Leave Management</h1>
           <div className="flex space-x-3">
+            <Link
+              href="/employer/dashboard"
+              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+            >
+              Dashboard
+            </Link>
             <Link
               href="/employer/leave/balances"
               className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 transition-colors"
