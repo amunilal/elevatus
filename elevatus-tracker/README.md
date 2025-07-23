@@ -284,6 +284,52 @@ Each PR gets its own isolated database branch for testing, ensuring:
 - Parallel development
 - Clean environments
 
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### Database Connection Errors
+If you see `password authentication failed for user 'neondb_owner'`:
+
+1. **Check environment files**: The `.env.development.local` file (created by Vercel CLI) may be overriding local settings
+   ```bash
+   mv .env.development.local .env.development.local.backup
+   ```
+
+2. **Ensure Docker is running**: Start Docker Desktop and run:
+   ```bash
+   docker-compose up -d
+   ```
+
+3. **Apply database schema**:
+   ```bash
+   DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npx prisma db push
+   ```
+
+4. **Seed the database**:
+   ```bash
+   DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npm run db:seed
+   ```
+
+#### Port Conflicts
+If port 3000 is in use:
+- The app will automatically try port 3001
+- Or manually kill the process: `lsof -i :3000` then `kill -9 <PID>`
+
+#### Docker Issues
+```bash
+# Reset Docker services
+docker-compose down -v
+docker-compose up -d
+```
+
+#### Environment Variables Not Loading
+Ensure you're in the correct directory and the `.env.local` file exists:
+```bash
+pwd  # Should be /path/to/elevatus-tracker
+ls -la .env*  # Should show .env.local
+```
+
 ## 📖 API Documentation
 
 ### Employee Endpoints
