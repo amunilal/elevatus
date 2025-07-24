@@ -12,6 +12,7 @@ interface Task {
   dateAdded: string
   dateCompleted?: string
   status: 'todo' | 'in_progress' | 'complete' | 'on_hold'
+  archived?: boolean
 }
 
 interface SavedNote {
@@ -48,6 +49,8 @@ export default function ReviewPage() {
   const [editDateCompleted, setEditDateCompleted] = useState('')
   const [reviewNotes, setReviewNotes] = useState('')
   const [savingNotes, setSavingNotes] = useState(false)
+  const [showArchived, setShowArchived] = useState(false)
+  const [completingReview, setCompletingReview] = useState(false)
 
   useEffect(() => {
     if (reviewId) {
@@ -220,7 +223,22 @@ export default function ReviewPage() {
   }
 
   const getTasksByStatus = (status: Task['status']) => {
-    return review?.tasks.filter(task => task.status === status) || []
+    if (status === 'complete') {
+      // For complete tasks, filter by archived status based on showArchived toggle
+      return review?.tasks.filter(task => 
+        task.status === status && (showArchived ? task.archived === true : !task.archived)
+      ) || []
+    }
+    // For other statuses, just filter by status (archived doesn't apply)
+    return review?.tasks.filter(task => task.status === status && !task.archived) || []
+  }
+
+  const getArchivedTasksCount = () => {
+    return review?.tasks.filter(task => task.status === 'complete' && task.archived === true).length || 0
+  }
+
+  const getActiveCompleteTasksCount = () => {
+    return review?.tasks.filter(task => task.status === 'complete' && !task.archived).length || 0
   }
 
   const getStatusColor = (status: Task['status']) => {
@@ -270,7 +288,7 @@ export default function ReviewPage() {
     e.dataTransfer.dropEffect = 'move'
   }
 
-  const handleDrop = (e: React.DragEvent, newStatus: Task['status']) => {
+  const handleDrop = async (e: React.DragEvent, newStatus: Task['status']) => {
     e.preventDefault()
     
     if (draggedTask && draggedTask.status !== newStatus) {
@@ -286,13 +304,47 @@ export default function ReviewPage() {
           ...review,
           tasks: updatedTasks
         })
+
+        // Save the task status update to the database
+        await saveTaskStatusUpdate(draggedTask.id, newStatus)
       }
       
-      // TODO: Make API call to update task status
       console.log(`Task ${draggedTask.id} moved to ${newStatus}`)
     }
     
     setDraggedTask(null)
+  }
+
+  const saveTaskStatusUpdate = async (taskId: string, newStatus: Task['status']) => {
+    try {
+      // Map UI status to database status
+      const dbStatus = newStatus === 'todo' ? 'NOT_STARTED' :
+                      newStatus === 'in_progress' ? 'IN_PROGRESS' :
+                      newStatus === 'complete' ? 'COMPLETED' : 'ON_HOLD'
+
+      const response = await fetch(`/api/goals/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: dbStatus
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Failed to update task status:', errorData.error)
+        // You could show a toast notification here
+        return
+      }
+
+      const data = await response.json()
+      console.log('Task status updated successfully:', data.message)
+    } catch (error) {
+      console.error('Error updating task status:', error)
+      // You could show a toast notification here
+    }
   }
 
   const handleEditTask = (task: Task) => {
@@ -301,7 +353,7 @@ export default function ReviewPage() {
     setEditDateCompleted(task.dateCompleted || '')
   }
 
-  const handleSaveEdit = (taskId: string) => {
+  const handleSaveEdit = async (taskId: string) => {
     if (review && editTitle.trim()) {
       const updatedTasks = review.tasks.map(task => 
         task.id === taskId 
@@ -314,13 +366,92 @@ export default function ReviewPage() {
         tasks: updatedTasks
       })
       
-      // TODO: Make API call to update task title
-      console.log(`Task ${taskId} title updated to: ${editTitle}, duration: ${editDateCompleted}`)
+      // Save to database - check if this is a new task or existing task
+      if (taskId.startsWith('task_')) {
+        // This is a new task, create it in the database
+        await createNewTask(taskId, editTitle.trim())
+      } else {
+        // This is an existing task, update it
+        await updateTask(taskId, editTitle.trim())
+      }
     }
     
     setEditingTask(null)
     setEditTitle('')
     setEditDateCompleted('')
+  }
+
+  const createNewTask = async (tempId: string, title: string) => {
+    if (!review) return
+
+    try {
+      // Map UI status to database status
+      const task = review.tasks.find(t => t.id === tempId)
+      if (!task) return
+
+      const dbStatus = task.status === 'todo' ? 'NOT_STARTED' :
+                      task.status === 'in_progress' ? 'IN_PROGRESS' :
+                      task.status === 'complete' ? 'COMPLETED' : 'ON_HOLD'
+
+      const response = await fetch('/api/goals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          reviewId: review.id,
+          title: title,
+          status: dbStatus
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Failed to create task:', errorData.error)
+        return
+      }
+
+      const data = await response.json()
+      
+      // Update the task with the real database ID
+      const updatedTasks = review.tasks.map(t => 
+        t.id === tempId ? { ...t, id: data.goal.id } : t
+      )
+      
+      setReview({
+        ...review,
+        tasks: updatedTasks
+      })
+
+      console.log('Task created successfully:', data.message)
+    } catch (error) {
+      console.error('Error creating task:', error)
+    }
+  }
+
+  const updateTask = async (taskId: string, title: string) => {
+    try {
+      const response = await fetch(`/api/goals/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: title
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Failed to update task:', errorData.error)
+        return
+      }
+
+      const data = await response.json()
+      console.log('Task updated successfully:', data.message)
+    } catch (error) {
+      console.error('Error updating task:', error)
+    }
   }
 
   const handleCancelEdit = (taskId?: string) => {
@@ -342,7 +473,7 @@ export default function ReviewPage() {
     setEditDateCompleted('')
   }
 
-  const handleDeleteTask = (taskId: string) => {
+  const handleDeleteTask = async (taskId: string) => {
     if (review && confirm('Are you sure you want to delete this task?')) {
       const updatedTasks = review.tasks.filter(task => task.id !== taskId)
       
@@ -351,12 +482,31 @@ export default function ReviewPage() {
         tasks: updatedTasks
       })
       
-      // TODO: Make API call to delete task
-      console.log(`Task ${taskId} deleted`)
+      // Delete task from database
+      await deleteTask(taskId)
     }
   }
 
-  const handleAddTask = (status: Task['status']) => {
+  const deleteTask = async (taskId: string) => {
+    try {
+      const response = await fetch(`/api/goals/${taskId}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Failed to delete task:', errorData.error)
+        return
+      }
+
+      const data = await response.json()
+      console.log('Task deleted successfully:', data.message)
+    } catch (error) {
+      console.error('Error deleting task:', error)
+    }
+  }
+
+  const handleAddTask = async (status: Task['status']) => {
     if (review) {
       const newTask: Task = {
         id: `task_${Date.now()}`,
@@ -376,8 +526,39 @@ export default function ReviewPage() {
       setEditTitle('')
       setEditDateCompleted('')
       
-      // TODO: Make API call to create task
       console.log(`New task created in ${status} column`)
+    }
+  }
+
+  const handleArchiveTask = (taskId: string) => {
+    if (review && confirm('Are you sure you want to archive this completed task?')) {
+      const updatedTasks = review.tasks.map(task => 
+        task.id === taskId ? { ...task, archived: true } : task
+      )
+      
+      setReview({
+        ...review,
+        tasks: updatedTasks
+      })
+      
+      // TODO: Make API call to archive task
+      console.log(`Task ${taskId} archived`)
+    }
+  }
+
+  const handleUnarchiveTask = (taskId: string) => {
+    if (review) {
+      const updatedTasks = review.tasks.map(task => 
+        task.id === taskId ? { ...task, archived: false } : task
+      )
+      
+      setReview({
+        ...review,
+        tasks: updatedTasks
+      })
+      
+      // TODO: Make API call to unarchive task
+      console.log(`Task ${taskId} unarchived`)
     }
   }
 
@@ -418,6 +599,64 @@ export default function ReviewPage() {
       alert(`Failed to save review notes: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setSavingNotes(false)
+    }
+  }
+
+  const handleCompleteReview = async () => {
+    if (!review) return
+
+    // Check if there are any incomplete tasks
+    const incompleteTasks = review.tasks.filter(task => 
+      task.status !== 'complete' && !task.archived
+    )
+
+    if (incompleteTasks.length > 0) {
+      const confirmComplete = confirm(
+        `There are ${incompleteTasks.length} incomplete tasks. Are you sure you want to complete this review?`
+      )
+      if (!confirmComplete) return
+    }
+
+    const confirmComplete = confirm(
+      'Are you sure you want to mark this review as complete? This action cannot be undone.'
+    )
+    if (!confirmComplete) return
+
+    setCompletingReview(true)
+    
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'COMPLETED',
+          completedAt: new Date().toISOString()
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to complete review')
+      }
+
+      const data = await response.json()
+      
+      // Update local state
+      setReview(prev => prev ? { ...prev, status: 'complete' as any } : null)
+      
+      // Show success message and redirect
+      alert('Review completed successfully!')
+      
+      // Redirect to review history
+      window.location.href = '/employer/reviews/history'
+      
+    } catch (error) {
+      console.error('Failed to complete review:', error)
+      alert(`Failed to complete review: ${error instanceof Error ? error.message : 'Unknown error'}`)
+    } finally {
+      setCompletingReview(false)
     }
   }
 
@@ -889,9 +1128,24 @@ export default function ReviewPage() {
           >
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-secondary-900">Complete</h2>
+                <div className="flex items-center space-x-3">
+                  <h2 className="text-xl font-bold text-secondary-900">Complete</h2>
+                  {getArchivedTasksCount() > 0 && (
+                    <button
+                      onClick={() => setShowArchived(!showArchived)}
+                      className={`text-xs px-2 py-1 rounded-full transition-all duration-200 ${
+                        showArchived 
+                          ? 'bg-secondary-200 text-secondary-700 hover:bg-secondary-300' 
+                          : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                      }`}
+                      title={showArchived ? 'Show active tasks' : 'Show archived tasks'}
+                    >
+                      {showArchived ? `Archived (${getArchivedTasksCount()})` : `Archive (${getArchivedTasksCount()})`}
+                    </button>
+                  )}
+                </div>
                 <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {getTasksByStatus('complete').length}
+                  {showArchived ? getArchivedTasksCount() : getActiveCompleteTasksCount()}
                 </span>
               </div>
             <div className="space-y-4">
@@ -900,9 +1154,9 @@ export default function ReviewPage() {
                   key={task.id} 
                   className={`${getStatusColor('complete')} p-4 rounded-xl border-2 border-green-200 group relative hover:shadow-md transition-all duration-200 ${
                     editingTask === task.id ? 'cursor-default' : 'cursor-move hover:-translate-y-1'
-                  }`}
-                  draggable={editingTask !== task.id}
-                  onDragStart={(e) => editingTask !== task.id && handleDragStart(e, task)}
+                  } ${task.archived ? 'opacity-75' : ''}`}
+                  draggable={editingTask !== task.id && !task.archived}
+                  onDragStart={(e) => editingTask !== task.id && !task.archived && handleDragStart(e, task)}
                   onDragEnd={handleDragEnd}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -920,7 +1174,7 @@ export default function ReviewPage() {
                         autoFocus
                       />
                     ) : (
-                      <h3 className="font-semibold text-secondary-900">{task.title}</h3>
+                      <h3 className={`font-semibold text-secondary-900 ${task.archived ? 'line-through' : ''}`}>{task.title}</h3>
                     )}
                     
                     <div className="flex items-center space-x-1">
@@ -945,24 +1199,27 @@ export default function ReviewPage() {
                         </>
                       ) : (
                         <>
-                          <button
-                            onClick={() => handleEditTask(task)}
-                            className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-blue-100 text-blue-600 transition-all duration-200"
-                            title="Edit task"
-                          >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleDeleteTask(task.id)}
-                            className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-red-100 text-red-600 transition-all duration-200"
-                            title="Delete task"
-                          >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
+                          {!showArchived ? (
+                            <button
+                              onClick={() => handleArchiveTask(task.id)}
+                              className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-orange-100 text-orange-600 transition-all duration-200"
+                              title="Archive task"
+                            >
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 8l6 6 6-6" />
+                              </svg>
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleUnarchiveTask(task.id)}
+                              className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-green-100 text-green-600 transition-all duration-200"
+                              title="Unarchive task"
+                            >
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l3-3 3 3M7 8l3 3 3-3" />
+                              </svg>
+                            </button>
+                          )}
                         </>
                       )}
                     </div>
@@ -1129,9 +1386,37 @@ export default function ReviewPage() {
             </svg>
             Add Task
           </button>
-          <button className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle transform hover:-translate-y-0.5 shadow-soft hover:shadow-medium h-12 px-6 py-3">
-            Complete Review
-          </button>
+          {review && (review as any).status !== 'COMPLETED' ? (
+            <button 
+              onClick={handleCompleteReview}
+              disabled={completingReview}
+              className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle transform hover:-translate-y-0.5 shadow-soft hover:shadow-medium h-12 px-6 py-3"
+            >
+              {completingReview ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Completing...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Complete Review
+                </>
+              )}
+            </button>
+          ) : (
+            <div className="inline-flex items-center justify-center rounded-lg font-medium h-12 px-6 py-3 bg-green-100 text-green-800 border border-green-200">
+              <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Review Completed
+            </div>
+          )}
         </div>
       </div>
     </div>
