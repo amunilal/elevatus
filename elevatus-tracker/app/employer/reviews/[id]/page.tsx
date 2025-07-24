@@ -199,8 +199,8 @@ export default function ReviewPage() {
   const handleDragStart = (e: React.DragEvent, task: Task) => {
     setDraggedTask(task)
     e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData('text/html', e.currentTarget.outerHTML)
-    (e.currentTarget as HTMLElement).style.opacity = '0.5'
+    e.dataTransfer.setData('text/html', (e.currentTarget as HTMLElement).outerHTML)
+    ;(e.currentTarget as HTMLElement).style.opacity = '0.5'
   }
 
   const handleDragEnd = (e: React.DragEvent) => {
@@ -1077,6 +1077,11 @@ export default function ReviewPage() {
           </button>
         </div>
       </div>
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
     </div>
   )
 }

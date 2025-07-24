@@ -238,8 +238,8 @@ export default function EmployeesPage() {
                   
                   <div className="flex items-center space-x-4">
                     <Badge 
-                      variant={employee.employmentStatus === 'ACTIVE' ? 'green' : 
-                              employee.employmentStatus === 'INACTIVE' ? 'yellow' : 'red'}
+                      variant={employee.employmentStatus === 'ACTIVE' ? 'success' : 
+                              employee.employmentStatus === 'INACTIVE' ? 'warning' : 'error'}
                       size="sm"
                     >
                       {employee.employmentStatus}
