@@ -22,6 +22,7 @@ export default function StartReviewPage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filterDepartment, setFilterDepartment] = useState('')
+  const [creatingReview, setCreatingReview] = useState<string | null>(null)
 
   useEffect(() => {
     fetchEmployees()
@@ -55,6 +56,45 @@ export default function StartReviewPage() {
   })
 
   const departments = [...new Set(employees.map(emp => emp.department))]
+
+  const handleStartReview = async (employeeId: string, employeeName: string) => {
+    setCreatingReview(employeeId)
+    
+    try {
+      const response = await fetch('/api/reviews/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          employeeId: employeeId
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to create review')
+      }
+
+      const data = await response.json()
+      
+      if (data.existing) {
+        // Review already exists, just redirect
+        console.log('Redirecting to existing review:', data.reviewId)
+      } else {
+        // New review created
+        console.log('New review created:', data.reviewId)
+      }
+      
+      // Redirect to the review page
+      window.location.href = `/employer/reviews/${data.reviewId}`
+      
+    } catch (error) {
+      console.error('Failed to start review:', error)
+      alert(`Failed to start review for ${employeeName}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      setCreatingReview(null)
+    }
+  }
 
   if (loading) {
     return (
@@ -237,12 +277,23 @@ export default function StartReviewPage() {
                       {employee.department}
                     </td>
                     <td className="px-8 py-6 whitespace-nowrap text-right text-sm font-medium">
-                      <Link
-                        href={`/employer/reviews/${employee.id}`}
+                      <button
+                        onClick={() => handleStartReview(employee.id, `${employee.firstName} ${employee.lastName}`)}
+                        disabled={creatingReview === employee.id}
                         className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle transform hover:-translate-y-0.5 shadow-soft hover:shadow-medium h-10 px-4 py-2"
                       >
-                        Start Review
-                      </Link>
+                        {creatingReview === employee.id ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Creating...
+                          </>
+                        ) : (
+                          'Start Review'
+                        )}
+                      </button>
                     </td>
                   </tr>
                 ))}

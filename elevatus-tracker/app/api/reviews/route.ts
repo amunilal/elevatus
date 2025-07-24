@@ -34,6 +34,13 @@ export async function GET(request: NextRequest) {
             name: true,
             year: true
           }
+        },
+        goals: {
+          select: {
+            id: true,
+            title: true,
+            status: true
+          }
         }
       },
       orderBy: {

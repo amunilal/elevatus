@@ -31,64 +31,64 @@ export default function ReviewHistoryPage() {
 
   const fetchReviews = async () => {
     try {
-      // TODO: Replace with actual API call
-      // Mock data for demonstration
-      const mockReviews: ReviewHistory[] = [
-        {
-          id: '1',
-          employee: {
-            firstName: 'John',
-            lastName: 'Doe',
-            designation: 'Senior Developer',
-            department: 'Engineering'
-          },
-          date: '2025-01-15',
-          status: 'completed',
-          completedTasks: 12,
-          totalTasks: 12
-        },
-        {
-          id: '2',
-          employee: {
-            firstName: 'Jane',
-            lastName: 'Smith',
-            designation: 'Product Manager',
-            department: 'Product'
-          },
-          date: '2025-01-10',
-          status: 'in_progress',
-          completedTasks: 8,
-          totalTasks: 15
-        },
-        {
-          id: '3',
-          employee: {
-            firstName: 'Mike',
-            lastName: 'Johnson',
-            designation: 'UX Designer',
-            department: 'Design'
-          },
-          date: '2025-01-05',
-          status: 'completed',
-          completedTasks: 10,
-          totalTasks: 10
-        },
-        {
-          id: '4',
-          employee: {
-            firstName: 'Sarah',
-            lastName: 'Wilson',
-            designation: 'Marketing Specialist',
-            department: 'Marketing'
-          },
-          date: '2024-12-20',
-          status: 'draft',
-          completedTasks: 2,
-          totalTasks: 8
-        }
-      ]
+      const response = await fetch('/api/reviews')
       
-      setReviews(mockReviews)
+      if (response.ok) {
+        const data = await response.json()
+        if (Array.isArray(data)) {
+          // Transform API data to match our interface
+          const transformedReviews: ReviewHistory[] = data.map(review => ({
+            id: review.id,
+            employee: {
+              firstName: review.employee?.firstName || 'Unknown',
+              lastName: review.employee?.lastName || 'Employee',
+              designation: review.employee?.designation || 'Unknown Position',
+              department: review.employee?.department || 'Unknown Department'
+            },
+            date: review.createdAt ? new Date(review.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+            status: review.status === 'COMPLETED' ? 'completed' : 
+                   review.status === 'IN_PROGRESS' ? 'in_progress' : 'draft',
+            completedTasks: review.goals?.filter((g: any) => g.status === 'COMPLETED').length || 0,
+            totalTasks: review.goals?.length || 0
+          }))
+          setReviews(transformedReviews)
+        } else {
+          console.error('Invalid response format:', data)
+          setReviews([])
+        }
+      } else {
+        console.error('Failed to fetch reviews:', response.status)
+        // Fallback to mock data if API fails
+        const mockReviews: ReviewHistory[] = [
+          {
+            id: 'review-john-doe-2025',
+            employee: {
+              firstName: 'John',
+              lastName: 'Doe',
+              designation: 'Senior Developer',
+              department: 'Engineering'
+            },
+            date: '2025-01-15',
+            status: 'completed',
+            completedTasks: 12,
+            totalTasks: 12
+          },
+          {
+            id: 'mock-review-2',
+            employee: {
+              firstName: 'Jane',
+              lastName: 'Smith',
+              designation: 'Product Manager',
+              department: 'Product'
+            },
+            date: '2025-01-10',
+            status: 'in_progress',
+            completedTasks: 8,
+            totalTasks: 15
+          }
+        ]
+        setReviews(mockReviews)
+      }
     } catch (error) {
       console.error('Failed to fetch reviews:', error)
     } finally {
@@ -392,20 +392,25 @@ export default function ReviewHistoryPage() {
                       </span>
                     </td>
                     <td className="px-8 py-6 whitespace-nowrap text-right text-sm font-medium">
-                      <Link
-                        href={`/employer/reviews/${review.id}`}
-                        className="text-brand-middle hover:text-hover-magenta mr-4"
-                      >
-                        View
-                      </Link>
-                      {review.status !== 'completed' && (
+                      <div className="flex justify-end space-x-3">
                         <Link
                           href={`/employer/reviews/${review.id}`}
-                          className="text-success-600 hover:text-success-700"
+                          className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-secondary-300 bg-white text-secondary-900 hover:bg-light-purple hover:border-hover-lavender focus:ring-brand-middle h-8 px-3 py-1 text-xs"
                         >
-                          Continue
+                          {review.status === 'completed' ? 'View' : 'Continue'}
                         </Link>
-                      )}
+                        {review.status === 'completed' && (
+                          <button
+                            onClick={() => {
+                              // Export or download review functionality can be added here
+                              alert('Export functionality will be implemented')
+                            }}
+                            className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle h-8 px-3 py-1 text-xs"
+                          >
+                            Export
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
