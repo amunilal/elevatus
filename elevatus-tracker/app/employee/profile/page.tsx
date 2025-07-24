@@ -425,14 +425,7 @@ export default function EmployeeProfilePage() {
         {!editing && (
           <div className="bg-white p-6 rounded-lg shadow-sm mt-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Link
-                href="/employee/attendance"
-                className="bg-blue-50 border border-blue-200 p-4 rounded-lg text-center hover:bg-blue-100 transition-colors"
-              >
-                <div className="text-blue-600 font-semibold">View Attendance</div>
-                <div className="text-sm text-gray-600">Track work hours</div>
-              </Link>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               <Link
                 href="/employee/leave"
                 className="bg-green-50 border border-green-200 p-4 rounded-lg text-center hover:bg-green-100 transition-colors"

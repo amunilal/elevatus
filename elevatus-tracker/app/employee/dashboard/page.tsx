@@ -1,16 +1,95 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { Badge } from '@/components/ui/Badge'
 import { Logo } from '@/components/ui/Logo'
 import Link from 'next/link'
 
+interface Review {
+  id: string
+  status: 'NOT_STARTED' | 'IN_PROGRESS' | 'COMPLETED'
+  reviewType: string
+  dueDate: string
+  createdAt: string
+  summary?: string
+  reviewCycle: {
+    id: string
+    name: string
+    year: number
+  }
+  reviewer: {
+    id: string
+    firstName: string
+    lastName: string
+  }
+  goals: {
+    id: string
+    title: string
+    status: string
+    isArchived: boolean
+  }[]
+}
+
 export default function EmployeeDashboardPage() {
+  const [latestReview, setLatestReview] = useState<Review | null>(null)
+  const [loadingReview, setLoadingReview] = useState(true)
   const currentDate = new Date().toLocaleDateString('en-ZA', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
     day: 'numeric'
   })
+
+  useEffect(() => {
+    fetchLatestReview()
+  }, [])
+
+  const fetchLatestReview = async () => {
+    try {
+      // TODO: Get current employee ID from session/auth
+      // For now, we'll fetch all reviews and get the latest one
+      const response = await fetch('/api/reviews')
+      const data = await response.json()
+      
+      if (response.ok && Array.isArray(data) && data.length > 0) {
+        // Get the most recent review (already sorted by createdAt desc)
+        setLatestReview(data[0])
+      }
+    } catch (error) {
+      console.error('Failed to fetch latest review:', error)
+    } finally {
+      setLoadingReview(false)
+    }
+  }
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'NOT_STARTED':
+        return <Badge variant="secondary" size="sm">Not Started</Badge>
+      case 'IN_PROGRESS':
+        return <Badge variant="warning" size="sm">In Progress</Badge>
+      case 'COMPLETED':
+        return <Badge variant="success" size="sm">Completed</Badge>
+      default:
+        return <Badge variant="secondary" size="sm">{status}</Badge>
+    }
+  }
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-GB', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    })
+  }
+
+  const getProgressPercentage = (goals: Review['goals']) => {
+    if (goals.length === 0) return 0
+    const activeGoals = goals.filter(goal => !goal.isArchived)
+    if (activeGoals.length === 0) return 100
+    const completedGoals = activeGoals.filter(goal => goal.status === 'COMPLETED')
+    return Math.round((completedGoals.length / activeGoals.length) * 100)
+  }
 
   return (
     <div className="min-h-screen bg-bg-base">
@@ -46,41 +125,9 @@ export default function EmployeeDashboardPage() {
           <p className="text-secondary-700 text-base">{currentDate}</p>
         </div>
 
-        {/* Clock In/Out Section */}
-        <div className="bg-brand-gradient rounded-2xl p-8 mb-12 text-white shadow-soft">
-          <div className="flex justify-between items-center">
-            <div>
-              <h3 className="text-xl font-bold mb-2">Attendance</h3>
-              <p className="text-white/90">Clock in to start your day</p>
-            </div>
-            <div className="flex space-x-3">
-              <button className="bg-white text-brand-middle px-6 py-3 rounded-lg font-semibold hover:bg-light-purple transition-colors shadow-soft">
-                Clock In
-              </button>
-              <button className="bg-white/20 text-white px-6 py-3 rounded-lg font-semibold hover:bg-white/30 transition-colors backdrop-blur-sm">
-                Clock Out
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Stats Grid */}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4 mb-12">
-          <div className="bg-nav-white overflow-hidden shadow-soft rounded-2xl">
-            <div className="p-6">
-              <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 bg-success-100 rounded-lg flex items-center justify-center">
-                  <svg className="h-5 w-5 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-secondary-600 mb-1">Hours This Week</p>
-                  <p className="text-2xl font-bold text-secondary-900">38.5</p>
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 mb-12">
 
           <div className="bg-nav-white overflow-hidden shadow-soft rounded-2xl">
             <div className="p-6">
@@ -101,8 +148,8 @@ export default function EmployeeDashboardPage() {
           <div className="bg-nav-white overflow-hidden shadow-soft rounded-2xl">
             <div className="p-6">
               <div className="flex items-center space-x-4">
-                <div className="w-10 h-10 bg-hover-lavender rounded-lg flex items-center justify-center">
-                  <svg className="h-5 w-5 text-brand-middle" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="w-10 h-10 bg-success-100 rounded-lg flex items-center justify-center">
+                  <svg className="h-5 w-5 text-success-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -131,6 +178,103 @@ export default function EmployeeDashboardPage() {
           </div>
         </div>
 
+        {/* Latest Review Section */}
+        <div className="mb-8">
+          <div className="bg-nav-white shadow-soft rounded-2xl p-8">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-xl font-bold text-secondary-900">Current Performance Review</h2>
+              <Link href="/employee/reviews">
+                <button className="text-sm text-brand-middle hover:text-hover-magenta font-medium">
+                  View All Reviews
+                </button>
+              </Link>
+            </div>
+
+            {loadingReview ? (
+              <div className="animate-pulse">
+                <div className="h-6 bg-secondary-200 rounded w-3/4 mb-4"></div>
+                <div className="h-4 bg-secondary-200 rounded w-1/2 mb-3"></div>
+                <div className="h-4 bg-secondary-200 rounded w-full"></div>
+              </div>
+            ) : latestReview ? (
+              <div>
+                <div className="flex justify-between items-start mb-4">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <h3 className="text-lg font-semibold text-secondary-900">
+                        {latestReview.reviewCycle.name}
+                      </h3>
+                      {getStatusBadge(latestReview.status)}
+                    </div>
+                    <p className="text-sm text-secondary-600 mb-1">
+                      Review Type: {latestReview.reviewType}
+                    </p>
+                    <p className="text-sm text-secondary-600">
+                      Reviewer: {latestReview.reviewer.firstName} {latestReview.reviewer.lastName}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-secondary-500 mb-1">Due Date</p>
+                    <p className="text-sm font-medium text-secondary-900">
+                      {formatDate(latestReview.dueDate)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-secondary-50 rounded-lg p-4 mb-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-sm font-medium text-secondary-700">Progress</span>
+                    <span className="text-sm font-medium text-secondary-900">
+                      {getProgressPercentage(latestReview.goals)}%
+                    </span>
+                  </div>
+                  <div className="w-full bg-secondary-200 rounded-full h-2">
+                    <div 
+                      className="bg-success-500 h-2 rounded-full transition-all duration-300" 
+                      style={{ width: `${getProgressPercentage(latestReview.goals)}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-xs text-secondary-500 mt-2">
+                    {latestReview.goals.filter(g => !g.isArchived && g.status === 'COMPLETED').length} of {latestReview.goals.filter(g => !g.isArchived).length} goals completed
+                  </p>
+                </div>
+
+                {latestReview.summary && (
+                  <div className="mb-4">
+                    <p className="text-sm text-secondary-700 line-clamp-3">
+                      {latestReview.summary}
+                    </p>
+                  </div>
+                )}
+
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-secondary-500">
+                    Goals: {latestReview.goals.filter(g => !g.isArchived).length}
+                  </span>
+                  <Link href={`/employee/reviews/${latestReview.id}`}>
+                    <button className="bg-brand-middle text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-hover-magenta transition-colors">
+                      View Details
+                    </button>
+                  </Link>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <svg className="mx-auto h-12 w-12 text-secondary-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <h3 className="text-lg font-medium text-secondary-900 mb-2">No reviews yet</h3>
+                <p className="text-secondary-500 mb-4">Your performance reviews will appear here when they are assigned.</p>
+                <Link href="/employee/reviews">
+                  <button className="text-brand-middle hover:text-hover-magenta font-medium">
+                    Check for updates
+                  </button>
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Quick Actions */}
           <div className="lg:col-span-2">
@@ -153,6 +297,10 @@ export default function EmployeeDashboardPage() {
                   <Link href="/employee/profile" className="block p-6 rounded-2xl bg-light-coral hover:bg-hover-coral transition-colors">
                     <h4 className="font-semibold text-secondary-900 mb-2">Update Profile</h4>
                     <p className="text-sm text-secondary-600">Edit personal information</p>
+                  </Link>
+                  <Link href="/employee/reviews" className="block p-6 rounded-2xl bg-light-blue hover:bg-hover-blue transition-colors">
+                    <h4 className="font-semibold text-secondary-900 mb-2">My Reviews</h4>
+                    <p className="text-sm text-secondary-600">View performance reviews</p>
                   </Link>
                 </div>
               </div>
