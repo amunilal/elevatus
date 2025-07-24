@@ -39,6 +39,7 @@ export default function ReviewPage() {
   const [draggedTask, setDraggedTask] = useState<Task | null>(null)
   const [editingTask, setEditingTask] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
+  const [editDateCompleted, setEditDateCompleted] = useState('')
   const [reviewNotes, setReviewNotes] = useState('')
   const [savingNotes, setSavingNotes] = useState(false)
 
@@ -234,13 +235,14 @@ export default function ReviewPage() {
   const handleEditTask = (task: Task) => {
     setEditingTask(task.id)
     setEditTitle(task.title)
+    setEditDateCompleted(task.dateCompleted || '')
   }
 
   const handleSaveEdit = (taskId: string) => {
     if (review && editTitle.trim()) {
       const updatedTasks = review.tasks.map(task => 
         task.id === taskId 
-          ? { ...task, title: editTitle.trim() }
+          ? { ...task, title: editTitle.trim(), dateCompleted: editDateCompleted.trim() || undefined }
           : task
       )
       
@@ -250,16 +252,18 @@ export default function ReviewPage() {
       })
       
       // TODO: Make API call to update task title
-      console.log(`Task ${taskId} title updated to: ${editTitle}`)
+      console.log(`Task ${taskId} title updated to: ${editTitle}, duration: ${editDateCompleted}`)
     }
     
     setEditingTask(null)
     setEditTitle('')
+    setEditDateCompleted('')
   }
 
   const handleCancelEdit = () => {
     setEditingTask(null)
     setEditTitle('')
+    setEditDateCompleted('')
   }
 
   const handleDeleteTask = (taskId: string) => {
@@ -280,7 +284,7 @@ export default function ReviewPage() {
     if (review) {
       const newTask: Task = {
         id: `task_${Date.now()}`,
-        title: 'New Task',
+        title: '',
         dateAdded: new Date().toLocaleDateString('en-ZA').replace(/\//g, '/'),
         status: status,
         dateCompleted: status === 'complete' ? '3 months' : undefined
@@ -293,7 +297,8 @@ export default function ReviewPage() {
       
       // Automatically start editing the new task
       setEditingTask(newTask.id)
-      setEditTitle(newTask.title)
+      setEditTitle('')
+      setEditDateCompleted('')
       
       // TODO: Make API call to create task
       console.log(`New task created in ${status} column`)
@@ -541,20 +546,9 @@ export default function ReviewPage() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-secondary-900">To do</h2>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleAddTask('todo')}
-                    className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-gray-200 text-gray-600 transition-all duration-200"
-                    title="Add new task to To do"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                  </button>
-                  <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                    {getTasksByStatus('todo').length}
-                  </span>
-                </div>
+                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                  {getTasksByStatus('todo').length}
+                </span>
               </div>
             <div className="space-y-4">
               {getTasksByStatus('todo').map((task) => (
@@ -578,6 +572,7 @@ export default function ReviewPage() {
                           if (e.key === 'Escape') handleCancelEdit()
                         }}
                         className="font-semibold text-secondary-900 bg-transparent border-b border-secondary-300 focus:outline-none focus:border-brand-middle px-0 py-1 flex-1 mr-2"
+                        placeholder="Enter task title..."
                         autoFocus
                       />
                     ) : (
@@ -630,7 +625,20 @@ export default function ReviewPage() {
                   </div>
                   <div className="text-sm text-secondary-600">
                     <p>Date added: {task.dateAdded}</p>
-                    <p>Date completed: 3 months</p>
+                    {editingTask === task.id ? (
+                      <div className="flex items-center">
+                        <span className="mr-2">Duration:</span>
+                        <input
+                          type="text"
+                          value={editDateCompleted}
+                          onChange={(e) => setEditDateCompleted(e.target.value)}
+                          className="bg-transparent border-b border-secondary-300 focus:outline-none focus:border-brand-middle px-1 py-0 text-sm flex-1"
+                          placeholder="e.g. 3 months, 2 weeks..."
+                        />
+                      </div>
+                    ) : (
+                      <p>Duration: {task.dateCompleted || 'Not set'}</p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -655,20 +663,9 @@ export default function ReviewPage() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-secondary-900">In Progress</h2>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleAddTask('in_progress')}
-                    className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-purple-200 text-purple-600 transition-all duration-200"
-                    title="Add new task to In Progress"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  </button>
-                  <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                    {getTasksByStatus('in_progress').length}
-                  </span>
-                </div>
+                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                  {getTasksByStatus('in_progress').length}
+                </span>
               </div>
             <div className="space-y-4">
               {getTasksByStatus('in_progress').map((task) => (
@@ -692,6 +689,7 @@ export default function ReviewPage() {
                           if (e.key === 'Escape') handleCancelEdit()
                         }}
                         className="font-semibold text-secondary-900 bg-transparent border-b border-secondary-300 focus:outline-none focus:border-brand-middle px-0 py-1 flex-1 mr-2"
+                        placeholder="Enter task title..."
                         autoFocus
                       />
                     ) : (
@@ -744,7 +742,20 @@ export default function ReviewPage() {
                   </div>
                   <div className="text-sm text-secondary-600">
                     <p>Date added: {task.dateAdded}</p>
-                    <p>Date completed: {task.dateCompleted}</p>
+                    {editingTask === task.id ? (
+                      <div className="flex items-center">
+                        <span className="mr-2">Duration:</span>
+                        <input
+                          type="text"
+                          value={editDateCompleted}
+                          onChange={(e) => setEditDateCompleted(e.target.value)}
+                          className="bg-transparent border-b border-secondary-300 focus:outline-none focus:border-brand-middle px-1 py-0 text-sm flex-1"
+                          placeholder="e.g. 3 months, 2 weeks..."
+                        />
+                      </div>
+                    ) : (
+                      <p>Duration: {task.dateCompleted || 'Not set'}</p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -769,20 +780,9 @@ export default function ReviewPage() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-secondary-900">Complete</h2>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleAddTask('complete')}
-                    className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-green-200 text-green-600 transition-all duration-200"
-                    title="Add new task to Complete"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  </button>
-                  <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                    {getTasksByStatus('complete').length}
-                  </span>
-                </div>
+                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                  {getTasksByStatus('complete').length}
+                </span>
               </div>
             <div className="space-y-4">
               {getTasksByStatus('complete').map((task) => (
@@ -806,6 +806,7 @@ export default function ReviewPage() {
                           if (e.key === 'Escape') handleCancelEdit()
                         }}
                         className="font-semibold text-secondary-900 bg-transparent border-b border-secondary-300 focus:outline-none focus:border-brand-middle px-0 py-1 flex-1 mr-2"
+                        placeholder="Enter task title..."
                         autoFocus
                       />
                     ) : (
@@ -858,7 +859,20 @@ export default function ReviewPage() {
                   </div>
                   <div className="text-sm text-secondary-600">
                     <p>Date added: {task.dateAdded}</p>
-                    <p>Date completed: {task.dateCompleted}</p>
+                    {editingTask === task.id ? (
+                      <div className="flex items-center">
+                        <span className="mr-2">Duration:</span>
+                        <input
+                          type="text"
+                          value={editDateCompleted}
+                          onChange={(e) => setEditDateCompleted(e.target.value)}
+                          className="bg-transparent border-b border-secondary-300 focus:outline-none focus:border-brand-middle px-1 py-0 text-sm flex-1"
+                          placeholder="e.g. 3 months, 2 weeks..."
+                        />
+                      </div>
+                    ) : (
+                      <p>Duration: {task.dateCompleted || 'Not set'}</p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -883,20 +897,9 @@ export default function ReviewPage() {
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-xl font-bold text-secondary-900">On hold</h2>
-                <div className="flex items-center space-x-2">
-                  <button
-                    onClick={() => handleAddTask('on_hold')}
-                    className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-yellow-200 text-yellow-600 transition-all duration-200"
-                    title="Add new task to On hold"
-                  >
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                  </button>
-                  <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                    {getTasksByStatus('on_hold').length}
-                  </span>
-                </div>
+                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                  {getTasksByStatus('on_hold').length}
+                </span>
               </div>
             <div className="space-y-4">
               {getTasksByStatus('on_hold').map((task) => (
@@ -920,6 +923,7 @@ export default function ReviewPage() {
                           if (e.key === 'Escape') handleCancelEdit()
                         }}
                         className="font-semibold text-secondary-900 bg-transparent border-b border-secondary-300 focus:outline-none focus:border-brand-middle px-0 py-1 flex-1 mr-2"
+                        placeholder="Enter task title..."
                         autoFocus
                       />
                     ) : (
@@ -972,7 +976,20 @@ export default function ReviewPage() {
                   </div>
                   <div className="text-sm text-secondary-600">
                     <p>Date added: {task.dateAdded}</p>
-                    <p>Date completed: {task.dateCompleted}</p>
+                    {editingTask === task.id ? (
+                      <div className="flex items-center">
+                        <span className="mr-2">Duration:</span>
+                        <input
+                          type="text"
+                          value={editDateCompleted}
+                          onChange={(e) => setEditDateCompleted(e.target.value)}
+                          className="bg-transparent border-b border-secondary-300 focus:outline-none focus:border-brand-middle px-1 py-0 text-sm flex-1"
+                          placeholder="e.g. 3 months, 2 weeks..."
+                        />
+                      </div>
+                    ) : (
+                      <p>Duration: {task.dateCompleted || 'Not set'}</p>
+                    )}
                   </div>
                 </div>
               ))}
@@ -993,12 +1010,14 @@ export default function ReviewPage() {
         <div className="flex justify-center space-x-4 mt-8">
           <button 
             onClick={() => handleAddTask('todo')}
-            className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-secondary-300 bg-white text-secondary-900 hover:bg-light-purple hover:border-hover-lavender focus:ring-brand-middle h-12 px-6 py-3"
+            className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-secondary-300 bg-white text-secondary-900 focus:ring-brand-middle h-12 px-6 py-3"
+            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(238, 125, 189, 0.1)'}
+            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
           >
             <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
             </svg>
-            Add Task to To do
+            Add Task
           </button>
           <button className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle transform hover:-translate-y-0.5 shadow-soft hover:shadow-medium h-12 px-6 py-3">
             Complete Review
