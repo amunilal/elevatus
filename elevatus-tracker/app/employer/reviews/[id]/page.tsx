@@ -497,7 +497,7 @@ export default function ReviewPage() {
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-secondary-600">
-                  <span className="font-medium">Last saved:</span> {lastSaved || 'Never saved'}
+                  <span className="font-medium">{savedNotes.length} notes saved</span>
                 </div>
                 <div className="flex space-x-3">
                   <button 
