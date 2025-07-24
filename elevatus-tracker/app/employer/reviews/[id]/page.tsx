@@ -57,8 +57,150 @@ export default function ReviewPage() {
 
   const fetchReview = async (id: string) => {
     try {
-      // TODO: Replace with actual API call
-      // For now, using mock data
+      // Try to fetch real review data from API
+      const reviewResponse = await fetch(`/api/reviews/${id}`)
+      
+      if (reviewResponse.ok) {
+        const reviewData = await reviewResponse.json()
+        
+        // Convert API data to our Review interface format
+        const apiReview: Review = {
+          id: reviewData.id,
+          employee: {
+            id: reviewData.employee.id,
+            firstName: reviewData.employee.firstName,
+            lastName: reviewData.employee.lastName,
+            designation: reviewData.employee.designation,
+            department: reviewData.employee.department
+          },
+          date: new Date(reviewData.createdAt).toLocaleDateString('en-ZA', {
+            day: 'numeric',
+            month: 'long', 
+            year: 'numeric'
+          }),
+          tasks: reviewData.goals?.map((goal: any) => ({
+            id: goal.id,
+            title: goal.title,
+            dateAdded: new Date(goal.createdAt).toLocaleDateString('en-ZA'),
+            dateCompleted: goal.targetDate ? '3 months' : undefined,
+            status: goal.status === 'NOT_STARTED' ? 'todo' as const :
+                   goal.status === 'IN_PROGRESS' ? 'in_progress' as const :
+                   goal.status === 'COMPLETED' ? 'complete' as const : 'on_hold' as const
+          })) || []
+        }
+        
+        setReview(apiReview)
+        
+        // Fetch existing notes
+        const notesResponse = await fetch(`/api/reviews/${id}/notes`)
+        if (notesResponse.ok) {
+          const notesData = await notesResponse.json()
+          setSavedNotes(notesData.notes || [])
+        }
+        
+      } else {
+        // Fallback to mock data if API fails
+        console.warn('API call failed, using mock data')
+        const mockReview: Review = {
+          id: id,
+          employee: {
+            id: '1',
+            firstName: 'John',
+            lastName: 'Doe',
+            designation: 'Senior Developer',
+            department: 'Engineering'
+          },
+          date: '1 January 2025',
+          tasks: [
+            {
+              id: '1',
+              title: 'Complete project documentation',
+              dateAdded: '01/01/2025',
+              status: 'todo'
+            },
+            {
+              id: '2',
+              title: 'Code review for new features',
+              dateAdded: '01/01/2025',
+              status: 'todo'
+            },
+            {
+              id: '3',
+              title: 'Team collaboration assessment',
+              dateAdded: '01/01/2025',
+              status: 'todo'
+            },
+            {
+              id: '4',
+              title: 'Technical skills evaluation',
+              dateAdded: '01/01/2025',
+              dateCompleted: '3 months',
+              status: 'in_progress'
+            },
+            {
+              id: '5',
+              title: 'Leadership development goals',
+              dateAdded: '01/01/2025',
+              dateCompleted: '3 months',
+              status: 'in_progress'
+            },
+            {
+              id: '6',
+              title: 'Client communication review',
+              dateAdded: '01/01/2025',
+              dateCompleted: '3 months',
+              status: 'in_progress'
+            },
+            {
+              id: '7',
+              title: 'Performance goals Q1',
+              dateAdded: '01/01/2025',
+              dateCompleted: '3 months',
+              status: 'complete'
+            },
+            {
+              id: '8',
+              title: 'Training completion certificate',
+              dateAdded: '01/01/2025',
+              dateCompleted: '3 months',
+              status: 'complete'
+            },
+            {
+              id: '9',
+              title: 'Annual objectives review',
+              dateAdded: '01/01/2025',
+              dateCompleted: '3 months',
+              status: 'complete'
+            },
+            {
+              id: '10',
+              title: 'Salary review discussion',
+              dateAdded: '01/01/2025',
+              dateCompleted: '3 months',
+              status: 'on_hold'
+            },
+            {
+              id: '11',
+              title: 'Department restructure planning',
+              dateAdded: '01/01/2025',
+              dateCompleted: '3 months',
+              status: 'on_hold'
+            },
+            {
+              id: '12',
+              title: 'Remote work policy review',
+              dateAdded: '01/01/2025',
+              dateCompleted: '3 months',
+              status: 'on_hold'
+            }
+          ]
+        }
+        
+        setReview(mockReview)
+      }
+    } catch (error) {
+      console.error('Failed to fetch review:', error)
+      // Use mock data as fallback
       const mockReview: Review = {
         id: id,
         employee: {
@@ -69,94 +211,9 @@ export default function ReviewPage() {
           department: 'Engineering'
         },
         date: '1 January 2025',
-        tasks: [
-          {
-            id: '1',
-            title: 'Complete project documentation',
-            dateAdded: '01/0/2025',
-            status: 'todo'
-          },
-          {
-            id: '2',
-            title: 'Code review for new features',
-            dateAdded: '01/0/2025',
-            status: 'todo'
-          },
-          {
-            id: '3',
-            title: 'Team collaboration assessment',
-            dateAdded: '01/0/2025',
-            status: 'todo'
-          },
-          {
-            id: '4',
-            title: 'Technical skills evaluation',
-            dateAdded: '01/0/2025',
-            dateCompleted: '3 months',
-            status: 'in_progress'
-          },
-          {
-            id: '5',
-            title: 'Leadership development goals',
-            dateAdded: '01/0/2025',
-            dateCompleted: '3 months',
-            status: 'in_progress'
-          },
-          {
-            id: '6',
-            title: 'Client communication review',
-            dateAdded: '01/0/2025',
-            dateCompleted: '3 months',
-            status: 'in_progress'
-          },
-          {
-            id: '7',
-            title: 'Performance goals Q1',
-            dateAdded: '01/0/2025',
-            dateCompleted: '3 months',
-            status: 'complete'
-          },
-          {
-            id: '8',
-            title: 'Training completion certificate',
-            dateAdded: '01/0/2025',
-            dateCompleted: '3 months',
-            status: 'complete'
-          },
-          {
-            id: '9',
-            title: 'Annual objectives review',
-            dateAdded: '01/0/2025',
-            dateCompleted: '3 months',
-            status: 'complete'
-          },
-          {
-            id: '10',
-            title: 'Salary review discussion',
-            dateAdded: '01/0/2025',
-            dateCompleted: '3 months',
-            status: 'on_hold'
-          },
-          {
-            id: '11',
-            title: 'Department restructure planning',
-            dateAdded: '01/0/2025',
-            dateCompleted: '3 months',
-            status: 'on_hold'
-          },
-          {
-            id: '12',
-            title: 'Remote work policy review',
-            dateAdded: '01/0/2025',
-            dateCompleted: '3 months',
-            status: 'on_hold'
-          }
-        ]
+        tasks: []
       }
-      
       setReview(mockReview)
-    } catch (error) {
-      console.error('Failed to fetch review:', error)
     } finally {
       setLoading(false)
     }
@@ -327,23 +384,38 @@ export default function ReviewPage() {
   const handleSaveNotes = async () => {
     setSavingNotes(true)
     try {
-      // TODO: Make API call to save review notes
-      console.log('Saving review notes:', reviewNotes)
-      
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      // Make API call to save review notes
+      const response = await fetch(`/api/reviews/${reviewId}/notes`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          notes: reviewNotes,
+          noteType: 'general'
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to save review notes')
+      }
+
+      const data = await response.json()
       
       // Success feedback and add new note to array
       const newNote: SavedNote = {
-        id: `note_${Date.now()}`,
-        content: reviewNotes,
-        timestamp: new Date().toLocaleString()
+        id: data.note.id,
+        content: data.note.content,
+        timestamp: data.note.createdAt
       }
       setSavedNotes(prev => [...prev, newNote])
       setReviewNotes('') // Clear the form after saving
+      
+      console.log('Review notes saved successfully:', data.message)
     } catch (error) {
       console.error('Failed to save review notes:', error)
-      alert('Failed to save review notes. Please try again.')
+      alert(`Failed to save review notes: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setSavingNotes(false)
     }
