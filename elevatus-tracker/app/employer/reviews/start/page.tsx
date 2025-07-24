@@ -23,6 +23,8 @@ export default function StartReviewPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [filterDepartment, setFilterDepartment] = useState('')
   const [creatingReview, setCreatingReview] = useState<string | null>(null)
+  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     fetchEmployees()
@@ -91,7 +93,8 @@ export default function StartReviewPage() {
       
     } catch (error) {
       console.error('Failed to start review:', error)
-      alert(`Failed to start review for ${employeeName}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      setErrorMessage(`Failed to start review for ${employeeName}: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      setShowErrorDialog(true)
       setCreatingReview(null)
     }
   }
@@ -340,6 +343,40 @@ export default function StartReviewPage() {
           </div>
         </div>
       </div>
+
+      {/* Error Dialog */}
+      {showErrorDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-secondary-900">Error</h3>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-secondary-700">
+                {errorMessage}
+              </p>
+            </div>
+            
+            <div className="flex justify-end">
+              <button
+                onClick={() => {
+                  setShowErrorDialog(false)
+                  setErrorMessage('')
+                }}
+                className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle h-12 px-6 py-3"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -11,7 +11,7 @@ export default function AttendanceExportPage() {
 
   const handleExport = () => {
     // TODO: Implement export functionality
-    alert('Export functionality will be implemented with backend integration')
+    console.log('Export functionality will be implemented with backend integration')
   }
 
   return (

@@ -53,6 +53,12 @@ export default function ReviewPage() {
   const [completingReview, setCompletingReview] = useState(false)
   const [showCompleteDialog, setShowCompleteDialog] = useState(false)
   const [incompleteTasksCount, setIncompleteTasksCount] = useState(0)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false)
+  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null)
+  const [taskToArchive, setTaskToArchive] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     if (reviewId) {
@@ -475,9 +481,14 @@ export default function ReviewPage() {
     setEditDateCompleted('')
   }
 
-  const handleDeleteTask = async (taskId: string) => {
-    if (review && confirm('Are you sure you want to delete this task?')) {
-      const updatedTasks = review.tasks.filter(task => task.id !== taskId)
+  const handleDeleteTask = (taskId: string) => {
+    setTaskToDelete(taskId)
+    setShowDeleteDialog(true)
+  }
+
+  const confirmDeleteTask = async () => {
+    if (review && taskToDelete) {
+      const updatedTasks = review.tasks.filter(task => task.id !== taskToDelete)
       
       setReview({
         ...review,
@@ -485,8 +496,15 @@ export default function ReviewPage() {
       })
       
       // Delete task from database
-      await deleteTask(taskId)
+      await deleteTask(taskToDelete)
     }
+    setShowDeleteDialog(false)
+    setTaskToDelete(null)
+  }
+
+  const cancelDeleteTask = () => {
+    setShowDeleteDialog(false)
+    setTaskToDelete(null)
   }
 
   const deleteTask = async (taskId: string) => {
@@ -533,9 +551,14 @@ export default function ReviewPage() {
   }
 
   const handleArchiveTask = (taskId: string) => {
-    if (review && confirm('Are you sure you want to archive this completed task?')) {
+    setTaskToArchive(taskId)
+    setShowArchiveDialog(true)
+  }
+
+  const confirmArchiveTask = () => {
+    if (review && taskToArchive) {
       const updatedTasks = review.tasks.map(task => 
-        task.id === taskId ? { ...task, archived: true } : task
+        task.id === taskToArchive ? { ...task, archived: true } : task
       )
       
       setReview({
@@ -544,8 +567,15 @@ export default function ReviewPage() {
       })
       
       // TODO: Make API call to archive task
-      console.log(`Task ${taskId} archived`)
+      console.log(`Task ${taskToArchive} archived`)
     }
+    setShowArchiveDialog(false)
+    setTaskToArchive(null)
+  }
+
+  const cancelArchiveTask = () => {
+    setShowArchiveDialog(false)
+    setTaskToArchive(null)
   }
 
   const handleUnarchiveTask = (taskId: string) => {
@@ -598,7 +628,8 @@ export default function ReviewPage() {
       console.log('Review notes saved successfully:', data.message)
     } catch (error) {
       console.error('Failed to save review notes:', error)
-      alert(`Failed to save review notes: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      setErrorMessage(`Failed to save review notes: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      setShowErrorDialog(true)
     } finally {
       setSavingNotes(false)
     }
@@ -1483,6 +1514,132 @@ export default function ReviewPage() {
                     <span className="leading-tight">Complete<br />Review</span>
                   </>
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Task Confirmation Dialog */}
+      {showDeleteDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-secondary-900">Delete Task</h3>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-secondary-700 mb-2">
+                Are you sure you want to delete this task?
+              </p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mt-4">
+                <p className="text-sm text-red-800">
+                  <span className="font-semibold">Warning:</span> This action cannot be undone. The task will be permanently removed.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={cancelDeleteTask}
+                className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border border-secondary-300 bg-white text-secondary-900 hover:bg-secondary-50 focus:ring-secondary-500 h-12 px-6 py-3"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteTask}
+                className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 h-12 px-6 py-3"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete Task
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Archive Task Confirmation Dialog */}
+      {showArchiveDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
+                <svg className="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 370 570">
+                  <path d="M185.3,129.6c34.4,0,68.7,0,103.1.1,4.2,0,8.6.8,12.4,2.4,10.8,4.5,15.9,13.6,16.6,24.8.6,11,.3,22.1,0,33.1-.2,10.4-5.1,18.5-14.2,23.7-3.4,2-4.7,4.2-4.7,8.2.2,44.7,0,89.3.2,134,0,13.4-10.1,26.9-21.4,29.2-3,.6-6.2,1-9.3,1-55,0-110.1,0-165.1,0-3.1,0-6.2-.4-9.3-1-11.1-2.1-21.7-15.7-21.6-29.1.3-44.8,0-89.6.2-134.4,0-3.9-1.2-6.1-4.5-7.9-9.4-5.3-14.2-13.6-14.4-24.3-.2-10.5-.3-21.1,0-31.6.4-15.4,11.9-28.3,28.5-28.2,34.5,0,69,0,103.5,0ZM90.8,218.5c0,1.5,0,2.7,0,3.8,0,44,0,88.1,0,132.1,0,8.8,3.4,12.2,12.3,12.2,54.9,0,109.9,0,164.8,0,8.6,0,12-3.5,12-12.1,0-44,0-88.1,0-132.1,0-1.3,0-2.6,0-3.9H90.8ZM185.8,149.1c-34.5,0-69,0-103.4,0-6.9,0-10.4,3.5-10.4,10.4,0,9.4,0,18.8,0,28.2,0,7.2,4.1,11.2,11.1,11.2,68.2,0,136.4,0,204.6,0,7.1,0,11.1-4,11.2-11.1,0-9.2,0-18.3,0-27.5,0-7.9-3.3-11.2-11.1-11.2-34,0-68,0-101.9,0Z"/>
+                  <path d="M185.3,247.7c9.1,0,18.3.2,27.4,0,6.8-.2,9.7,4.3,10.2,10,.4,5-4,9.4-9.7,9.4-18.7.2-37.3.2-56,0-5.6,0-10.1-4.5-9.7-9.4.5-5.7,3.4-10.2,10.2-10,9.1.2,18.3,0,27.4,0Z"/>
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-secondary-900">Archive Task</h3>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-secondary-700 mb-2">
+                Are you sure you want to archive this completed task?
+              </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+                <p className="text-sm text-blue-800">
+                  <span className="font-semibold">Note:</span> Archived tasks can be restored later and will be hidden from the main view.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={cancelArchiveTask}
+                className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border border-secondary-300 bg-white text-secondary-900 hover:bg-secondary-50 focus:ring-secondary-500 h-12 px-6 py-3"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmArchiveTask}
+                className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-orange-600 text-white hover:bg-orange-700 focus:ring-orange-500 h-12 px-6 py-3"
+              >
+                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 370 570">
+                  <path d="M185.3,129.6c34.4,0,68.7,0,103.1.1,4.2,0,8.6.8,12.4,2.4,10.8,4.5,15.9,13.6,16.6,24.8.6,11,.3,22.1,0,33.1-.2,10.4-5.1,18.5-14.2,23.7-3.4,2-4.7,4.2-4.7,8.2.2,44.7,0,89.3.2,134,0,13.4-10.1,26.9-21.4,29.2-3,.6-6.2,1-9.3,1-55,0-110.1,0-165.1,0-3.1,0-6.2-.4-9.3-1-11.1-2.1-21.7-15.7-21.6-29.1.3-44.8,0-89.6.2-134.4,0-3.9-1.2-6.1-4.5-7.9-9.4-5.3-14.2-13.6-14.4-24.3-.2-10.5-.3-21.1,0-31.6.4-15.4,11.9-28.3,28.5-28.2,34.5,0,69,0,103.5,0ZM90.8,218.5c0,1.5,0,2.7,0,3.8,0,44,0,88.1,0,132.1,0,8.8,3.4,12.2,12.3,12.2,54.9,0,109.9,0,164.8,0,8.6,0,12-3.5,12-12.1,0-44,0-88.1,0-132.1,0-1.3,0-2.6,0-3.9H90.8ZM185.8,149.1c-34.5,0-69,0-103.4,0-6.9,0-10.4,3.5-10.4,10.4,0,9.4,0,18.8,0,28.2,0,7.2,4.1,11.2,11.1,11.2,68.2,0,136.4,0,204.6,0,7.1,0,11.1-4,11.2-11.1,0-9.2,0-18.3,0-27.5,0-7.9-3.3-11.2-11.1-11.2-34,0-68,0-101.9,0Z"/>
+                  <path d="M185.3,247.7c9.1,0,18.3.2,27.4,0,6.8-.2,9.7,4.3,10.2,10,.4,5-4,9.4-9.7,9.4-18.7.2-37.3.2-56,0-5.6,0-10.1-4.5-9.7-9.4.5-5.7,3.4-10.2,10.2-10,9.1.2,18.3,0,27.4,0Z"/>
+                </svg>
+                Archive Task
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Dialog */}
+      {showErrorDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-secondary-900">Error</h3>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-secondary-700">
+                {errorMessage}
+              </p>
+            </div>
+            
+            <div className="flex justify-end">
+              <button
+                onClick={() => {
+                  setShowErrorDialog(false)
+                  setErrorMessage('')
+                }}
+                className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle h-12 px-6 py-3"
+              >
+                OK
               </button>
             </div>
           </div>
