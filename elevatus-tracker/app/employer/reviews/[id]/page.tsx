@@ -14,6 +14,12 @@ interface Task {
   status: 'todo' | 'in_progress' | 'complete' | 'on_hold'
 }
 
+interface SavedNote {
+  id: string
+  content: string
+  timestamp: string
+}
+
 interface Employee {
   id: string
   firstName: string
@@ -35,8 +41,7 @@ export default function ReviewPage() {
   
   const [review, setReview] = useState<Review | null>(null)
   const [loading, setLoading] = useState(true)
-  const [savedNotes, setSavedNotes] = useState('')
-  const [lastSaved, setLastSaved] = useState<string | null>(null)
+  const [savedNotes, setSavedNotes] = useState<SavedNote[]>([])
   const [draggedTask, setDraggedTask] = useState<Task | null>(null)
   const [editingTask, setEditingTask] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
@@ -315,9 +320,13 @@ export default function ReviewPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // Success feedback and update saved notes
-      setSavedNotes(reviewNotes)
-      setLastSaved(new Date().toLocaleString())
+      // Success feedback and add new note to array
+      const newNote: SavedNote = {
+        id: `note_${Date.now()}`,
+        content: reviewNotes,
+        timestamp: new Date().toLocaleString()
+      }
+      setSavedNotes(prev => [...prev, newNote])
       setReviewNotes('') // Clear the form after saving
       alert('Review notes saved successfully!')
     } catch (error) {
@@ -521,29 +530,29 @@ export default function ReviewPage() {
         </div>
 
         {/* Saved Notes Display */}
-        {savedNotes && (
-          <div className="bg-white border border-secondary-200 rounded-2xl p-6 mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-secondary-900">Saved Review Notes</h3>
-              <div className="flex items-center space-x-4">
-                <span className="text-xs text-secondary-500">
-                  Saved: {lastSaved}
-                </span>
-                <button
-                  onClick={() => {
-                    setSavedNotes('')
-                    setLastSaved(null)
-                  }}
-                  className="text-xs text-red-600 hover:text-red-800 underline"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-            <div className="prose prose-sm max-w-none">
-              <div className="bg-secondary-50 rounded-lg p-4 whitespace-pre-wrap text-secondary-700">
-                {savedNotes}
-              </div>
+        {savedNotes.length > 0 && (
+          <div className="mb-8">
+            <h4 className="text-sm font-medium text-secondary-600 mb-3">Previous Notes ({savedNotes.length})</h4>
+            <div className="space-y-3">
+              {savedNotes.map((note) => (
+                <div key={note.id} className="bg-secondary-50 border border-secondary-100 rounded-lg p-4 group">
+                  <div className="flex items-start justify-between mb-2">
+                    <span className="text-xs text-secondary-500">{note.timestamp}</span>
+                    <button
+                      onClick={() => {
+                        setSavedNotes(prev => prev.filter(n => n.id !== note.id))
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-red-500 hover:text-red-700"
+                      title="Delete this note"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="text-sm text-secondary-700 whitespace-pre-wrap">
+                    {note.content}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
