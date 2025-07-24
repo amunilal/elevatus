@@ -328,7 +328,6 @@ export default function ReviewPage() {
       }
       setSavedNotes(prev => [...prev, newNote])
       setReviewNotes('') // Clear the form after saving
-      alert('Review notes saved successfully!')
     } catch (error) {
       console.error('Failed to save review notes:', error)
       alert('Failed to save review notes. Please try again.')
