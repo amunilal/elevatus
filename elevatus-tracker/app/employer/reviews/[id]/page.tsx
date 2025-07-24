@@ -266,7 +266,20 @@ export default function ReviewPage() {
     setEditDateCompleted('')
   }
 
-  const handleCancelEdit = () => {
+  const handleCancelEdit = (taskId?: string) => {
+    // If task is being cancelled and has empty title, delete it
+    if (taskId && review && editTitle.trim() === '') {
+      const taskToCheck = review.tasks.find(task => task.id === taskId)
+      if (taskToCheck && taskToCheck.title === '') {
+        // This is a new task with no content, delete it
+        const updatedTasks = review.tasks.filter(task => task.id !== taskId)
+        setReview({
+          ...review,
+          tasks: updatedTasks
+        })
+      }
+    }
+    
     setEditingTask(null)
     setEditTitle('')
     setEditDateCompleted('')
@@ -594,7 +607,7 @@ export default function ReviewPage() {
                         onChange={(e) => setEditTitle(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') handleSaveEdit(task.id)
-                          if (e.key === 'Escape') handleCancelEdit()
+                          if (e.key === 'Escape') handleCancelEdit(task.id)
                         }}
                         className="font-semibold text-secondary-900 bg-transparent border-b border-secondary-300 focus:outline-none focus:border-brand-middle px-0 py-1 flex-1 mr-2"
                         placeholder="Enter task title..."
@@ -616,7 +629,7 @@ export default function ReviewPage() {
                             </svg>
                           </button>
                           <button
-                            onClick={handleCancelEdit}
+                            onClick={() => handleCancelEdit(task.id)}
                             className="w-6 h-6 flex items-center justify-center rounded hover:bg-error-100 text-error-600"
                           >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -711,7 +724,7 @@ export default function ReviewPage() {
                         onChange={(e) => setEditTitle(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') handleSaveEdit(task.id)
-                          if (e.key === 'Escape') handleCancelEdit()
+                          if (e.key === 'Escape') handleCancelEdit(task.id)
                         }}
                         className="font-semibold text-secondary-900 bg-transparent border-b border-secondary-300 focus:outline-none focus:border-brand-middle px-0 py-1 flex-1 mr-2"
                         placeholder="Enter task title..."
@@ -733,7 +746,7 @@ export default function ReviewPage() {
                             </svg>
                           </button>
                           <button
-                            onClick={handleCancelEdit}
+                            onClick={() => handleCancelEdit(task.id)}
                             className="w-6 h-6 flex items-center justify-center rounded hover:bg-error-100 text-error-600"
                           >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -828,7 +841,7 @@ export default function ReviewPage() {
                         onChange={(e) => setEditTitle(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') handleSaveEdit(task.id)
-                          if (e.key === 'Escape') handleCancelEdit()
+                          if (e.key === 'Escape') handleCancelEdit(task.id)
                         }}
                         className="font-semibold text-secondary-900 bg-transparent border-b border-secondary-300 focus:outline-none focus:border-brand-middle px-0 py-1 flex-1 mr-2"
                         placeholder="Enter task title..."
@@ -850,7 +863,7 @@ export default function ReviewPage() {
                             </svg>
                           </button>
                           <button
-                            onClick={handleCancelEdit}
+                            onClick={() => handleCancelEdit(task.id)}
                             className="w-6 h-6 flex items-center justify-center rounded hover:bg-error-100 text-error-600"
                           >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -945,7 +958,7 @@ export default function ReviewPage() {
                         onChange={(e) => setEditTitle(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') handleSaveEdit(task.id)
-                          if (e.key === 'Escape') handleCancelEdit()
+                          if (e.key === 'Escape') handleCancelEdit(task.id)
                         }}
                         className="font-semibold text-secondary-900 bg-transparent border-b border-secondary-300 focus:outline-none focus:border-brand-middle px-0 py-1 flex-1 mr-2"
                         placeholder="Enter task title..."
@@ -967,7 +980,7 @@ export default function ReviewPage() {
                             </svg>
                           </button>
                           <button
-                            onClick={handleCancelEdit}
+                            onClick={() => handleCancelEdit(task.id)}
                             className="w-6 h-6 flex items-center justify-center rounded hover:bg-error-100 text-error-600"
                           >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
