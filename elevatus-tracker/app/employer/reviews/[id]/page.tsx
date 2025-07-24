@@ -35,7 +35,8 @@ export default function ReviewPage() {
   
   const [review, setReview] = useState<Review | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showNotes, setShowNotes] = useState(true)
+  const [savedNotes, setSavedNotes] = useState('')
+  const [lastSaved, setLastSaved] = useState<string | null>(null)
   const [draggedTask, setDraggedTask] = useState<Task | null>(null)
   const [editingTask, setEditingTask] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
@@ -194,11 +195,11 @@ export default function ReviewPage() {
     setDraggedTask(task)
     e.dataTransfer.effectAllowed = 'move'
     e.dataTransfer.setData('text/html', e.currentTarget.outerHTML)
-    e.currentTarget.style.opacity = '0.5'
+    (e.currentTarget as HTMLElement).style.opacity = '0.5'
   }
 
   const handleDragEnd = (e: React.DragEvent) => {
-    e.currentTarget.style.opacity = '1'
+    (e.currentTarget as HTMLElement).style.opacity = '1'
     setDraggedTask(null)
   }
 
@@ -314,9 +315,11 @@ export default function ReviewPage() {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000))
       
-      // Success feedback
+      // Success feedback and update saved notes
+      setSavedNotes(reviewNotes)
+      setLastSaved(new Date().toLocaleString())
+      setReviewNotes('') // Clear the form after saving
       alert('Review notes saved successfully!')
-      setShowNotes(false)
     } catch (error) {
       console.error('Failed to save review notes:', error)
       alert('Failed to save review notes. Please try again.')
@@ -325,11 +328,7 @@ export default function ReviewPage() {
     }
   }
 
-  const handleCancelNotes = () => {
-    setShowNotes(false)
-    // Reset to last saved state if needed
-    // setReviewNotes(review?.notes || '')
-  }
+  // Function removed - no longer needed as notes are not collapsible
 
   if (loading) {
     return (
@@ -467,24 +466,11 @@ export default function ReviewPage() {
           
           <div className="flex items-center space-x-6 mb-6">
             <p className="text-lg text-secondary-700">Date: {review.date}</p>
-            <button
-              onClick={() => setShowNotes(!showNotes)}
-              className="flex items-center space-x-2 text-secondary-700 hover:text-secondary-900"
-            >
-              <span>Review notes</span>
-              <svg 
-                className={`w-4 h-4 transition-transform ${showNotes ? 'rotate-180' : ''}`} 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
+            <span className="text-lg font-medium text-secondary-900">Review Notes</span>
           </div>
 
-          {showNotes && (
-            <div className="bg-light-blue border border-brand-middle/20 rounded-2xl p-6 mb-6">
+          {/* Review Notes Form */}
+          <div className="bg-light-blue border border-brand-middle/20 rounded-2xl p-6 mb-6">
               <div className="mb-4">
                 <label className="block text-sm font-medium text-secondary-700 mb-2">
                   Review Notes
@@ -502,15 +488,15 @@ export default function ReviewPage() {
               </div>
               <div className="flex justify-between items-center">
                 <div className="text-sm text-secondary-600">
-                  <span className="font-medium">Last saved:</span> Never saved
+                  <span className="font-medium">Last saved:</span> {lastSaved || 'Never saved'}
                 </div>
                 <div className="flex space-x-3">
                   <button 
-                    onClick={handleCancelNotes}
+                    onClick={() => setReviewNotes('')}
                     disabled={savingNotes}
                     className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-secondary-300 bg-white text-secondary-900 hover:bg-light-purple hover:border-hover-lavender focus:ring-brand-middle h-10 px-4 py-2"
                   >
-                    Cancel
+                    Clear
                   </button>
                   <button 
                     onClick={handleSaveNotes}
@@ -532,8 +518,35 @@ export default function ReviewPage() {
                 </div>
               </div>
             </div>
-          )}
         </div>
+
+        {/* Saved Notes Display */}
+        {savedNotes && (
+          <div className="bg-white border border-secondary-200 rounded-2xl p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-secondary-900">Saved Review Notes</h3>
+              <div className="flex items-center space-x-4">
+                <span className="text-xs text-secondary-500">
+                  Saved: {lastSaved}
+                </span>
+                <button
+                  onClick={() => {
+                    setSavedNotes('')
+                    setLastSaved(null)
+                  }}
+                  className="text-xs text-red-600 hover:text-red-800 underline"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+            <div className="prose prose-sm max-w-none">
+              <div className="bg-secondary-50 rounded-lg p-4 whitespace-pre-wrap text-secondary-700">
+                {savedNotes}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Kanban Board */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -879,7 +892,7 @@ export default function ReviewPage() {
               {getTasksByStatus('complete').length === 0 && (
                 <div className="text-center py-8 text-secondary-400">
                   <svg className="w-8 h-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinecap="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                   <p className="text-sm">Drop tasks here</p>
                 </div>
@@ -1011,8 +1024,8 @@ export default function ReviewPage() {
           <button 
             onClick={() => handleAddTask('todo')}
             className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-secondary-300 bg-white text-secondary-900 focus:ring-brand-middle h-12 px-6 py-3"
-            onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'rgba(238, 125, 189, 0.1)'}
-            onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'white'}
+            onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = 'rgba(238, 125, 189, 0.1)'}
+            onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.backgroundColor = 'white'}
           >
             <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
