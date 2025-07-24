@@ -30,7 +30,8 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 - **Interactive Task Creation**: Add tasks directly to any column with dedicated + buttons in headers
 - **Inline Task Editing**: Edit task titles with keyboard shortcuts (Enter to save, Escape to cancel)
 - **Task Operations**: Delete tasks with confirmation dialogs and visual feedback
-- **Review Notes**: Expandable notes section with character count, save functionality, and loading states
+- **Review Notes**: Expandable notes section (expanded by default) with character count, save functionality, and loading states
+- **Fixed Column Headers**: Task count badges properly contained within column boundaries
 - **Status Tracking**: Visual progress bars and color-coded status indicators
 - **Modern Interface**: Consistent design system with intuitive hover effects and transitions
 
@@ -281,6 +282,17 @@ The repository includes a GitHub Actions workflow that:
 - Development test data with auto-fill functionality
 - Unified design system with custom icons and coordinated color palette
 - Enhanced user experience with consistent navigation and branding
+
+### Recent UI/UX Improvements ✨
+- **Dashboard Redesign**: Removed "Present Today" card, updated card titles for clarity
+- **Employee List Enhancements**: Removed actions column, implemented clickable rows with purple hover
+- **Right-Side Sidebar**: Full-width (50%) slide-in sidebar with drag-to-resize functionality (30%-90%)
+- **Navigation Updates**: Consistent logo design across all pages, dashboard button in nav bar
+- **Search & Filters**: Clean white background design with focus states, removed gradient styling
+- **Review Page Fixes**: Task count badges now properly contained within column headers
+- **Review Notes Default**: Notes section expanded by default for better accessibility
+- **Portal Buttons**: Updated landing page with solid purple styling for employer portal
+- **Toast Notifications**: Larger size with design system colors for better visibility
 
 ### Planned Features 🚧
 - Advanced review analytics and reporting features

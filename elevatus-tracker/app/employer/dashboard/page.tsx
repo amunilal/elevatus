@@ -1,34 +1,24 @@
 'use client'
 
-import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Badge } from '@/components/ui/Badge'
 import { Logo } from '@/components/ui/Logo'
+import { useActivity } from '@/contexts/ActivityContext'
 
 export default function EmployerDashboardPage() {
-  const [totalEmployees, setTotalEmployees] = useState<number>(0)
-  const [loading, setLoading] = useState(true)
+  const { activities } = useActivity()
 
-  useEffect(() => {
-    fetchEmployeeCount()
-  }, [])
+  const formatRelativeTime = (timestamp: string) => {
+    const now = new Date()
+    const activityTime = new Date(timestamp)
+    const diffInMinutes = Math.floor((now.getTime() - activityTime.getTime()) / (1000 * 60))
 
-  const fetchEmployeeCount = async () => {
-    try {
-      const response = await fetch('/api/employees')
-      if (response.ok) {
-        const employees = await response.json()
-        if (Array.isArray(employees)) {
-          setTotalEmployees(employees.length)
-        }
-      }
-    } catch (error) {
-      console.error('Failed to fetch employee count:', error)
-      setTotalEmployees(0)
-    } finally {
-      setLoading(false)
-    }
+    if (diffInMinutes < 1) return 'Just now'
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`
+    return `${Math.floor(diffInMinutes / 1440)}d ago`
   }
+
   return (
     <div className="min-h-screen bg-bg-base">
       {/* Simple Header - matching Figma */}
@@ -67,7 +57,7 @@ export default function EmployerDashboardPage() {
         </div>
 
         {/* Stats Grid - Simplified like Figma */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           {/* Total Employees */}
           <Link href="/employer/employees" className="block">
             <div className="bg-nav-white rounded-2xl p-6 hover:shadow-medium transition-shadow cursor-pointer">
@@ -79,9 +69,7 @@ export default function EmployerDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-hover-teal mb-1">Total Employees</p>
-                  <p className="text-2xl font-bold text-secondary-900">
-                    {loading ? '...' : totalEmployees}
-                  </p>
+                  <p className="text-2xl font-bold text-secondary-900">24</p>
                 </div>
               </div>
             </div>
@@ -90,14 +78,14 @@ export default function EmployerDashboardPage() {
           {/* Pending Reviews */}
           <div className="bg-nav-white rounded-2xl p-6">
             <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#5F44B2' }}>
+              <div className="w-10 h-10 bg-brand-middle rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-medium mb-1" style={{ color: '#5F44B2' }}>Pending reviews</p>
-                <p className="text-2xl font-bold text-secondary-900">5</p>
+                <p className="text-sm font-medium text-brand-middle mb-1">Pending reviews</p>
+                <p className="text-2xl font-bold text-secondary-900">6</p>
               </div>
             </div>
           </div>
@@ -121,7 +109,7 @@ export default function EmployerDashboardPage() {
         {/* Quick Actions - Matching Figma layout */}
         <div className="bg-nav-white rounded-2xl p-8 mb-12">
           <h2 className="text-xl font-bold text-secondary-900 mb-6">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link 
               href="/employer/employees/new"
               className="block p-6 rounded-2xl bg-light-mint hover:bg-hover-aqua transition-colors"
@@ -135,16 +123,23 @@ export default function EmployerDashboardPage() {
               className="block p-6 rounded-2xl bg-light-purple hover:bg-hover-lavender transition-colors"
             >
               <h3 className="font-semibold text-secondary-900 mb-2">Start Review</h3>
-              <p className="text-sm text-secondary-600">Begin performance review</p>
+              <p className="text-sm text-secondary-600">Begin employee performance review</p>
             </Link>
             
             <Link 
               href="/employer/reviews/history"
-              className="block p-6 rounded-2xl hover:bg-hover-lime transition-colors"
-              style={{ backgroundColor: '#F0FFC2' }}
+              className="block p-6 rounded-2xl bg-light-green hover:bg-hover-lime transition-colors"
             >
               <h3 className="font-semibold text-secondary-900 mb-2">Review History</h3>
-              <p className="text-sm text-secondary-600">18</p>
+              <p className="text-sm text-secondary-600">List of past employee reviews</p>
+            </Link>
+            
+            <Link 
+              href="/employer/reports"
+              className="block p-6 rounded-2xl bg-light-coral hover:bg-hover-coral transition-colors"
+            >
+              <h3 className="font-semibold text-secondary-900 mb-2">Report Analyst</h3>
+              <p className="text-sm text-secondary-600">Generate and analyze reports</p>
             </Link>
           </div>
         </div>
@@ -152,8 +147,45 @@ export default function EmployerDashboardPage() {
         {/* Recent Activity - Clean minimal style */}
         <div className="bg-nav-white rounded-2xl p-8">
           <h2 className="text-xl font-bold text-secondary-900 mb-6">Recent activity</h2>
-          <div className="space-y-1">
-            <p className="text-sm text-secondary-600">No recent activity to display</p>
+          <div className="space-y-4">
+            {activities.length > 0 ? (
+              activities.map((activity) => (
+                <div key={activity.id} className="flex items-start space-x-3 p-3 rounded-lg hover:bg-light-purple transition-colors">
+                  <div className="w-8 h-8 bg-brand-middle rounded-full flex items-center justify-center flex-shrink-0">
+                    {activity.type === 'employee_created' && (
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                    )}
+                    {activity.type === 'employee_updated' && (
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    )}
+                    {activity.type === 'review_started' && (
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    )}
+                    {activity.type === 'review_completed' && (
+                      <svg className="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-secondary-900">{activity.message}</p>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <span className="text-xs text-secondary-500">by {activity.user}</span>
+                      <span className="text-xs text-secondary-400">•</span>
+                      <span className="text-xs text-secondary-500">{formatRelativeTime(activity.timestamp)}</span>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-secondary-600">No recent activity to display</p>
+            )}
           </div>
         </div>
       </div>

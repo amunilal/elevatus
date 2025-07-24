@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useToast } from '@/contexts/ToastContext'
+import { useActivity } from '@/contexts/ActivityContext'
 import { getDepartments, getPositionsForDepartment, isValidDepartmentPosition } from '@/lib/departmentPositions'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/Card'
 import { Button } from '@/components/ui/Button'
@@ -24,6 +25,7 @@ import {
 export default function NewEmployeePage() {
   const router = useRouter()
   const { showToast } = useToast()
+  const { addActivity } = useActivity()
   const [loading, setLoading] = useState(false)
   const bankingDetails = getBankingDetails()
   const [formData, setFormData] = useState({
@@ -148,6 +150,15 @@ export default function NewEmployeePage() {
       })
 
       if (response.ok) {
+        const createdEmployee = await response.json()
+        
+        // Add activity
+        addActivity({
+          type: 'employee_created',
+          message: `New employee ${formData.firstName} ${formData.lastName} added to ${formData.department}`,
+          user: 'Admin'
+        })
+        
         showToast({
           type: 'success',
           title: 'Employee created successfully',
@@ -183,8 +194,9 @@ export default function NewEmployeePage() {
       <header className="bg-nav-white border-b border-secondary-200 shadow-soft">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
-            <div className="flex items-center space-x-4">
-              <Logo size="md" />
+            <div className="flex items-center space-x-3">
+              <Logo size="sm" />
+              <Badge variant="purple" size="sm">Employer Portal</Badge>
               <Badge variant="mint" size="sm">Add Employee</Badge>
             </div>
             <div className="flex items-center space-x-3">
@@ -203,6 +215,7 @@ export default function NewEmployeePage() {
               <Button variant="outline" size="sm" asChild>
                 <Link href="/employer/employees">Back to Employees</Link>
               </Button>
+              <button className="text-sm text-hover-magenta font-medium">Sign out</button>
             </div>
           </div>
         </div>
@@ -218,7 +231,7 @@ export default function NewEmployeePage() {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           {/* Personal Information */}
-          <Card className="bg-light-mint">
+          <Card className="bg-light-purple">
             <CardHeader>
               <CardTitle>Personal Information</CardTitle>
               <CardDescription>Basic employee details and contact information</CardDescription>
@@ -334,7 +347,7 @@ export default function NewEmployeePage() {
           </Card>
 
           {/* Employment Information */}
-          <Card className="bg-light-yellow">
+          <Card className="bg-light-purple">
             <CardHeader>
               <CardTitle>Employment Information</CardTitle>
               <CardDescription>Job role, department, and employment details</CardDescription>
@@ -512,7 +525,7 @@ export default function NewEmployeePage() {
           </Card>
 
           {/* Emergency Contact */}
-          <Card className="bg-light-pink">
+          <Card className="bg-light-purple">
             <CardHeader>
               <CardTitle>Emergency Contact</CardTitle>
               <CardDescription>Contact information for emergencies</CardDescription>

@@ -35,7 +35,7 @@ export default function ReviewPage() {
   
   const [review, setReview] = useState<Review | null>(null)
   const [loading, setLoading] = useState(true)
-  const [showNotes, setShowNotes] = useState(false)
+  const [showNotes, setShowNotes] = useState(true)
   const [draggedTask, setDraggedTask] = useState<Task | null>(null)
   const [editingTask, setEditingTask] = useState<string | null>(null)
   const [editTitle, setEditTitle] = useState('')
@@ -534,27 +534,28 @@ export default function ReviewPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* To Do Column */}
           <div 
-            className={`${getColumnColor('todo')} rounded-2xl p-6 shadow-soft transition-all duration-200 min-h-96`}
+            className={`${getColumnColor('todo')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, 'todo')}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-secondary-900">To do</h2>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handleAddTask('todo')}
-                  className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-gray-200 text-gray-600 transition-all duration-200"
-                  title="Add new task to To do"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                  </svg>
-                </button>
-                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {getTasksByStatus('todo').length}
-                </span>
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-secondary-900">To do</h2>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleAddTask('todo')}
+                    className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-gray-200 text-gray-600 transition-all duration-200"
+                    title="Add new task to To do"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    </svg>
+                  </button>
+                  <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                    {getTasksByStatus('todo').length}
+                  </span>
+                </div>
               </div>
-            </div>
             <div className="space-y-4">
               {getTasksByStatus('todo').map((task) => (
                 <div 
@@ -642,31 +643,33 @@ export default function ReviewPage() {
                 </div>
               )}
             </div>
+            </div>
           </div>
 
           {/* In Progress Column */}
           <div 
-            className={`${getColumnColor('in_progress')} rounded-2xl p-6 shadow-soft transition-all duration-200 min-h-96`}
+            className={`${getColumnColor('in_progress')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, 'in_progress')}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-secondary-900">In Progress</h2>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handleAddTask('in_progress')}
-                  className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-purple-200 text-purple-600 transition-all duration-200"
-                  title="Add new task to In Progress"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-secondary-900">In Progress</h2>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleAddTask('in_progress')}
+                    className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-purple-200 text-purple-600 transition-all duration-200"
+                    title="Add new task to In Progress"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                </button>
-                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {getTasksByStatus('in_progress').length}
-                </span>
+                  </button>
+                  <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                    {getTasksByStatus('in_progress').length}
+                  </span>
+                </div>
               </div>
-            </div>
             <div className="space-y-4">
               {getTasksByStatus('in_progress').map((task) => (
                 <div 
@@ -754,31 +757,33 @@ export default function ReviewPage() {
                 </div>
               )}
             </div>
+            </div>
           </div>
 
           {/* Complete Column */}
           <div 
-            className={`${getColumnColor('complete')} rounded-2xl p-6 shadow-soft transition-all duration-200 min-h-96`}
+            className={`${getColumnColor('complete')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, 'complete')}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-secondary-900">Complete</h2>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handleAddTask('complete')}
-                  className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-green-200 text-green-600 transition-all duration-200"
-                  title="Add new task to Complete"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-secondary-900">Complete</h2>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleAddTask('complete')}
+                    className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-green-200 text-green-600 transition-all duration-200"
+                    title="Add new task to Complete"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                </button>
-                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {getTasksByStatus('complete').length}
-                </span>
+                  </button>
+                  <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                    {getTasksByStatus('complete').length}
+                  </span>
+                </div>
               </div>
-            </div>
             <div className="space-y-4">
               {getTasksByStatus('complete').map((task) => (
                 <div 
@@ -866,31 +871,33 @@ export default function ReviewPage() {
                 </div>
               )}
             </div>
+            </div>
           </div>
 
           {/* On Hold Column */}
           <div 
-            className={`${getColumnColor('on_hold')} rounded-2xl p-6 shadow-soft transition-all duration-200 min-h-96`}
+            className={`${getColumnColor('on_hold')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, 'on_hold')}
           >
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-secondary-900">On hold</h2>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handleAddTask('on_hold')}
-                  className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-yellow-200 text-yellow-600 transition-all duration-200"
-                  title="Add new task to On hold"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-secondary-900">On hold</h2>
+                <div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleAddTask('on_hold')}
+                    className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-yellow-200 text-yellow-600 transition-all duration-200"
+                    title="Add new task to On hold"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
-                </button>
-                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {getTasksByStatus('on_hold').length}
-                </span>
+                  </button>
+                  <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                    {getTasksByStatus('on_hold').length}
+                  </span>
+                </div>
               </div>
-            </div>
             <div className="space-y-4">
               {getTasksByStatus('on_hold').map((task) => (
                 <div 
@@ -977,6 +984,7 @@ export default function ReviewPage() {
                   <p className="text-sm">Drop tasks here</p>
                 </div>
               )}
+            </div>
             </div>
           </div>
         </div>
