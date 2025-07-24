@@ -17,7 +17,7 @@ export default function AttendanceBulkPage() {
 
   const handleBulkAction = () => {
     // TODO: Implement bulk action functionality
-    alert('Bulk action functionality will be implemented with backend integration')
+    console.log('Bulk action functionality will be implemented with backend integration')
   }
 
   const employees = [

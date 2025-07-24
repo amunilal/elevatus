@@ -12,6 +12,7 @@ interface Task {
   dateAdded: string
   dateCompleted?: string
   status: 'todo' | 'in_progress' | 'complete' | 'on_hold'
+  archived?: boolean
 }
 
 interface SavedNote {
@@ -48,6 +49,16 @@ export default function ReviewPage() {
   const [editDateCompleted, setEditDateCompleted] = useState('')
   const [reviewNotes, setReviewNotes] = useState('')
   const [savingNotes, setSavingNotes] = useState(false)
+  const [showArchived, setShowArchived] = useState(false)
+  const [completingReview, setCompletingReview] = useState(false)
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false)
+  const [incompleteTasksCount, setIncompleteTasksCount] = useState(0)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showArchiveDialog, setShowArchiveDialog] = useState(false)
+  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [taskToDelete, setTaskToDelete] = useState<string | null>(null)
+  const [taskToArchive, setTaskToArchive] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState('')
 
   useEffect(() => {
     if (reviewId) {
@@ -220,7 +231,22 @@ export default function ReviewPage() {
   }
 
   const getTasksByStatus = (status: Task['status']) => {
-    return review?.tasks.filter(task => task.status === status) || []
+    if (status === 'complete') {
+      // For complete tasks, filter by archived status based on showArchived toggle
+      return review?.tasks.filter(task => 
+        task.status === status && (showArchived ? task.archived === true : !task.archived)
+      ) || []
+    }
+    // For other statuses, just filter by status (archived doesn't apply)
+    return review?.tasks.filter(task => task.status === status && !task.archived) || []
+  }
+
+  const getArchivedTasksCount = () => {
+    return review?.tasks.filter(task => task.status === 'complete' && task.archived === true).length || 0
+  }
+
+  const getActiveCompleteTasksCount = () => {
+    return review?.tasks.filter(task => task.status === 'complete' && !task.archived).length || 0
   }
 
   const getStatusColor = (status: Task['status']) => {
@@ -270,7 +296,7 @@ export default function ReviewPage() {
     e.dataTransfer.dropEffect = 'move'
   }
 
-  const handleDrop = (e: React.DragEvent, newStatus: Task['status']) => {
+  const handleDrop = async (e: React.DragEvent, newStatus: Task['status']) => {
     e.preventDefault()
     
     if (draggedTask && draggedTask.status !== newStatus) {
@@ -286,13 +312,47 @@ export default function ReviewPage() {
           ...review,
           tasks: updatedTasks
         })
+
+        // Save the task status update to the database
+        await saveTaskStatusUpdate(draggedTask.id, newStatus)
       }
       
-      // TODO: Make API call to update task status
       console.log(`Task ${draggedTask.id} moved to ${newStatus}`)
     }
     
     setDraggedTask(null)
+  }
+
+  const saveTaskStatusUpdate = async (taskId: string, newStatus: Task['status']) => {
+    try {
+      // Map UI status to database status
+      const dbStatus = newStatus === 'todo' ? 'NOT_STARTED' :
+                      newStatus === 'in_progress' ? 'IN_PROGRESS' :
+                      newStatus === 'complete' ? 'COMPLETED' : 'ON_HOLD'
+
+      const response = await fetch(`/api/goals/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: dbStatus
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Failed to update task status:', errorData.error)
+        // You could show a toast notification here
+        return
+      }
+
+      const data = await response.json()
+      console.log('Task status updated successfully:', data.message)
+    } catch (error) {
+      console.error('Error updating task status:', error)
+      // You could show a toast notification here
+    }
   }
 
   const handleEditTask = (task: Task) => {
@@ -301,7 +361,7 @@ export default function ReviewPage() {
     setEditDateCompleted(task.dateCompleted || '')
   }
 
-  const handleSaveEdit = (taskId: string) => {
+  const handleSaveEdit = async (taskId: string) => {
     if (review && editTitle.trim()) {
       const updatedTasks = review.tasks.map(task => 
         task.id === taskId 
@@ -314,13 +374,92 @@ export default function ReviewPage() {
         tasks: updatedTasks
       })
       
-      // TODO: Make API call to update task title
-      console.log(`Task ${taskId} title updated to: ${editTitle}, duration: ${editDateCompleted}`)
+      // Save to database - check if this is a new task or existing task
+      if (taskId.startsWith('task_')) {
+        // This is a new task, create it in the database
+        await createNewTask(taskId, editTitle.trim())
+      } else {
+        // This is an existing task, update it
+        await updateTask(taskId, editTitle.trim())
+      }
     }
     
     setEditingTask(null)
     setEditTitle('')
     setEditDateCompleted('')
+  }
+
+  const createNewTask = async (tempId: string, title: string) => {
+    if (!review) return
+
+    try {
+      // Map UI status to database status
+      const task = review.tasks.find(t => t.id === tempId)
+      if (!task) return
+
+      const dbStatus = task.status === 'todo' ? 'NOT_STARTED' :
+                      task.status === 'in_progress' ? 'IN_PROGRESS' :
+                      task.status === 'complete' ? 'COMPLETED' : 'ON_HOLD'
+
+      const response = await fetch('/api/goals', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          reviewId: review.id,
+          title: title,
+          status: dbStatus
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Failed to create task:', errorData.error)
+        return
+      }
+
+      const data = await response.json()
+      
+      // Update the task with the real database ID
+      const updatedTasks = review.tasks.map(t => 
+        t.id === tempId ? { ...t, id: data.goal.id } : t
+      )
+      
+      setReview({
+        ...review,
+        tasks: updatedTasks
+      })
+
+      console.log('Task created successfully:', data.message)
+    } catch (error) {
+      console.error('Error creating task:', error)
+    }
+  }
+
+  const updateTask = async (taskId: string, title: string) => {
+    try {
+      const response = await fetch(`/api/goals/${taskId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: title
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Failed to update task:', errorData.error)
+        return
+      }
+
+      const data = await response.json()
+      console.log('Task updated successfully:', data.message)
+    } catch (error) {
+      console.error('Error updating task:', error)
+    }
   }
 
   const handleCancelEdit = (taskId?: string) => {
@@ -343,20 +482,51 @@ export default function ReviewPage() {
   }
 
   const handleDeleteTask = (taskId: string) => {
-    if (review && confirm('Are you sure you want to delete this task?')) {
-      const updatedTasks = review.tasks.filter(task => task.id !== taskId)
+    setTaskToDelete(taskId)
+    setShowDeleteDialog(true)
+  }
+
+  const confirmDeleteTask = async () => {
+    if (review && taskToDelete) {
+      const updatedTasks = review.tasks.filter(task => task.id !== taskToDelete)
       
       setReview({
         ...review,
         tasks: updatedTasks
       })
       
-      // TODO: Make API call to delete task
-      console.log(`Task ${taskId} deleted`)
+      // Delete task from database
+      await deleteTask(taskToDelete)
+    }
+    setShowDeleteDialog(false)
+    setTaskToDelete(null)
+  }
+
+  const cancelDeleteTask = () => {
+    setShowDeleteDialog(false)
+    setTaskToDelete(null)
+  }
+
+  const deleteTask = async (taskId: string) => {
+    try {
+      const response = await fetch(`/api/goals/${taskId}`, {
+        method: 'DELETE'
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Failed to delete task:', errorData.error)
+        return
+      }
+
+      const data = await response.json()
+      console.log('Task deleted successfully:', data.message)
+    } catch (error) {
+      console.error('Error deleting task:', error)
     }
   }
 
-  const handleAddTask = (status: Task['status']) => {
+  const handleAddTask = async (status: Task['status']) => {
     if (review) {
       const newTask: Task = {
         id: `task_${Date.now()}`,
@@ -376,8 +546,51 @@ export default function ReviewPage() {
       setEditTitle('')
       setEditDateCompleted('')
       
-      // TODO: Make API call to create task
       console.log(`New task created in ${status} column`)
+    }
+  }
+
+  const handleArchiveTask = (taskId: string) => {
+    setTaskToArchive(taskId)
+    setShowArchiveDialog(true)
+  }
+
+  const confirmArchiveTask = () => {
+    if (review && taskToArchive) {
+      const updatedTasks = review.tasks.map(task => 
+        task.id === taskToArchive ? { ...task, archived: true } : task
+      )
+      
+      setReview({
+        ...review,
+        tasks: updatedTasks
+      })
+      
+      // TODO: Make API call to archive task
+      console.log(`Task ${taskToArchive} archived`)
+    }
+    setShowArchiveDialog(false)
+    setTaskToArchive(null)
+  }
+
+  const cancelArchiveTask = () => {
+    setShowArchiveDialog(false)
+    setTaskToArchive(null)
+  }
+
+  const handleUnarchiveTask = (taskId: string) => {
+    if (review) {
+      const updatedTasks = review.tasks.map(task => 
+        task.id === taskId ? { ...task, archived: false } : task
+      )
+      
+      setReview({
+        ...review,
+        tasks: updatedTasks
+      })
+      
+      // TODO: Make API call to unarchive task
+      console.log(`Task ${taskId} unarchived`)
     }
   }
 
@@ -415,10 +628,65 @@ export default function ReviewPage() {
       console.log('Review notes saved successfully:', data.message)
     } catch (error) {
       console.error('Failed to save review notes:', error)
-      alert(`Failed to save review notes: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      setErrorMessage(`Failed to save review notes: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      setShowErrorDialog(true)
     } finally {
       setSavingNotes(false)
     }
+  }
+
+  const handleCompleteReview = () => {
+    if (!review) return
+
+    // Check if there are any incomplete tasks
+    const incompleteTasks = review.tasks.filter(task => 
+      task.status !== 'complete' && !task.archived
+    )
+
+    setIncompleteTasksCount(incompleteTasks.length)
+    setShowCompleteDialog(true)
+  }
+
+  const confirmCompleteReview = async () => {
+    setShowCompleteDialog(false)
+    setCompletingReview(true)
+    
+    try {
+      const response = await fetch(`/api/reviews/${reviewId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          status: 'COMPLETED',
+          completedAt: new Date().toISOString()
+        })
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        console.error('Failed to complete review:', errorData.error || 'Failed to complete review')
+        return
+      }
+
+      const data = await response.json()
+      
+      // Update local state
+      setReview(prev => prev ? { ...prev, status: 'complete' as any } : null)
+      
+      // Redirect to review history
+      window.location.href = '/employer/reviews/history'
+      
+    } catch (error) {
+      console.error('Failed to complete review:', error)
+    } finally {
+      setCompletingReview(false)
+    }
+  }
+
+  const cancelCompleteReview = () => {
+    setShowCompleteDialog(false)
+    setIncompleteTasksCount(0)
   }
 
   // Function removed - no longer needed as notes are not collapsible
@@ -646,19 +914,19 @@ export default function ReviewPage() {
         <div className="clear-both"></div>
 
         {/* Kanban Board */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={{paddingTop: '30px'}}>
           {/* To Do Column */}
           <div 
-            className={`${getColumnColor('todo')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
+            className={`${getColumnColor('todo')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-visible`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, 'todo')}
           >
+            <span className="absolute bg-white text-black text-sm font-semibold px-3 py-1 z-10" style={{borderRadius: '9px', top: '-20px', right: '12px'}}>
+              {getTasksByStatus('todo').length}
+            </span>
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6">
                 <h2 className="text-xl font-bold text-secondary-900">To do</h2>
-                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {getTasksByStatus('todo').length}
-                </span>
               </div>
             <div className="space-y-4">
               {getTasksByStatus('todo').map((task) => (
@@ -766,16 +1034,16 @@ export default function ReviewPage() {
 
           {/* In Progress Column */}
           <div 
-            className={`${getColumnColor('in_progress')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
+            className={`${getColumnColor('in_progress')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-visible`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, 'in_progress')}
           >
+            <span className="absolute bg-white text-black text-sm font-semibold px-3 py-1 z-10" style={{borderRadius: '9px', top: '-20px', right: '12px'}}>
+              {getTasksByStatus('in_progress').length}
+            </span>
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6">
                 <h2 className="text-xl font-bold text-secondary-900">In Progress</h2>
-                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {getTasksByStatus('in_progress').length}
-                </span>
               </div>
             <div className="space-y-4">
               {getTasksByStatus('in_progress').map((task) => (
@@ -883,16 +1151,31 @@ export default function ReviewPage() {
 
           {/* Complete Column */}
           <div 
-            className={`${getColumnColor('complete')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
+            className={`${getColumnColor('complete')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-visible`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, 'complete')}
           >
+            <span className="absolute bg-white text-black text-sm font-semibold px-3 py-1 z-10" style={{borderRadius: '9px', top: '-20px', right: '12px'}}>
+              {showArchived ? getArchivedTasksCount() : getActiveCompleteTasksCount()}
+            </span>
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-secondary-900">Complete</h2>
-                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {getTasksByStatus('complete').length}
-                </span>
+              <div className="mb-6">
+                <div className="flex items-center space-x-3">
+                  <h2 className="text-xl font-bold text-secondary-900">Complete</h2>
+                  {getArchivedTasksCount() > 0 && (
+                    <button
+                      onClick={() => setShowArchived(!showArchived)}
+                      className={`text-xs px-2 py-1 rounded-full transition-all duration-200 ${
+                        showArchived 
+                          ? 'bg-secondary-200 text-secondary-700 hover:bg-secondary-300' 
+                          : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+                      }`}
+                      title={showArchived ? 'Show active tasks' : 'Show archived tasks'}
+                    >
+                      {showArchived ? `Archived (${getArchivedTasksCount()})` : `Archive (${getArchivedTasksCount()})`}
+                    </button>
+                  )}
+                </div>
               </div>
             <div className="space-y-4">
               {getTasksByStatus('complete').map((task) => (
@@ -900,9 +1183,9 @@ export default function ReviewPage() {
                   key={task.id} 
                   className={`${getStatusColor('complete')} p-4 rounded-xl border-2 border-green-200 group relative hover:shadow-md transition-all duration-200 ${
                     editingTask === task.id ? 'cursor-default' : 'cursor-move hover:-translate-y-1'
-                  }`}
-                  draggable={editingTask !== task.id}
-                  onDragStart={(e) => editingTask !== task.id && handleDragStart(e, task)}
+                  } ${task.archived ? 'opacity-75' : ''}`}
+                  draggable={editingTask !== task.id && !task.archived}
+                  onDragStart={(e) => editingTask !== task.id && !task.archived && handleDragStart(e, task)}
                   onDragEnd={handleDragEnd}
                 >
                   <div className="flex items-center justify-between mb-2">
@@ -920,7 +1203,7 @@ export default function ReviewPage() {
                         autoFocus
                       />
                     ) : (
-                      <h3 className="font-semibold text-secondary-900">{task.title}</h3>
+                      <h3 className={`font-semibold text-secondary-900 ${task.archived ? 'line-through' : ''}`}>{task.title}</h3>
                     )}
                     
                     <div className="flex items-center space-x-1">
@@ -945,24 +1228,28 @@ export default function ReviewPage() {
                         </>
                       ) : (
                         <>
-                          <button
-                            onClick={() => handleEditTask(task)}
-                            className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-blue-100 text-blue-600 transition-all duration-200"
-                            title="Edit task"
-                          >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          <button
-                            onClick={() => handleDeleteTask(task.id)}
-                            className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-red-100 text-red-600 transition-all duration-200"
-                            title="Delete task"
-                          >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
+                          {!showArchived ? (
+                            <button
+                              onClick={() => handleArchiveTask(task.id)}
+                              className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-orange-100 text-orange-600 transition-all duration-200"
+                              title="Archive task"
+                            >
+                              <svg className="w-5 h-5" style={{transform: 'scale(1.1)'}} fill="currentColor" viewBox="0 0 370 570">
+                                <path d="M185.3,129.6c34.4,0,68.7,0,103.1.1,4.2,0,8.6.8,12.4,2.4,10.8,4.5,15.9,13.6,16.6,24.8.6,11,.3,22.1,0,33.1-.2,10.4-5.1,18.5-14.2,23.7-3.4,2-4.7,4.2-4.7,8.2.2,44.7,0,89.3.2,134,0,13.4-10.1,26.9-21.4,29.2-3,.6-6.2,1-9.3,1-55,0-110.1,0-165.1,0-3.1,0-6.2-.4-9.3-1-11.1-2.1-21.7-15.7-21.6-29.1.3-44.8,0-89.6.2-134.4,0-3.9-1.2-6.1-4.5-7.9-9.4-5.3-14.2-13.6-14.4-24.3-.2-10.5-.3-21.1,0-31.6.4-15.4,11.9-28.3,28.5-28.2,34.5,0,69,0,103.5,0ZM90.8,218.5c0,1.5,0,2.7,0,3.8,0,44,0,88.1,0,132.1,0,8.8,3.4,12.2,12.3,12.2,54.9,0,109.9,0,164.8,0,8.6,0,12-3.5,12-12.1,0-44,0-88.1,0-132.1,0-1.3,0-2.6,0-3.9H90.8ZM185.8,149.1c-34.5,0-69,0-103.4,0-6.9,0-10.4,3.5-10.4,10.4,0,9.4,0,18.8,0,28.2,0,7.2,4.1,11.2,11.1,11.2,68.2,0,136.4,0,204.6,0,7.1,0,11.1-4,11.2-11.1,0-9.2,0-18.3,0-27.5,0-7.9-3.3-11.2-11.1-11.2-34,0-68,0-101.9,0Z"/>
+                                <path d="M185.3,247.7c9.1,0,18.3.2,27.4,0,6.8-.2,9.7,4.3,10.2,10,.4,5-4,9.4-9.7,9.4-18.7.2-37.3.2-56,0-5.6,0-10.1-4.5-9.7-9.4.5-5.7,3.4-10.2,10.2-10,9.1.2,18.3,0,27.4,0Z"/>
+                              </svg>
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleUnarchiveTask(task.id)}
+                              className="w-6 h-6 flex items-center justify-center rounded-md hover:bg-green-100 text-green-600 transition-all duration-200"
+                              title="Unarchive task"
+                            >
+                              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l3-3 3 3M7 8l3 3 3-3" />
+                              </svg>
+                            </button>
+                          )}
                         </>
                       )}
                     </div>
@@ -1000,16 +1287,16 @@ export default function ReviewPage() {
 
           {/* On Hold Column */}
           <div 
-            className={`${getColumnColor('on_hold')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
+            className={`${getColumnColor('on_hold')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-visible`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, 'on_hold')}
           >
+            <span className="absolute bg-white text-black text-sm font-semibold px-3 py-1 z-10" style={{borderRadius: '9px', top: '-20px', right: '12px'}}>
+              {getTasksByStatus('on_hold').length}
+            </span>
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6">
                 <h2 className="text-xl font-bold text-secondary-900">On hold</h2>
-                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {getTasksByStatus('on_hold').length}
-                </span>
               </div>
             <div className="space-y-4">
               {getTasksByStatus('on_hold').map((task) => (
@@ -1129,11 +1416,235 @@ export default function ReviewPage() {
             </svg>
             Add Task
           </button>
-          <button className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle transform hover:-translate-y-0.5 shadow-soft hover:shadow-medium h-12 px-6 py-3">
-            Complete Review
-          </button>
+          {review && (review as any).status !== 'COMPLETED' ? (
+            <button 
+              onClick={handleCompleteReview}
+              disabled={completingReview}
+              className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle transform hover:-translate-y-0.5 shadow-soft hover:shadow-medium h-12 px-6 py-3"
+            >
+              {completingReview ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Completing...
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Complete Review
+                </>
+              )}
+            </button>
+          ) : (
+            <div className="inline-flex items-center justify-center rounded-lg font-medium h-12 px-6 py-3 bg-green-100 text-green-800 border border-green-200">
+              <svg className="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Review Completed
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Complete Review Confirmation Dialog */}
+      {showCompleteDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
+                <svg className="w-6 h-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-secondary-900">Complete Review</h3>
+            </div>
+            
+            <div className="mb-6">
+              {incompleteTasksCount > 0 ? (
+                <div className="mb-4">
+                  <p className="text-secondary-700 mb-2">
+                    There are <span className="font-semibold text-orange-600">{incompleteTasksCount} incomplete tasks</span>.
+                  </p>
+                  <p className="text-secondary-600 text-sm">
+                    You can still complete this review, but consider finishing outstanding tasks first.
+                  </p>
+                </div>
+              ) : (
+                <p className="text-secondary-700 mb-2">
+                  All tasks have been completed. Ready to finalize this review.
+                </p>
+              )}
+              
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-4">
+                <p className="text-sm text-yellow-800">
+                  <span className="font-semibold">Important:</span> Once completed, this review cannot be edited. Make sure all information is accurate.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={cancelCompleteReview}
+                className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border border-secondary-300 bg-white text-secondary-900 hover:bg-secondary-50 focus:ring-secondary-500 h-12 px-6 py-3"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmCompleteReview}
+                disabled={completingReview}
+                className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle h-12 px-6 py-3"
+              >
+                {completingReview ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span className="leading-tight">Completing...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="leading-tight">Complete<br />Review</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Task Confirmation Dialog */}
+      {showDeleteDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-secondary-900">Delete Task</h3>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-secondary-700 mb-2">
+                Are you sure you want to delete this task?
+              </p>
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3 mt-4">
+                <p className="text-sm text-red-800">
+                  <span className="font-semibold">Warning:</span> This action cannot be undone. The task will be permanently removed.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={cancelDeleteTask}
+                className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border border-secondary-300 bg-white text-secondary-900 hover:bg-secondary-50 focus:ring-secondary-500 h-12 px-6 py-3"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDeleteTask}
+                className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 h-12 px-6 py-3"
+              >
+                <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Delete Task
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Archive Task Confirmation Dialog */}
+      {showArchiveDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
+                <svg className="w-6 h-6 text-orange-600" fill="currentColor" viewBox="0 0 370 570">
+                  <path d="M185.3,129.6c34.4,0,68.7,0,103.1.1,4.2,0,8.6.8,12.4,2.4,10.8,4.5,15.9,13.6,16.6,24.8.6,11,.3,22.1,0,33.1-.2,10.4-5.1,18.5-14.2,23.7-3.4,2-4.7,4.2-4.7,8.2.2,44.7,0,89.3.2,134,0,13.4-10.1,26.9-21.4,29.2-3,.6-6.2,1-9.3,1-55,0-110.1,0-165.1,0-3.1,0-6.2-.4-9.3-1-11.1-2.1-21.7-15.7-21.6-29.1.3-44.8,0-89.6.2-134.4,0-3.9-1.2-6.1-4.5-7.9-9.4-5.3-14.2-13.6-14.4-24.3-.2-10.5-.3-21.1,0-31.6.4-15.4,11.9-28.3,28.5-28.2,34.5,0,69,0,103.5,0ZM90.8,218.5c0,1.5,0,2.7,0,3.8,0,44,0,88.1,0,132.1,0,8.8,3.4,12.2,12.3,12.2,54.9,0,109.9,0,164.8,0,8.6,0,12-3.5,12-12.1,0-44,0-88.1,0-132.1,0-1.3,0-2.6,0-3.9H90.8ZM185.8,149.1c-34.5,0-69,0-103.4,0-6.9,0-10.4,3.5-10.4,10.4,0,9.4,0,18.8,0,28.2,0,7.2,4.1,11.2,11.1,11.2,68.2,0,136.4,0,204.6,0,7.1,0,11.1-4,11.2-11.1,0-9.2,0-18.3,0-27.5,0-7.9-3.3-11.2-11.1-11.2-34,0-68,0-101.9,0Z"/>
+                  <path d="M185.3,247.7c9.1,0,18.3.2,27.4,0,6.8-.2,9.7,4.3,10.2,10,.4,5-4,9.4-9.7,9.4-18.7.2-37.3.2-56,0-5.6,0-10.1-4.5-9.7-9.4.5-5.7,3.4-10.2,10.2-10,9.1.2,18.3,0,27.4,0Z"/>
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-secondary-900">Archive Task</h3>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-secondary-700 mb-2">
+                Are you sure you want to archive this completed task?
+              </p>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+                <p className="text-sm text-blue-800">
+                  <span className="font-semibold">Note:</span> Archived tasks can be restored later and will be hidden from the main view.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={cancelArchiveTask}
+                className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border border-secondary-300 bg-white text-secondary-900 hover:bg-secondary-50 focus:ring-secondary-500 h-12 px-6 py-3"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmArchiveTask}
+                className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-orange-600 text-white hover:bg-orange-700 focus:ring-orange-500 h-12 px-6 py-3"
+              >
+                <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 370 570">
+                  <path d="M185.3,129.6c34.4,0,68.7,0,103.1.1,4.2,0,8.6.8,12.4,2.4,10.8,4.5,15.9,13.6,16.6,24.8.6,11,.3,22.1,0,33.1-.2,10.4-5.1,18.5-14.2,23.7-3.4,2-4.7,4.2-4.7,8.2.2,44.7,0,89.3.2,134,0,13.4-10.1,26.9-21.4,29.2-3,.6-6.2,1-9.3,1-55,0-110.1,0-165.1,0-3.1,0-6.2-.4-9.3-1-11.1-2.1-21.7-15.7-21.6-29.1.3-44.8,0-89.6.2-134.4,0-3.9-1.2-6.1-4.5-7.9-9.4-5.3-14.2-13.6-14.4-24.3-.2-10.5-.3-21.1,0-31.6.4-15.4,11.9-28.3,28.5-28.2,34.5,0,69,0,103.5,0ZM90.8,218.5c0,1.5,0,2.7,0,3.8,0,44,0,88.1,0,132.1,0,8.8,3.4,12.2,12.3,12.2,54.9,0,109.9,0,164.8,0,8.6,0,12-3.5,12-12.1,0-44,0-88.1,0-132.1,0-1.3,0-2.6,0-3.9H90.8ZM185.8,149.1c-34.5,0-69,0-103.4,0-6.9,0-10.4,3.5-10.4,10.4,0,9.4,0,18.8,0,28.2,0,7.2,4.1,11.2,11.1,11.2,68.2,0,136.4,0,204.6,0,7.1,0,11.1-4,11.2-11.1,0-9.2,0-18.3,0-27.5,0-7.9-3.3-11.2-11.1-11.2-34,0-68,0-101.9,0Z"/>
+                  <path d="M185.3,247.7c9.1,0,18.3.2,27.4,0,6.8-.2,9.7,4.3,10.2,10,.4,5-4,9.4-9.7,9.4-18.7.2-37.3.2-56,0-5.6,0-10.1-4.5-9.7-9.4.5-5.7,3.4-10.2,10.2-10,9.1.2,18.3,0,27.4,0Z"/>
+                </svg>
+                Archive Task
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Error Dialog */}
+      {showErrorDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <svg className="w-6 h-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-secondary-900">Error</h3>
+            </div>
+            
+            <div className="mb-6">
+              <p className="text-secondary-700">
+                {errorMessage}
+              </p>
+            </div>
+            
+            <div className="flex justify-end">
+              <button
+                onClick={() => {
+                  setShowErrorDialog(false)
+                  setErrorMessage('')
+                }}
+                className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle h-12 px-6 py-3"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

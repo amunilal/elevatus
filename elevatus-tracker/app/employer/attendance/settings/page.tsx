@@ -25,7 +25,7 @@ export default function AttendanceSettingsPage() {
 
   const handleSave = () => {
     // TODO: Implement save functionality
-    alert('Settings will be saved when backend is integrated')
+    console.log('Settings will be saved when backend is integrated')
   }
 
   return (

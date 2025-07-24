@@ -17,7 +17,7 @@ export default function LeaveExportPage() {
 
   const handleExport = () => {
     // TODO: Implement export functionality
-    alert('Leave export functionality will be implemented with backend integration')
+    console.log('Leave export functionality will be implemented with backend integration')
   }
 
   return (

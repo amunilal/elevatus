@@ -183,7 +183,7 @@ export default function ReportAnalystPage() {
             <button
               onClick={() => {
                 // TODO: Implement report generation
-                alert(`Generating ${reportTypes.find(r => r.id === selectedReport)?.title} for ${dateRange}...`)
+                console.log(`Generating ${reportTypes.find(r => r.id === selectedReport)?.title} for ${dateRange}...`)
               }}
               className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle transform hover:-translate-y-0.5 shadow-soft hover:shadow-medium h-12 px-6 py-3"
             >

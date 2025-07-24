@@ -43,7 +43,9 @@ export default function EmployerLoginPage() {
         {/* Logo and Header */}
         <div className="text-center">
           <div className="flex justify-center mb-8">
-            <Logo size="lg" />
+            <Link href="/">
+              <Logo size="lg" />
+            </Link>
           </div>
           <h2 className="text-3xl font-bold text-secondary-900 mb-2">
             Employer Portal

@@ -403,7 +403,7 @@ export default function ReviewHistoryPage() {
                           <button
                             onClick={() => {
                               // Export or download review functionality can be added here
-                              alert('Export functionality will be implemented')
+                              console.log('Export functionality will be implemented')
                             }}
                             className="inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle h-8 px-3 py-1 text-xs"
                           >

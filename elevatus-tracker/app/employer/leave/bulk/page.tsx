@@ -20,7 +20,7 @@ export default function LeaveBulkPage() {
 
   const handleBulkAction = () => {
     // TODO: Implement bulk action functionality
-    alert('Bulk leave action functionality will be implemented with backend integration')
+    console.log('Bulk leave action functionality will be implemented with backend integration')
   }
 
   const employees = [
