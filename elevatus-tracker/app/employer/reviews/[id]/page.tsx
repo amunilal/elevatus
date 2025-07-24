@@ -539,6 +539,7 @@ export default function ReviewPage() {
                 </div>
               </div>
             </div>
+        </div>
 
         {/* Saved Notes Display */}
         {savedNotes.length > 0 && (
@@ -575,17 +576,18 @@ export default function ReviewPage() {
         {/* Kanban Board */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* To Do Column */}
-          <div className="relative">
-            <div 
-              className={`${getColumnColor('todo')} rounded-2xl shadow-soft transition-all duration-200 h-96 relative overflow-hidden`}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, 'todo')}
-            >
-              <div className="p-6 h-full flex flex-col">
-                <div className="mb-6">
-                  <h2 className="text-xl font-bold text-secondary-900">To do</h2>
-                </div>
-                <div className="flex-1 overflow-y-auto">
+          <div 
+            className={`${getColumnColor('todo')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, 'todo')}
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-secondary-900">To do</h2>
+                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                  {getTasksByStatus('todo').length}
+                </span>
+              </div>
             <div className="space-y-4">
               {getTasksByStatus('todo').map((task) => (
                 <div 
@@ -678,35 +680,31 @@ export default function ReviewPage() {
                   </div>
                 </div>
               ))}
-                {getTasksByStatus('todo').length === 0 && (
-                  <div className="text-center py-8 text-secondary-400">
-                    <svg className="w-8 h-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    <p className="text-sm">Drop tasks here</p>
-                  </div>
-                )}
+              {getTasksByStatus('todo').length === 0 && (
+                <div className="text-center py-8 text-secondary-400">
+                  <svg className="w-8 h-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <p className="text-sm">Drop tasks here</p>
                 </div>
-              </div>
+              )}
             </div>
-            {/* Task Count Badge */}
-            <span className="absolute -top-2 -right-2 bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-              {getTasksByStatus('todo').length}
-            </span>
+            </div>
           </div>
 
           {/* In Progress Column */}
-          <div className="relative">
-            <div 
-              className={`${getColumnColor('in_progress')} rounded-2xl shadow-soft transition-all duration-200 h-96 relative overflow-hidden`}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, 'in_progress')}
-            >
-              <div className="p-6 h-full flex flex-col">
-                <div className="mb-6">
-                  <h2 className="text-xl font-bold text-secondary-900">In Progress</h2>
-                </div>
-                <div className="flex-1 overflow-y-auto">
+          <div 
+            className={`${getColumnColor('in_progress')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, 'in_progress')}
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-secondary-900">In Progress</h2>
+                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                  {getTasksByStatus('in_progress').length}
+                </span>
+              </div>
             <div className="space-y-4">
               {getTasksByStatus('in_progress').map((task) => (
                 <div 
@@ -799,35 +797,31 @@ export default function ReviewPage() {
                   </div>
                 </div>
               ))}
-                {getTasksByStatus('in_progress').length === 0 && (
-                  <div className="text-center py-8 text-secondary-400">
-                    <svg className="w-8 h-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    <p className="text-sm">Drop tasks here</p>
-                  </div>
-                )}
+              {getTasksByStatus('in_progress').length === 0 && (
+                <div className="text-center py-8 text-secondary-400">
+                  <svg className="w-8 h-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <p className="text-sm">Drop tasks here</p>
                 </div>
-              </div>
+              )}
             </div>
-            {/* Task Count Badge */}
-            <span className="absolute -top-2 -right-2 bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-              {getTasksByStatus('in_progress').length}
-            </span>
+            </div>
           </div>
 
           {/* Complete Column */}
-          <div className="relative">
-            <div 
-              className={`${getColumnColor('complete')} rounded-2xl shadow-soft transition-all duration-200 h-96 relative overflow-hidden`}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, 'complete')}
-            >
-              <div className="p-6 h-full flex flex-col">
-                <div className="mb-6">
-                  <h2 className="text-xl font-bold text-secondary-900">Complete</h2>
-                </div>
-                <div className="flex-1 overflow-y-auto">
+          <div 
+            className={`${getColumnColor('complete')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, 'complete')}
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-secondary-900">Complete</h2>
+                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                  {getTasksByStatus('complete').length}
+                </span>
+              </div>
             <div className="space-y-4">
               {getTasksByStatus('complete').map((task) => (
                 <div 
@@ -920,35 +914,31 @@ export default function ReviewPage() {
                   </div>
                 </div>
               ))}
-                {getTasksByStatus('complete').length === 0 && (
-                  <div className="text-center py-8 text-secondary-400">
-                    <svg className="w-8 h-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    <p className="text-sm">Drop tasks here</p>
-                  </div>
-                )}
+              {getTasksByStatus('complete').length === 0 && (
+                <div className="text-center py-8 text-secondary-400">
+                  <svg className="w-8 h-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <p className="text-sm">Drop tasks here</p>
                 </div>
-              </div>
+              )}
             </div>
-            {/* Task Count Badge */}
-            <span className="absolute -top-2 -right-2 bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-              {getTasksByStatus('complete').length}
-            </span>
+            </div>
           </div>
 
           {/* On Hold Column */}
-          <div className="relative">
-            <div 
-              className={`${getColumnColor('on_hold')} rounded-2xl shadow-soft transition-all duration-200 h-96 relative overflow-hidden`}
-              onDragOver={handleDragOver}
-              onDrop={(e) => handleDrop(e, 'on_hold')}
-            >
-              <div className="p-6 h-full flex flex-col">
-                <div className="mb-6">
-                  <h2 className="text-xl font-bold text-secondary-900">On hold</h2>
-                </div>
-                <div className="flex-1 overflow-y-auto">
+          <div 
+            className={`${getColumnColor('on_hold')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, 'on_hold')}
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-xl font-bold text-secondary-900">On hold</h2>
+                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
+                  {getTasksByStatus('on_hold').length}
+                </span>
+              </div>
             <div className="space-y-4">
               {getTasksByStatus('on_hold').map((task) => (
                 <div 
@@ -1041,21 +1031,16 @@ export default function ReviewPage() {
                   </div>
                 </div>
               ))}
-                {getTasksByStatus('on_hold').length === 0 && (
-                  <div className="text-center py-8 text-secondary-400">
-                    <svg className="w-8 h-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    <p className="text-sm">Drop tasks here</p>
-                  </div>
-                )}
+              {getTasksByStatus('on_hold').length === 0 && (
+                <div className="text-center py-8 text-secondary-400">
+                  <svg className="w-8 h-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                  <p className="text-sm">Drop tasks here</p>
                 </div>
-              </div>
+              )}
             </div>
-            {/* Task Count Badge */}
-            <span className="absolute -top-2 -right-2 bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-              {getTasksByStatus('on_hold').length}
-            </span>
+            </div>
           </div>
         </div>
 
@@ -1077,11 +1062,6 @@ export default function ReviewPage() {
           </button>
         </div>
       </div>
-    </div>
-    </div>
-    </div>
-    </div>
-    </div>
     </div>
   )
 }
