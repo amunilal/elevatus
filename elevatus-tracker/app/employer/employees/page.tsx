@@ -37,6 +37,8 @@ export default function EmployeesPage() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarWidth, setSidebarWidth] = useState(50) // percentage
   const [isResizing, setIsResizing] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
+  const [editedEmployee, setEditedEmployee] = useState<Employee | null>(null)
 
   useEffect(() => {
     fetchEmployees()
@@ -69,6 +71,8 @@ export default function EmployeesPage() {
     setSidebarOpen(false)
     setSelectedEmployee(null)
     setSidebarWidth(50) // Reset to default width
+    setIsEditing(false)
+    setEditedEmployee(null)
   }
 
   // Handle sidebar resizing
@@ -108,6 +112,79 @@ export default function EmployeesPage() {
       document.body.style.userSelect = ''
     }
   }, [isResizing])
+
+  // Edit functions
+  const handleEditClick = () => {
+    if (selectedEmployee) {
+      setEditedEmployee({ ...selectedEmployee })
+      setIsEditing(true)
+    }
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editedEmployee) return
+    
+    try {
+      // TODO: Make API call to update employee
+      const response = await fetch(`/api/employees/${editedEmployee.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(editedEmployee),
+      })
+      
+      if (response.ok) {
+        // Update local state
+        setEmployees(prev => prev.map(emp => 
+          emp.id === editedEmployee.id ? editedEmployee : emp
+        ))
+        setSelectedEmployee(editedEmployee)
+        setIsEditing(false)
+        setEditedEmployee(null)
+      } else {
+        alert('Failed to update employee')
+      }
+    } catch (error) {
+      console.error('Error updating employee:', error)
+      alert('Failed to update employee')
+    }
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    setEditedEmployee(null)
+  }
+
+  const handleDeleteEmployee = async () => {
+    if (!selectedEmployee) return
+    
+    if (confirm(`Are you sure you want to delete ${selectedEmployee.firstName} ${selectedEmployee.lastName}? This action cannot be undone.`)) {
+      try {
+        // TODO: Make API call to delete employee
+        const response = await fetch(`/api/employees/${selectedEmployee.id}`, {
+          method: 'DELETE',
+        })
+        
+        if (response.ok) {
+          // Update local state
+          setEmployees(prev => prev.filter(emp => emp.id !== selectedEmployee.id))
+          closeSidebar()
+        } else {
+          alert('Failed to delete employee')
+        }
+      } catch (error) {
+        console.error('Error deleting employee:', error)
+        alert('Failed to delete employee')
+      }
+    }
+  }
+
+  const handleEditFieldChange = (field: keyof Employee, value: string) => {
+    if (editedEmployee) {
+      setEditedEmployee(prev => prev ? { ...prev, [field]: value } : null)
+    }
+  }
 
   const filteredEmployees = employees.filter(employee => {
     const matchesSearch = `${employee.firstName} ${employee.lastName} ${employee.personalEmail} ${employee.employeeCode}`
@@ -161,7 +238,18 @@ export default function EmployeesPage() {
       <div className="px-6 py-6">
         {/* Page Header */}
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-secondary-900 mb-4">Employee List</h1>
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-secondary-900">Employee List</h1>
+            <Link 
+              href="/employer/employees/new"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-brand-middle text-white hover:bg-hover-magenta transition-all duration-200 shadow-soft hover:shadow-medium transform hover:-translate-y-0.5"
+              title="Add New Employee"
+            >
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+              </svg>
+            </Link>
+          </div>
         </div>
 
         {/* Search and Filters */}
@@ -327,17 +415,52 @@ export default function EmployeesPage() {
                       }
                     }}
                   />
-                  <div>
-                    <h2 className="text-xl font-bold text-secondary-900">
-                      {selectedEmployee?.firstName} {selectedEmployee?.lastName}
-                    </h2>
-                    <p className="text-secondary-600">{selectedEmployee?.designation}</p>
+                  <div className="flex-1">
+                    {isEditing ? (
+                      <div className="space-y-2">
+                        <div className="flex space-x-2">
+                          <input
+                            type="text"
+                            value={editedEmployee?.firstName || ''}
+                            onChange={(e) => handleEditFieldChange('firstName', e.target.value)}
+                            className="text-xl font-bold bg-white border border-secondary-200 rounded px-2 py-1 flex-1 focus:outline-none focus:ring-2 focus:ring-brand-middle"
+                            placeholder="First Name"
+                          />
+                          <input
+                            type="text"
+                            value={editedEmployee?.lastName || ''}
+                            onChange={(e) => handleEditFieldChange('lastName', e.target.value)}
+                            className="text-xl font-bold bg-white border border-secondary-200 rounded px-2 py-1 flex-1 focus:outline-none focus:ring-2 focus:ring-brand-middle"
+                            placeholder="Last Name"
+                          />
+                        </div>
+                        <p className="text-secondary-600">{editedEmployee?.designation}</p>
+                      </div>
+                    ) : (
+                      <div>
+                        <h2 className="text-xl font-bold text-secondary-900">
+                          {selectedEmployee?.firstName} {selectedEmployee?.lastName}
+                        </h2>
+                        <p className="text-secondary-600">{selectedEmployee?.designation}</p>
+                      </div>
+                    )}
                   </div>
                 </div>
                 
-                <Button variant="outline" size="sm">
-                  Edit
-                </Button>
+                {isEditing ? (
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm" onClick={handleCancelEdit}>
+                      Cancel
+                    </Button>
+                    <Button size="sm" onClick={handleSaveEdit}>
+                      Save
+                    </Button>
+                  </div>
+                ) : (
+                  <Button variant="outline" size="sm" onClick={handleEditClick}>
+                    Edit
+                  </Button>
+                )}
               </div>
             </div>
 
@@ -349,19 +472,46 @@ export default function EmployeesPage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-secondary-500 mb-1">Role</p>
-                    <p className="text-sm font-medium text-secondary-900">{selectedEmployee?.designation}</p>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editedEmployee?.designation || ''}
+                        onChange={(e) => handleEditFieldChange('designation', e.target.value)}
+                        className="text-sm font-medium bg-white border border-secondary-200 rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-brand-middle"
+                      />
+                    ) : (
+                      <p className="text-sm font-medium text-secondary-900">{selectedEmployee?.designation}</p>
+                    )}
                   </div>
                   <div>
                     <p className="text-sm text-secondary-500 mb-1">Department</p>
-                    <p className="text-sm font-medium text-secondary-900">{selectedEmployee?.department}</p>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editedEmployee?.department || ''}
+                        onChange={(e) => handleEditFieldChange('department', e.target.value)}
+                        className="text-sm font-medium bg-white border border-secondary-200 rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-brand-middle"
+                      />
+                    ) : (
+                      <p className="text-sm font-medium text-secondary-900">{selectedEmployee?.department}</p>
+                    )}
                   </div>
                 </div>
                 
                 <div className="mt-4">
                   <p className="text-sm text-secondary-500 mb-1">Hire Date</p>
-                  <p className="text-sm font-medium text-secondary-900">
-                    {selectedEmployee?.hiredDate ? new Date(selectedEmployee.hiredDate).toLocaleDateString('en-GB') : 'N/A'}
-                  </p>
+                  {isEditing ? (
+                    <input
+                      type="date"
+                      value={editedEmployee?.hiredDate || ''}
+                      onChange={(e) => handleEditFieldChange('hiredDate', e.target.value)}
+                      className="text-sm font-medium bg-white border border-secondary-200 rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-brand-middle"
+                    />
+                  ) : (
+                    <p className="text-sm font-medium text-secondary-900">
+                      {selectedEmployee?.hiredDate ? new Date(selectedEmployee.hiredDate).toLocaleDateString('en-GB') : 'N/A'}
+                    </p>
+                  )}
                 </div>
               </div>
 
@@ -437,18 +587,61 @@ export default function EmployeesPage() {
                 <div className="space-y-3">
                   <div>
                     <p className="text-sm text-secondary-500 mb-1">Email</p>
-                    <p className="text-sm text-secondary-900">{selectedEmployee?.personalEmail}</p>
+                    {isEditing ? (
+                      <input
+                        type="email"
+                        value={editedEmployee?.personalEmail || ''}
+                        onChange={(e) => handleEditFieldChange('personalEmail', e.target.value)}
+                        className="text-sm bg-white border border-secondary-200 rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-brand-middle"
+                      />
+                    ) : (
+                      <p className="text-sm text-secondary-900">{selectedEmployee?.personalEmail}</p>
+                    )}
                   </div>
                   <div>
                     <p className="text-sm text-secondary-500 mb-1">Phone</p>
-                    <p className="text-sm text-secondary-900">{selectedEmployee?.phoneNumber || 'N/A'}</p>
+                    {isEditing ? (
+                      <input
+                        type="tel"
+                        value={editedEmployee?.phoneNumber || ''}
+                        onChange={(e) => handleEditFieldChange('phoneNumber', e.target.value)}
+                        className="text-sm bg-white border border-secondary-200 rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-brand-middle"
+                        placeholder="Phone number"
+                      />
+                    ) : (
+                      <p className="text-sm text-secondary-900">{selectedEmployee?.phoneNumber || 'N/A'}</p>
+                    )}
                   </div>
                   <div>
                     <p className="text-sm text-secondary-500 mb-1">Employee ID</p>
-                    <p className="text-sm text-secondary-900">{selectedEmployee?.employeeCode}</p>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        value={editedEmployee?.employeeCode || ''}
+                        onChange={(e) => handleEditFieldChange('employeeCode', e.target.value)}
+                        className="text-sm bg-white border border-secondary-200 rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-brand-middle"
+                      />
+                    ) : (
+                      <p className="text-sm text-secondary-900">{selectedEmployee?.employeeCode}</p>
+                    )}
                   </div>
                 </div>
               </div>
+              
+              {/* Delete Account Button - Only show in edit mode */}
+              {isEditing && (
+                <div className="border-t border-secondary-200 pt-6">
+                  <button
+                    onClick={handleDeleteEmployee}
+                    className="w-full inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-error-500 text-white hover:bg-error-600 focus:ring-error-500 h-10 px-4 py-2"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    Delete Account
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </>
