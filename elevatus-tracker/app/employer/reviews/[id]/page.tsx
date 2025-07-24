@@ -51,6 +51,8 @@ export default function ReviewPage() {
   const [savingNotes, setSavingNotes] = useState(false)
   const [showArchived, setShowArchived] = useState(false)
   const [completingReview, setCompletingReview] = useState(false)
+  const [showCompleteDialog, setShowCompleteDialog] = useState(false)
+  const [incompleteTasksCount, setIncompleteTasksCount] = useState(0)
 
   useEffect(() => {
     if (reviewId) {
@@ -602,7 +604,7 @@ export default function ReviewPage() {
     }
   }
 
-  const handleCompleteReview = async () => {
+  const handleCompleteReview = () => {
     if (!review) return
 
     // Check if there are any incomplete tasks
@@ -610,18 +612,12 @@ export default function ReviewPage() {
       task.status !== 'complete' && !task.archived
     )
 
-    if (incompleteTasks.length > 0) {
-      const confirmComplete = confirm(
-        `There are ${incompleteTasks.length} incomplete tasks. Are you sure you want to complete this review?`
-      )
-      if (!confirmComplete) return
-    }
+    setIncompleteTasksCount(incompleteTasks.length)
+    setShowCompleteDialog(true)
+  }
 
-    const confirmComplete = confirm(
-      'Are you sure you want to mark this review as complete? This action cannot be undone.'
-    )
-    if (!confirmComplete) return
-
+  const confirmCompleteReview = async () => {
+    setShowCompleteDialog(false)
     setCompletingReview(true)
     
     try {
@@ -638,7 +634,8 @@ export default function ReviewPage() {
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to complete review')
+        console.error('Failed to complete review:', errorData.error || 'Failed to complete review')
+        return
       }
 
       const data = await response.json()
@@ -646,18 +643,19 @@ export default function ReviewPage() {
       // Update local state
       setReview(prev => prev ? { ...prev, status: 'complete' as any } : null)
       
-      // Show success message and redirect
-      alert('Review completed successfully!')
-      
       // Redirect to review history
       window.location.href = '/employer/reviews/history'
       
     } catch (error) {
       console.error('Failed to complete review:', error)
-      alert(`Failed to complete review: ${error instanceof Error ? error.message : 'Unknown error'}`)
     } finally {
       setCompletingReview(false)
     }
+  }
+
+  const cancelCompleteReview = () => {
+    setShowCompleteDialog(false)
+    setIncompleteTasksCount(0)
   }
 
   // Function removed - no longer needed as notes are not collapsible
@@ -885,19 +883,19 @@ export default function ReviewPage() {
         <div className="clear-both"></div>
 
         {/* Kanban Board */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6" style={{paddingTop: '30px'}}>
           {/* To Do Column */}
           <div 
-            className={`${getColumnColor('todo')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
+            className={`${getColumnColor('todo')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-visible`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, 'todo')}
           >
+            <span className="absolute bg-white text-black text-sm font-semibold px-3 py-1 z-10" style={{borderRadius: '9px', top: '-20px', right: '12px'}}>
+              {getTasksByStatus('todo').length}
+            </span>
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6">
                 <h2 className="text-xl font-bold text-secondary-900">To do</h2>
-                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {getTasksByStatus('todo').length}
-                </span>
               </div>
             <div className="space-y-4">
               {getTasksByStatus('todo').map((task) => (
@@ -1005,16 +1003,16 @@ export default function ReviewPage() {
 
           {/* In Progress Column */}
           <div 
-            className={`${getColumnColor('in_progress')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
+            className={`${getColumnColor('in_progress')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-visible`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, 'in_progress')}
           >
+            <span className="absolute bg-white text-black text-sm font-semibold px-3 py-1 z-10" style={{borderRadius: '9px', top: '-20px', right: '12px'}}>
+              {getTasksByStatus('in_progress').length}
+            </span>
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6">
                 <h2 className="text-xl font-bold text-secondary-900">In Progress</h2>
-                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {getTasksByStatus('in_progress').length}
-                </span>
               </div>
             <div className="space-y-4">
               {getTasksByStatus('in_progress').map((task) => (
@@ -1122,12 +1120,15 @@ export default function ReviewPage() {
 
           {/* Complete Column */}
           <div 
-            className={`${getColumnColor('complete')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
+            className={`${getColumnColor('complete')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-visible`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, 'complete')}
           >
+            <span className="absolute bg-white text-black text-sm font-semibold px-3 py-1 z-10" style={{borderRadius: '9px', top: '-20px', right: '12px'}}>
+              {showArchived ? getArchivedTasksCount() : getActiveCompleteTasksCount()}
+            </span>
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6">
                 <div className="flex items-center space-x-3">
                   <h2 className="text-xl font-bold text-secondary-900">Complete</h2>
                   {getArchivedTasksCount() > 0 && (
@@ -1144,9 +1145,6 @@ export default function ReviewPage() {
                     </button>
                   )}
                 </div>
-                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {showArchived ? getArchivedTasksCount() : getActiveCompleteTasksCount()}
-                </span>
               </div>
             <div className="space-y-4">
               {getTasksByStatus('complete').map((task) => (
@@ -1257,16 +1255,16 @@ export default function ReviewPage() {
 
           {/* On Hold Column */}
           <div 
-            className={`${getColumnColor('on_hold')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-hidden`}
+            className={`${getColumnColor('on_hold')} rounded-2xl shadow-soft transition-all duration-200 min-h-96 relative overflow-visible`}
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, 'on_hold')}
           >
+            <span className="absolute bg-white text-black text-sm font-semibold px-3 py-1 z-10" style={{borderRadius: '9px', top: '-20px', right: '12px'}}>
+              {getTasksByStatus('on_hold').length}
+            </span>
             <div className="p-6">
-              <div className="flex items-center justify-between mb-6">
+              <div className="mb-6">
                 <h2 className="text-xl font-bold text-secondary-900">On hold</h2>
-                <span className="bg-secondary-900 text-white text-sm font-semibold px-3 py-1 rounded-full">
-                  {getTasksByStatus('on_hold').length}
-                </span>
               </div>
             <div className="space-y-4">
               {getTasksByStatus('on_hold').map((task) => (
@@ -1419,6 +1417,76 @@ export default function ReviewPage() {
           )}
         </div>
       </div>
+
+      {/* Complete Review Confirmation Dialog */}
+      {showCompleteDialog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl">
+            <div className="flex items-center mb-4">
+              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mr-4">
+                <svg className="w-6 h-6 text-orange-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.5 0L4.314 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-secondary-900">Complete Review</h3>
+            </div>
+            
+            <div className="mb-6">
+              {incompleteTasksCount > 0 ? (
+                <div className="mb-4">
+                  <p className="text-secondary-700 mb-2">
+                    There are <span className="font-semibold text-orange-600">{incompleteTasksCount} incomplete tasks</span>.
+                  </p>
+                  <p className="text-secondary-600 text-sm">
+                    You can still complete this review, but consider finishing outstanding tasks first.
+                  </p>
+                </div>
+              ) : (
+                <p className="text-secondary-700 mb-2">
+                  All tasks have been completed. Ready to finalize this review.
+                </p>
+              )}
+              
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mt-4">
+                <p className="text-sm text-yellow-800">
+                  <span className="font-semibold">Important:</span> Once completed, this review cannot be edited. Make sure all information is accurate.
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={cancelCompleteReview}
+                className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 border border-secondary-300 bg-white text-secondary-900 hover:bg-secondary-50 focus:ring-secondary-500 h-12 px-6 py-3"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmCompleteReview}
+                disabled={completingReview}
+                className="flex-1 inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-brand-middle text-white hover:bg-hover-magenta focus:ring-brand-middle h-12 px-6 py-3"
+              >
+                {completingReview ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span className="leading-tight">Completing...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span className="leading-tight">Complete<br />Review</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
