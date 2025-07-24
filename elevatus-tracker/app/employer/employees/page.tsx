@@ -291,66 +291,87 @@ export default function EmployeesPage() {
           </div>
         </div>
 
-        {/* Employee List */}
+        {/* Employee Table */}
         <div className="bg-nav-white shadow-soft rounded-2xl overflow-hidden">
           <div className="px-8 py-6">
             <h2 className="text-xl font-bold text-secondary-900 mb-6">
               Employees ({filteredEmployees.length})
             </h2>
             
-            <div className="space-y-2">
-              {filteredEmployees.map((employee) => (
-                <div 
-                  key={employee.id} 
-                  onClick={() => openEmployeeSidebar(employee)}
-                  className="flex items-center justify-between p-4 rounded-xl hover:bg-light-purple cursor-pointer transition-colors group"
-                >
-                  <div className="flex items-center space-x-4">
-                    <img 
-                      src={employee.profileImage || '/default-avatar.png'} 
-                      alt={`${employee.firstName} ${employee.lastName}`}
-                      className="w-12 h-12 rounded-full object-cover bg-secondary-200"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48"><rect width="48" height="48" fill="%23E5E7EB"/><text x="24" y="30" text-anchor="middle" fill="%23374151" font-family="Arial" font-size="16" font-weight="500">${employee.firstName.charAt(0)}${employee.lastName.charAt(0)}</text></svg>`
-                      }}
-                    />
-                    <div>
-                      <p className="font-semibold text-secondary-900 text-base">
-                        {employee.firstName} {employee.lastName}
-                      </p>
-                      <p className="text-sm text-secondary-600">
-                        {employee.designation} • {employee.department}
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center space-x-4">
-                    <Badge 
-                      variant={employee.employmentStatus === 'ACTIVE' ? 'success' : 
-                              employee.employmentStatus === 'INACTIVE' ? 'warning' : 'error'}
-                      size="sm"
-                    >
-                      {employee.employmentStatus}
-                    </Badge>
-                    <svg 
-                      className="w-5 h-5 text-secondary-400 group-hover:text-brand-middle transition-colors" 
-                      fill="none" 
-                      viewBox="0 0 24 24" 
-                      stroke="currentColor"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {filteredEmployees.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-secondary-500">No employees found matching your criteria.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full">
+                  <thead>
+                    <tr className="border-b border-secondary-200">
+                      <th className="text-left py-4 px-6 font-semibold text-secondary-700 text-sm">Employee</th>
+                      <th className="text-left py-4 px-4 font-semibold text-secondary-700 text-sm">Department</th>
+                      <th className="text-left py-4 px-4 font-semibold text-secondary-700 text-sm">Position</th>
+                      <th className="text-left py-4 px-4 font-semibold text-secondary-700 text-sm">Status</th>
+                      <th className="text-left py-4 px-4 font-semibold text-secondary-700 text-sm">Employee ID</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredEmployees.map((employee) => (
+                      <tr 
+                        key={employee.id}
+                        onClick={() => openEmployeeSidebar(employee)}
+                        className="border-b border-secondary-100 hover:bg-light-purple cursor-pointer transition-colors group"
+                      >
+                        <td className="py-4 px-6">
+                          <div className="flex items-center space-x-4">
+                            <img 
+                              src={employee.profileImage || '/default-avatar.png'} 
+                              alt={`${employee.firstName} ${employee.lastName}`}
+                              className="w-10 h-10 rounded-full object-cover bg-secondary-200 flex-shrink-0"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"><rect width="40" height="40" fill="%23E5E7EB"/><text x="20" y="26" text-anchor="middle" fill="%23374151" font-family="Arial" font-size="14" font-weight="500">${employee.firstName.charAt(0)}${employee.lastName.charAt(0)}</text></svg>`
+                              }}
+                            />
+                            <div>
+                              <div className="font-medium text-secondary-900">
+                                {employee.firstName} {employee.lastName}
+                              </div>
+                              <div className="text-sm text-secondary-600">
+                                {employee.personalEmail}
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="text-secondary-700">
+                            {employee.department}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="text-secondary-700">
+                            {employee.designation}
+                          </span>
+                        </td>
+                        <td className="py-4 px-4">
+                          <Badge 
+                            variant={employee.employmentStatus === 'ACTIVE' ? 'success' : 
+                                    employee.employmentStatus === 'INACTIVE' ? 'warning' : 'error'}
+                            size="sm"
+                          >
+                            {employee.employmentStatus}
+                          </Badge>
+                        </td>
+                        <td className="py-4 px-4">
+                          <span className="text-secondary-600 font-mono text-sm">
+                            {employee.employeeCode}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-          
-          {filteredEmployees.length === 0 && (
-            <div className="text-center py-12">
-              <p className="text-secondary-500">No employees found matching your criteria.</p>
-            </div>
-          )}
         </div>
       </div>
 
