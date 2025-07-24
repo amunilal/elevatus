@@ -557,6 +557,9 @@ export default function ReviewPage() {
           </div>
         )}
 
+        {/* Clear floated notes */}
+        <div className="clear-both"></div>
+
         {/* Kanban Board */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* To Do Column */}
