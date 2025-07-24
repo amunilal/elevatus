@@ -31,7 +31,7 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 - **Inline Task Editing**: Edit task titles and duration with keyboard shortcuts (Enter to save, Escape to cancel)
 - **Duration Management**: Editable task duration fields (renamed from "Date Completed" to "Duration")
 - **Task Operations**: Delete tasks with confirmation dialogs and visual feedback
-- **Review Notes**: Expandable notes section (expanded by default) with character count, save functionality, and loading states
+- **Review Notes System**: Non-collapsible notes form with individual saved notes management, horizontal layout, and silent save functionality
 - **Fixed Column Headers**: Task count badges properly contained within column boundaries
 - **Status Tracking**: Visual progress bars and color-coded status indicators
 - **Modern Interface**: Consistent design system with intuitive hover effects and transitions
@@ -297,6 +297,8 @@ The repository includes a GitHub Actions workflow that:
 - **Dashboard Colors**: Updated Quick Actions with new custom colors and hover states
 - **Review Board**: White background for columns with colored task cards for visual hierarchy
 - **Task Duration Editing**: Enhanced task management with editable duration fields and improved placeholder text
+- **Review Notes Redesign**: Non-collapsible form with individual note management, horizontal layout, and trash can delete icons
+- **Simplified Notes Display**: Clean design matching form styling with content-hugging backgrounds and silent save functionality
 
 ### Planned Features 🚧
 - Advanced review analytics and reporting features
