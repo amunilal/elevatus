@@ -7,7 +7,7 @@ import { ActivityProvider } from '@/contexts/ActivityContext'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'ElevateUs - Employee Tracker',
+  title: 'ElevatUs - Employee Tracker',
   description: 'A sophisticated employee management system for South African businesses',
 }
 

@@ -1,4 +1,4 @@
-# ElevateUs Employee Tracker
+# ElevatUs Employee Tracker
 
 A comprehensive employee management system built with Next.js 14, TypeScript, Prisma, and Neon database. Features dual portal architecture for employers and employees with South African compliance (BCEA, POPIA).
 
@@ -334,8 +334,7 @@ The repository includes a GitHub Actions workflow that:
 - **Review Page Optimization**: Clean, maintainable code structure with proper drag & drop functionality
 - **Home Page Redesign**: Complete visual overhaul to match elevatus.mad.app reference design
   - Custom SVG logo with gradient stroke in circular design
-  - Large "ElevateUs" gradient title with proper brand colors
-  - "Employee Tracker" subtitle with improved typography
+  - Large "ElevatUs" gradient title with proper brand colors and simplified hero layout
   - Redesigned portal buttons with gradient hover effects
   - Exact color matching for feature cards (#B8E6D1, #D4C5F9, #D4E8A8)
   - Professional layout with proper spacing and responsive design
@@ -349,6 +348,11 @@ The repository includes a GitHub Actions workflow that:
   - Applied brand color scheme and modern styling throughout
   - Added clickable logo navigation to home page on both login pages
   - Professional demo credentials display with consistent styling
+- **Brand Consistency**: Updated all instances of "ElevateUs" to "ElevatUs" across codebase
+  - Consistent branding in 16+ files including components, documentation, and scripts
+  - Updated page titles, meta descriptions, and copyright notices
+  - Simplified home page hero section by removing "Employee Tracker" subtitle
+  - Streamlined brand presentation with focused "ElevatUs" gradient title
 - **Search & Filters**: Clean white background design with focus states, removed gradient styling
 - **Task Duration Editing**: Enhanced task management with editable duration fields and improved placeholder text
 - **Review Notes Redesign**: Non-collapsible form with individual note management, horizontal layout, and trash can delete icons
@@ -482,7 +486,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📞 Contact
 
 - **Developer**: Ashveer Munil
-- **Company**: ElevateUs
+- **Company**: ElevatUs
 - **Email**: ashveer@elevatus.co.za
 - **Website**: [elevatus.co.za](https://elevatus.co.za)
 
