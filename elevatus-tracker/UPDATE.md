@@ -344,7 +344,7 @@ const employees = [
 - [ ] Update API validation
 - [ ] Update seed data
 - [ ] Implement testing
-- [ ] Fix any text instances of "Elevateus" to "ElevateUs"
+- [x] Fix any text instances of "Elevateus" to "ElevatUs"
 
 ### Week 3
 - [ ] QA and bug fixes

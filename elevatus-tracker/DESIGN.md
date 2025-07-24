@@ -1,7 +1,7 @@
 
-# ElevateUs Design System
+# ElevatUs Design System
 
-A comprehensive design system for the ElevateUs employee review application.
+A comprehensive design system for the ElevatUs employee review application.
 
 ## Table of Contents
 - [Overview](#overview)
@@ -14,7 +14,7 @@ A comprehensive design system for the ElevateUs employee review application.
 
 ## Overview
 
-The ElevateUs design system is built to foster continuous growth, streamline performance management, and align individual development with company objectives. Our design emphasizes clarity, accessibility, and modern aesthetics while maintaining professional appeal.
+The ElevatUs design system is built to foster continuous growth, streamline performance management, and align individual development with company objectives. Our design emphasizes clarity, accessibility, and modern aesthetics while maintaining professional appeal.
 
 **Figma Reference**: [Employee Tracker Design](https://www.figma.com/design/bPEmra9A4sZB3eKhRqSa8u/Employee-Tracker?node-id=43-351&t=Rw8J1Qx0ITT4Zc1o-1)
 
@@ -101,7 +101,7 @@ Foundation colors for layouts and content:
 ## Logo & Branding
 
 ### Logo Component
-The ElevateUs logo is implemented as an SVG component with gradient styling:
+The ElevatUs logo is implemented as an SVG component with gradient styling:
 
 ```jsx
 // components/ui/Logo.tsx
@@ -168,7 +168,7 @@ export const Logo: React.FC<LogoProps> = ({
         <LogoSVG />
       </div>
       <span className={`font-bold text-gray-900 ${size === 'sm' ? 'text-lg' : size === 'md' ? 'text-xl' : 'text-2xl'}`}>
-        ElevateUs
+        ElevatUs
       </span>
     </div>
   );
@@ -493,7 +493,7 @@ For broader CSS support, define custom properties:
 <h1 className="text-4xl font-bold tracking-tight text-secondary-900 sm:text-5xl md:text-6xl">
   <span className="block mb-4">Welcome to</span>
   <span className="block bg-gradient-to-r from-brand-start via-brand-middle to-brand-end bg-clip-text text-transparent">
-    ElevateUs Employee Tracker
+    ElevatUs Employee Tracker
   </span>
 </h1>
 ```
@@ -838,4 +838,4 @@ const handleEmployeeCreated = (employee) => {
 
 ---
 
-*This design system is living document and should be updated as the ElevateUs application evolves.*
+*This design system is living document and should be updated as the ElevatUs application evolves.*

@@ -61,7 +61,7 @@ export const Logo: React.FC<LogoProps> = ({
         <LogoSVG />
       </div>
       <span className={`font-bold text-gray-900 ${size === 'sm' ? 'text-lg' : size === 'md' ? 'text-xl' : 'text-2xl'}`}>
-        ElevateUs
+        ElevatUs
       </span>
     </div>
   );

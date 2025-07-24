@@ -42,14 +42,9 @@ export default function HomePage() {
                 </svg>
               </div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-brand-left via-brand-middle to-brand-right bg-clip-text text-transparent">
-                ElevateUs
+                ElevatUs
               </h1>
             </div>
-            
-            {/* Hero Text */}
-            <h2 className="text-3xl font-bold tracking-tight text-secondary-900 sm:text-4xl md:text-5xl mb-4">
-              Employee Tracker
-            </h2>
             <p className="mt-6 max-w-2xl mx-auto text-lg text-secondary-600 md:text-xl">
               A comprehensive employee management system designed for South African businesses. 
               Foster continuous growth and streamline performance management.
@@ -143,7 +138,7 @@ export default function HomePage() {
               <Logo size="sm" variant="icon" />
             </div>
             <p className="text-secondary-400 text-sm">
-              © 2024 ElevateUs. Empowering South African businesses through effective employee management.
+              © 2024 ElevatUs. Empowering South African businesses through effective employee management.
             </p>
           </div>
         </div>

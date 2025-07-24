@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🚀 Setting up ElevateUs Employee Tracker..."
+echo "🚀 Setting up ElevatUs Employee Tracker..."
 echo "📋 Team Setup Guide for Collaborative Development"
 echo ""
 
