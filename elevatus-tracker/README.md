@@ -293,6 +293,8 @@ The repository includes a GitHub Actions workflow that:
 - **Review Notes Default**: Notes section expanded by default for better accessibility
 - **Portal Buttons**: Updated landing page with solid purple styling for employer portal
 - **Toast Notifications**: Larger size with design system colors for better visibility
+- **Dashboard Colors**: Updated Quick Actions with new custom colors and hover states
+- **Review Board**: White background for columns with colored task cards for visual hierarchy
 
 ### Planned Features 🚧
 - Advanced review analytics and reporting features

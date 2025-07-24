@@ -177,15 +177,15 @@ export default function ReviewPage() {
   const getColumnColor = (status: Task['status']) => {
     switch (status) {
       case 'todo':
-        return 'bg-gray-50'
+        return 'bg-white'
       case 'in_progress':
-        return 'bg-purple-50'
+        return 'bg-white'
       case 'complete':
-        return 'bg-green-50'
+        return 'bg-white'
       case 'on_hold':
-        return 'bg-yellow-50'
+        return 'bg-white'
       default:
-        return 'bg-gray-50'
+        return 'bg-white'
     }
   }
 
@@ -560,7 +560,7 @@ export default function ReviewPage() {
               {getTasksByStatus('todo').map((task) => (
                 <div 
                   key={task.id} 
-                  className={`${getStatusColor('todo')} p-4 rounded-xl border border-secondary-200 group relative hover:shadow-md transition-all duration-200 ${
+                  className={`${getStatusColor('todo')} p-4 rounded-xl border-2 border-gray-200 group relative hover:shadow-md transition-all duration-200 ${
                     editingTask === task.id ? 'cursor-default' : 'cursor-move hover:-translate-y-1'
                   }`}
                   draggable={editingTask !== task.id}
@@ -674,7 +674,7 @@ export default function ReviewPage() {
               {getTasksByStatus('in_progress').map((task) => (
                 <div 
                   key={task.id} 
-                  className={`${getStatusColor('in_progress')} p-4 rounded-xl border border-purple-200 group relative hover:shadow-md transition-all duration-200 ${
+                  className={`${getStatusColor('in_progress')} p-4 rounded-xl border-2 border-purple-200 group relative hover:shadow-md transition-all duration-200 ${
                     editingTask === task.id ? 'cursor-default' : 'cursor-move hover:-translate-y-1'
                   }`}
                   draggable={editingTask !== task.id}
@@ -788,7 +788,7 @@ export default function ReviewPage() {
               {getTasksByStatus('complete').map((task) => (
                 <div 
                   key={task.id} 
-                  className={`${getStatusColor('complete')} p-4 rounded-xl border border-green-200 group relative hover:shadow-md transition-all duration-200 ${
+                  className={`${getStatusColor('complete')} p-4 rounded-xl border-2 border-green-200 group relative hover:shadow-md transition-all duration-200 ${
                     editingTask === task.id ? 'cursor-default' : 'cursor-move hover:-translate-y-1'
                   }`}
                   draggable={editingTask !== task.id}
@@ -902,7 +902,7 @@ export default function ReviewPage() {
               {getTasksByStatus('on_hold').map((task) => (
                 <div 
                   key={task.id} 
-                  className={`${getStatusColor('on_hold')} p-4 rounded-xl border border-yellow-200 group relative hover:shadow-md transition-all duration-200 ${
+                  className={`${getStatusColor('on_hold')} p-4 rounded-xl border-2 border-yellow-200 group relative hover:shadow-md transition-all duration-200 ${
                     editingTask === task.id ? 'cursor-default' : 'cursor-move hover:-translate-y-1'
                   }`}
                   draggable={editingTask !== task.id}

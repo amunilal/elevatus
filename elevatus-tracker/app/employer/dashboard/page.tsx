@@ -78,13 +78,13 @@ export default function EmployerDashboardPage() {
           {/* Pending Reviews */}
           <div className="bg-nav-white rounded-2xl p-6">
             <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-brand-middle rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ backgroundColor: '#F2CEF0' }}>
                 <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
               <div>
-                <p className="text-sm font-medium text-brand-middle mb-1">Pending reviews</p>
+                <p className="text-sm font-medium mb-1" style={{ color: '#E9A1E5' }}>Pending reviews</p>
                 <p className="text-2xl font-bold text-secondary-900">6</p>
               </div>
             </div>
@@ -112,7 +112,10 @@ export default function EmployerDashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link 
               href="/employer/employees/new"
-              className="block p-6 rounded-2xl bg-light-mint hover:bg-hover-aqua transition-colors"
+              className="block p-6 rounded-2xl transition-colors"
+              style={{ backgroundColor: '#C1F3DF' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#8ED8B9'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#C1F3DF'}
             >
               <h3 className="font-semibold text-secondary-900 mb-2">Add Employee</h3>
               <p className="text-sm text-secondary-600">Create new employee profile</p>
@@ -120,7 +123,10 @@ export default function EmployerDashboardPage() {
             
             <Link 
               href="/employer/reviews/start"
-              className="block p-6 rounded-2xl bg-light-purple hover:bg-hover-lavender transition-colors"
+              className="block p-6 rounded-2xl transition-colors"
+              style={{ backgroundColor: '#DFD6F6' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#CABCEF'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#DFD6F6'}
             >
               <h3 className="font-semibold text-secondary-900 mb-2">Start Review</h3>
               <p className="text-sm text-secondary-600">Begin employee performance review</p>
@@ -128,7 +134,10 @@ export default function EmployerDashboardPage() {
             
             <Link 
               href="/employer/reviews/history"
-              className="block p-6 rounded-2xl bg-light-green hover:bg-hover-lime transition-colors"
+              className="block p-6 rounded-2xl transition-colors"
+              style={{ backgroundColor: '#E4F7AA' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#D3E98C'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#E4F7AA'}
             >
               <h3 className="font-semibold text-secondary-900 mb-2">Review History</h3>
               <p className="text-sm text-secondary-600">List of past employee reviews</p>
@@ -136,7 +145,10 @@ export default function EmployerDashboardPage() {
             
             <Link 
               href="/employer/reports"
-              className="block p-6 rounded-2xl bg-light-coral hover:bg-hover-coral transition-colors"
+              className="block p-6 rounded-2xl transition-colors"
+              style={{ backgroundColor: '#FEE7A2' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#F0D483'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#FEE7A2'}
             >
               <h3 className="font-semibold text-secondary-900 mb-2">Report Analyst</h3>
               <p className="text-sm text-secondary-600">Generate and analyze reports</p>
