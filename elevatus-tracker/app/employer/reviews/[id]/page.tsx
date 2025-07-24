@@ -192,12 +192,12 @@ export default function ReviewPage() {
   const handleDragStart = (e: React.DragEvent, task: Task) => {
     setDraggedTask(task)
     e.dataTransfer.effectAllowed = 'move'
-    e.dataTransfer.setData('text/html', e.currentTarget.outerHTML)
-    e.currentTarget.style.opacity = '0.5'
+    e.dataTransfer.setData('text/html', (e.currentTarget as HTMLElement).outerHTML)
+    ;(e.currentTarget as HTMLElement).style.opacity = '0.5'
   }
 
   const handleDragEnd = (e: React.DragEvent) => {
-    e.currentTarget.style.opacity = '1'
+    ;(e.currentTarget as HTMLElement).style.opacity = '1'
     setDraggedTask(null)
   }
 
@@ -860,7 +860,7 @@ export default function ReviewPage() {
               {getTasksByStatus('complete').length === 0 && (
                 <div className="text-center py-8 text-secondary-400">
                   <svg className="w-8 h-8 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinecap="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                   </svg>
                   <p className="text-sm">Drop tasks here</p>
                 </div>
