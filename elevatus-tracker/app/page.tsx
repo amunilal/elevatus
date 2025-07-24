@@ -47,9 +47,6 @@ export default function HomePage() {
             </div>
             
             {/* Hero Text */}
-            <h2 className="text-3xl font-bold tracking-tight text-secondary-900 sm:text-4xl md:text-5xl mb-4">
-              Employee Tracker
-            </h2>
             <p className="mt-6 max-w-2xl mx-auto text-lg text-secondary-600 md:text-xl">
               A comprehensive employee management system designed for South African businesses. 
               Foster continuous growth and streamline performance management.
