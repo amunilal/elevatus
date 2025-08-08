@@ -24,12 +24,8 @@ export default function EmployeeLoginPage() {
       // TODO: Implement actual authentication
       console.log('Login attempt:', { email, password })
       
-      // For now, simulate login
-      if (email === 'john.doe@company.co.za' && password === 'employee123') {
-        router.push('/employee/dashboard')
-      } else {
-        setError('Invalid email or password')
-      }
+      // Authentication not implemented yet
+      setError('Authentication system is being configured. Please contact your administrator.')
     } catch (err) {
       setError('An error occurred. Please try again.')
     } finally {
@@ -142,11 +138,11 @@ export default function EmployeeLoginPage() {
           </CardContent>
         </Card>
 
-        {/* Demo Credentials */}
+        {/* Production Notice */}
         <div className="text-center">
-          <div className="inline-block bg-light-yellow rounded-lg px-4 py-3">
-            <p className="text-sm font-medium text-secondary-900 mb-1">Demo credentials:</p>
-            <p className="text-sm font-mono text-secondary-700">john.doe@company.co.za / employee123</p>
+          <div className="inline-block bg-secondary-50 rounded-lg px-4 py-3">
+            <p className="text-sm font-medium text-secondary-900 mb-1">Production System</p>
+            <p className="text-sm text-secondary-700">Contact your administrator for access credentials</p>
           </div>
         </div>
       </div>

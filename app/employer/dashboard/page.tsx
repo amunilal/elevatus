@@ -29,7 +29,7 @@ export default function EmployerDashboardPage() {
             <Badge variant="purple" size="sm">Employer Portal</Badge>
           </div>
           <div className="flex items-center space-x-6">
-            <span className="text-sm text-secondary-600">admin@company.co.za</span>
+            <span className="text-sm text-secondary-600">User</span>
             <button 
               onClick={() => {
                 if (typeof window !== 'undefined') {

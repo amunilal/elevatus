@@ -24,12 +24,8 @@ export default function EmployerLoginPage() {
       // TODO: Implement actual authentication
       console.log('Login attempt:', { email, password })
       
-      // For now, simulate login
-      if (email === 'admin@company.co.za' && password === 'admin123') {
-        router.push('/employer/dashboard')
-      } else {
-        setError('Invalid email or password')
-      }
+      // Authentication not implemented yet
+      setError('Authentication system is being configured. Please contact your administrator.')
     } catch (err) {
       setError('An error occurred. Please try again.')
     } finally {
@@ -72,7 +68,7 @@ export default function EmployerLoginPage() {
                     required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    placeholder="admin@company.co.za"
+                    placeholder="your-email@company.com"
                     error={!!error}
                   />
                 </div>
@@ -142,11 +138,11 @@ export default function EmployerLoginPage() {
           </CardContent>
         </Card>
 
-        {/* Demo Credentials */}
+        {/* Production Notice */}
         <div className="text-center">
-          <div className="inline-block bg-light-yellow rounded-lg px-4 py-3">
-            <p className="text-sm font-medium text-secondary-900 mb-1">Demo credentials:</p>
-            <p className="text-sm font-mono text-secondary-700">admin@company.co.za / admin123</p>
+          <div className="inline-block bg-secondary-50 rounded-lg px-4 py-3">
+            <p className="text-sm font-medium text-secondary-900 mb-1">Production System</p>
+            <p className="text-sm text-secondary-700">Contact your administrator for access credentials</p>
           </div>
         </div>
       </div>
