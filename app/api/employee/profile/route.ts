@@ -11,34 +11,6 @@ export async function GET(request: NextRequest) {
       { error: 'Authentication required' },
       { status: 401 }
     )
-
-    if (!employee) {
-      return NextResponse.json(
-        { error: 'Employee profile not found' },
-        { status: 404 }
-      )
-    }
-
-    // Transform data to match frontend expectations
-    const profileData = {
-      id: employee.id,
-      firstName: employee.firstName,
-      lastName: employee.lastName,
-      employeeCode: employee.employeeCode,
-      email: employee.personalEmail || employee.user.email,
-      designation: employee.designation,
-      department: employee.department,
-      phoneNumber: employee.phoneNumber,
-      idNumber: employee.idNumber,
-      hiredDate: employee.hiredDate.toISOString(),
-      employmentType: employee.employmentType,
-      employmentStatus: employee.employmentStatus,
-      emergencyContact: employee.emergencyContact,
-      bankDetails: employee.bankDetails,
-      address: employee.address
-    }
-
-    return NextResponse.json(profileData)
   } catch (error) {
     console.error('Error fetching employee profile:', error)
     
@@ -71,21 +43,12 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const body = await request.json()
-
     // TODO: Implement proper authentication
     // Authentication required - no demo data in production
     return NextResponse.json(
       { error: 'Authentication required' },
       { status: 401 }
     )
-
-    if (!employee) {
-      return NextResponse.json(
-        { error: 'Employee profile not found' },
-        { status: 404 }
-      )
-    }
 
     const updateData: any = {}
 

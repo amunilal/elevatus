@@ -11,29 +11,6 @@ export async function GET(request: NextRequest) {
       { error: 'Authentication required' },
       { status: 401 }
     )
-
-    const leaves = await prisma.leave.findMany({
-      where: {
-        employeeId: employee.id
-      },
-      orderBy: { createdAt: 'desc' }
-    })
-
-    // Transform data to match frontend expectations
-    const transformedData = leaves.map(leave => ({
-      id: leave.id,
-      type: leave.leaveType,
-      startDate: leave.startDate.toISOString(),
-      endDate: leave.endDate.toISOString(),
-      days: leave.totalDays,
-      reason: leave.reason,
-      status: leave.status,
-      appliedDate: leave.createdAt.toISOString(),
-      approvedDate: leave.approvedDate?.toISOString(),
-      rejectionReason: leave.approverNotes
-    }))
-
-    return NextResponse.json(transformedData)
   } catch (error) {
     console.error('Error fetching employee leave:', error)
     
@@ -60,12 +37,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-
-    // TODO: Get actual employee ID from session
-    const employee = await prisma.employee.findFirst({
-      orderBy: { createdAt: 'asc' }
-    })
+    // TODO: Implement proper authentication
+    // Authentication required - no demo data in production
+    return NextResponse.json(
+      { error: 'Authentication required' },
+      { status: 401 }
+    )
 
     if (!employee) {
       return NextResponse.json(

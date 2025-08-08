@@ -11,41 +11,6 @@ export async function GET(request: NextRequest) {
       { error: 'Authentication required' },
       { status: 401 }
     )
-
-    const { searchParams } = new URL(request.url)
-    const startDate = searchParams.get('startDate')
-    const endDate = searchParams.get('endDate')
-
-    const where: any = {
-      employeeId: employee.id
-    }
-
-    if (startDate && endDate) {
-      where.date = {
-        gte: new Date(startDate),
-        lte: new Date(endDate)
-      }
-    }
-
-    const attendances = await prisma.attendance.findMany({
-      where,
-      orderBy: { date: 'desc' },
-      take: 30 // Limit to last 30 records
-    })
-
-    // Transform data to match frontend expectations
-    const transformedData = attendances.map(record => ({
-      id: record.id,
-      date: record.date.toISOString().split('T')[0],
-      checkIn: record.checkIn?.toISOString(),
-      checkOut: record.checkOut?.toISOString(),
-      workingHours: record.workingHours || 0,
-      overtimeHours: record.overtimeHours || 0,
-      status: record.status,
-      notes: record.notes
-    }))
-
-    return NextResponse.json(transformedData)
   } catch (error) {
     console.error('Error fetching employee attendance:', error)
     
