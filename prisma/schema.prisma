@@ -7,25 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// User and Authentication Models
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  password        String
-  userType        UserType
-  isActive        Boolean   @default(true)
-  lastLoginAt     DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  employee        Employee?
-  employer        Employer?
-  sessions        Session[]
-}
-
-enum UserType {
-  EMPLOYEE
-  EMPLOYER
+  id          String    @id @default(cuid())
+  email       String    @unique
+  password    String
+  userType    UserType
+  isActive    Boolean   @default(true)
+  lastLoginAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  employee    Employee?
+  employer    Employer?
+  sessions    Session[]
 }
 
 model Session {
@@ -37,73 +30,277 @@ model Session {
 }
 
 model Employer {
-  id              String        @id @default(cuid())
-  userId          String        @unique
-  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  role            EmployerRole
-  permissions     Json          @default("{}")
-  department      String?
-  managedTeams    Team[]        @relation("TeamManager")
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  id           String       @id @default(cuid())
+  userId       String       @unique
+  role         EmployerRole
+  permissions  Json         @default("{}")
+  department   String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  managedTeams Team[]       @relation("TeamManager")
+}
+
+model Employee {
+  id               String           @id @default(cuid())
+  userId           String           @unique
+  employeeCode     String           @unique
+  firstName        String
+  lastName         String
+  middleName       String?
+  displayName      String?
+  idNumber         String?          @unique
+  passportNumber   String?
+  personalEmail    String?
+  phoneNumber      String?
+  emergencyContact Json?
+  designation      String
+  department       String
+  teamId           String?
+  employmentType   EmploymentType
+  employmentStatus EmploymentStatus @default(ACTIVE)
+  dateOfBirth      DateTime?
+  hiredDate        DateTime
+  confirmationDate DateTime?
+  lastWorkingDate  DateTime?
+  address          Json?
+  bankDetails      Json?
+  taxDetails       Json?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  attendances      Attendance[]
+  documents        Document[]
+  team             Team?            @relation(fields: [teamId], references: [id])
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  enrollments      Enrollment[]
+  leaves           Leave[]
+  reviews          Review[]         @relation("EmployeeReviews")
+  reviewsGiven     Review[]         @relation("ReviewerReviews")
+  userBadges       UserBadge[]
+}
+
+model Team {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  managerId   String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  employees   Employee[]
+  manager     Employer?  @relation("TeamManager", fields: [managerId], references: [id])
+}
+
+model Attendance {
+  id            String           @id @default(cuid())
+  employeeId    String
+  date          DateTime         @db.Date
+  checkIn       DateTime?
+  checkOut      DateTime?
+  workingHours  Float?
+  overtimeHours Float?
+  status        AttendanceStatus
+  location      Json?
+  notes         String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  employee      Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, date])
+}
+
+model Leave {
+  id            String      @id @default(cuid())
+  employeeId    String
+  leaveType     LeaveType
+  startDate     DateTime    @db.Date
+  endDate       DateTime    @db.Date
+  totalDays     Float
+  reason        String
+  status        LeaveStatus @default(PENDING)
+  approverId    String?
+  approvedDate  DateTime?
+  approverNotes String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  documents     Document[]
+  employee      Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+}
+
+model LeaveBalance {
+  id         String    @id @default(cuid())
+  employeeId String
+  year       Int
+  leaveType  LeaveType
+  entitled   Float
+  taken      Float
+  remaining  Float
+  cycleStart DateTime
+  cycleEnd   DateTime
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@unique([employeeId, year, leaveType])
+}
+
+model Review {
+  id             String       @id @default(cuid())
+  employeeId     String
+  reviewerId     String
+  reviewCycleId  String
+  reviewType     ReviewType
+  status         ReviewStatus @default(NOT_STARTED)
+  selfAssessment Json?
+  managerReview  Json?
+  finalRating    Float?
+  summary        String?
+  dueDate        DateTime
+  submittedAt    DateTime?
+  completedAt    DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  goals          Goal[]
+  employee       Employee     @relation("EmployeeReviews", fields: [employeeId], references: [id], onDelete: Cascade)
+  reviewCycle    ReviewCycle  @relation(fields: [reviewCycleId], references: [id])
+  reviewer       Employee     @relation("ReviewerReviews", fields: [reviewerId], references: [id])
+}
+
+model ReviewCycle {
+  id        String   @id @default(cuid())
+  name      String
+  year      Int
+  quarter   Int?
+  startDate DateTime
+  endDate   DateTime
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  reviews   Review[]
+}
+
+model Goal {
+  id          String     @id @default(cuid())
+  reviewId    String
+  title       String
+  description String
+  targetDate  DateTime
+  status      GoalStatus @default(NOT_STARTED)
+  progress    Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  review      Review     @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+}
+
+model Course {
+  id          String           @id @default(cuid())
+  title       String
+  description String
+  category    String
+  duration    Int
+  difficulty  CourseDifficulty
+  isActive    Boolean          @default(true)
+  isMandatory Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  badges      Badge[]
+  materials   CourseMaterial[]
+  enrollments Enrollment[]
+  Course_A    Course[]         @relation("Prerequisites")
+  Course_B    Course[]         @relation("Prerequisites")
+}
+
+model CourseMaterial {
+  id        String       @id @default(cuid())
+  courseId  String
+  title     String
+  type      MaterialType
+  url       String?
+  content   String?
+  order     Int
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  course    Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+}
+
+model Enrollment {
+  id          String           @id @default(cuid())
+  employeeId  String
+  courseId    String
+  enrolledAt  DateTime         @default(now())
+  completedAt DateTime?
+  progress    Int              @default(0)
+  score       Int?
+  status      EnrollmentStatus @default(NOT_STARTED)
+  course      Course           @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  employee    Employee         @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, courseId])
+}
+
+model Badge {
+  id          String      @id @default(cuid())
+  name        String
+  description String
+  imageUrl    String
+  criteria    Json
+  badgeType   BadgeType
+  courseId    String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  course      Course?     @relation(fields: [courseId], references: [id])
+  userBadges  UserBadge[]
+}
+
+model UserBadge {
+  id         String    @id @default(cuid())
+  employeeId String
+  badgeId    String
+  earnedAt   DateTime  @default(now())
+  expiresAt  DateTime?
+  badge      Badge     @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  @@unique([employeeId, badgeId])
+}
+
+model Document {
+  id         String       @id @default(cuid())
+  employeeId String?
+  leaveId    String?
+  type       DocumentType
+  title      String
+  fileName   String
+  fileUrl    String
+  fileSize   Int
+  mimeType   String
+  uploadedBy String
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  employee   Employee?    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  leave      Leave?       @relation(fields: [leaveId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  entity    String
+  entityId  String
+  oldValues Json?
+  newValues Json?
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+}
+
+enum UserType {
+  EMPLOYEE
+  EMPLOYER
 }
 
 enum EmployerRole {
   SUPER_ADMIN
   HR_ADMIN
   MANAGER
-}
-
-// Employee Models
-model Employee {
-  id                String            @id @default(cuid())
-  userId            String            @unique
-  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  employeeCode      String            @unique
-  firstName         String
-  lastName          String
-  middleName        String?
-  displayName       String?
-  
-  // South African specific
-  idNumber          String?           @unique
-  passportNumber    String?
-  
-  // Contact Information
-  personalEmail     String?
-  phoneNumber       String?
-  emergencyContact  Json?
-  
-  // Employment Details
-  designation       String
-  department        String
-  teamId            String?
-  team              Team?             @relation(fields: [teamId], references: [id])
-  employmentType    EmploymentType
-  employmentStatus  EmploymentStatus  @default(ACTIVE)
-  
-  // Dates
-  dateOfBirth       DateTime?
-  hiredDate         DateTime
-  confirmationDate  DateTime?
-  lastWorkingDate   DateTime?
-  
-  // Additional Information
-  address           Json?
-  bankDetails       Json?
-  taxDetails        Json?
-  
-  // Relations
-  attendances       Attendance[]
-  leaves            Leave[]
-  documents         Document[]
-  reviews           Review[]          @relation("EmployeeReviews")
-  reviewsGiven      Review[]          @relation("ReviewerReviews")
-  enrollments       Enrollment[]
-  userBadges        UserBadge[]
-  
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
 }
 
 enum EmploymentType {
@@ -121,36 +318,6 @@ enum EmploymentStatus {
   ON_LEAVE
 }
 
-model Team {
-  id          String      @id @default(cuid())
-  name        String
-  description String?
-  managerId   String?
-  manager     Employer?   @relation("TeamManager", fields: [managerId], references: [id])
-  employees   Employee[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-}
-
-// Attendance Models
-model Attendance {
-  id              String    @id @default(cuid())
-  employeeId      String
-  employee        Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  date            DateTime  @db.Date
-  checkIn         DateTime?
-  checkOut        DateTime?
-  workingHours    Float?
-  overtimeHours   Float?
-  status          AttendanceStatus
-  location        Json?
-  notes           String?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  @@unique([employeeId, date])
-}
-
 enum AttendanceStatus {
   PRESENT
   ABSENT
@@ -161,31 +328,12 @@ enum AttendanceStatus {
   REMOTE
 }
 
-// Leave Management (BCEA Compliant)
-model Leave {
-  id              String        @id @default(cuid())
-  employeeId      String
-  employee        Employee      @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  leaveType       LeaveType
-  startDate       DateTime      @db.Date
-  endDate         DateTime      @db.Date
-  totalDays       Float
-  reason          String
-  status          LeaveStatus   @default(PENDING)
-  approverId      String?
-  approvedDate    DateTime?
-  approverNotes   String?
-  documents       Document[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-}
-
 enum LeaveType {
-  ANNUAL          // 21 days
-  SICK            // 30 days per 3-year cycle
-  FAMILY          // 3 days per year
-  MATERNITY       // 4 months
-  PARENTAL        // 10 days
+  ANNUAL
+  SICK
+  FAMILY
+  MATERNITY
+  PARENTAL
   UNPAID
   STUDY
   COMPASSIONATE
@@ -196,52 +344,6 @@ enum LeaveStatus {
   APPROVED
   REJECTED
   CANCELLED
-}
-
-model LeaveBalance {
-  id              String    @id @default(cuid())
-  employeeId      String
-  year            Int
-  leaveType       LeaveType
-  entitled        Float
-  taken           Float
-  remaining       Float
-  cycleStart      DateTime
-  cycleEnd        DateTime
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
-  @@unique([employeeId, year, leaveType])
-}
-
-// Performance Review Models
-model Review {
-  id              String          @id @default(cuid())
-  employeeId      String
-  employee        Employee        @relation("EmployeeReviews", fields: [employeeId], references: [id], onDelete: Cascade)
-  reviewerId      String
-  reviewer        Employee        @relation("ReviewerReviews", fields: [reviewerId], references: [id])
-  reviewCycleId   String
-  reviewCycle     ReviewCycle     @relation(fields: [reviewCycleId], references: [id])
-  reviewType      ReviewType
-  status          ReviewStatus    @default(NOT_STARTED)
-  
-  // Review Data
-  selfAssessment  Json?
-  managerReview   Json?
-  finalRating     Float?
-  summary         String?
-  
-  // Goals
-  goals           Goal[]
-  
-  // Dates
-  dueDate         DateTime
-  submittedAt     DateTime?
-  completedAt     DateTime?
-  
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
 }
 
 enum ReviewType {
@@ -260,32 +362,6 @@ enum ReviewStatus {
   COMPLETED
 }
 
-model ReviewCycle {
-  id          String      @id @default(cuid())
-  name        String
-  year        Int
-  quarter     Int?
-  startDate   DateTime
-  endDate     DateTime
-  isActive    Boolean     @default(true)
-  reviews     Review[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-}
-
-model Goal {
-  id          String      @id @default(cuid())
-  reviewId    String
-  review      Review      @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  title       String
-  description String
-  targetDate  DateTime
-  status      GoalStatus  @default(NOT_STARTED)
-  progress    Int         @default(0)
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-}
-
 enum GoalStatus {
   NOT_STARTED
   IN_PROGRESS
@@ -293,47 +369,10 @@ enum GoalStatus {
   CANCELLED
 }
 
-// Learning & Development Models
-model Course {
-  id              String              @id @default(cuid())
-  title           String
-  description     String
-  category        String
-  duration        Int                 // in minutes
-  difficulty      CourseDifficulty
-  isActive        Boolean             @default(true)
-  isMandatory     Boolean             @default(false)
-  
-  // Content
-  materials       CourseMaterial[]
-  
-  // Relations
-  enrollments     Enrollment[]
-  badges          Badge[]
-  prerequisites   Course[]            @relation("Prerequisites")
-  prerequisiteFor Course[]            @relation("Prerequisites")
-  
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @updatedAt
-}
-
 enum CourseDifficulty {
   BEGINNER
   INTERMEDIATE
   ADVANCED
-}
-
-model CourseMaterial {
-  id          String          @id @default(cuid())
-  courseId    String
-  course      Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  title       String
-  type        MaterialType
-  url         String?
-  content     String?
-  order       Int
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
 }
 
 enum MaterialType {
@@ -344,21 +383,6 @@ enum MaterialType {
   LINK
 }
 
-model Enrollment {
-  id              String              @id @default(cuid())
-  employeeId      String
-  employee        Employee            @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  courseId        String
-  course          Course              @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  enrolledAt      DateTime            @default(now())
-  completedAt     DateTime?
-  progress        Int                 @default(0) // percentage
-  score           Int?
-  status          EnrollmentStatus    @default(NOT_STARTED)
-  
-  @@unique([employeeId, courseId])
-}
-
 enum EnrollmentStatus {
   NOT_STARTED
   IN_PROGRESS
@@ -366,55 +390,11 @@ enum EnrollmentStatus {
   FAILED
 }
 
-model Badge {
-  id              String      @id @default(cuid())
-  name            String
-  description     String
-  imageUrl        String
-  criteria        Json        // Define completion criteria
-  badgeType       BadgeType
-  courseId        String?
-  course          Course?     @relation(fields: [courseId], references: [id])
-  userBadges      UserBadge[]
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
-}
-
 enum BadgeType {
   COURSE_COMPLETION
   SKILL_PROFICIENCY
   MILESTONE
   CERTIFICATION
-}
-
-model UserBadge {
-  id              String      @id @default(cuid())
-  employeeId      String
-  employee        Employee    @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  badgeId         String
-  badge           Badge       @relation(fields: [badgeId], references: [id], onDelete: Cascade)
-  earnedAt        DateTime    @default(now())
-  expiresAt       DateTime?
-  
-  @@unique([employeeId, badgeId])
-}
-
-// Document Management
-model Document {
-  id              String          @id @default(cuid())
-  employeeId      String?
-  employee        Employee?       @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-  leaveId         String?
-  leave           Leave?          @relation(fields: [leaveId], references: [id], onDelete: Cascade)
-  type            DocumentType
-  title           String
-  fileName        String
-  fileUrl         String
-  fileSize        Int
-  mimeType        String
-  uploadedBy      String
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
 }
 
 enum DocumentType {
@@ -426,18 +406,4 @@ enum DocumentType {
   MEDICAL_CERTIFICATE
   LEAVE_DOCUMENT
   OTHER
-}
-
-// Audit Trail
-model AuditLog {
-  id              String      @id @default(cuid())
-  userId          String
-  action          String
-  entity          String
-  entityId        String
-  oldValues       Json?
-  newValues       Json?
-  ipAddress       String?
-  userAgent       String?
-  createdAt       DateTime    @default(now())
 }

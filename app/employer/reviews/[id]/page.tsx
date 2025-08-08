@@ -702,7 +702,7 @@ export default function ReviewPage() {
               <Badge variant="purple" size="sm">Employer Portal</Badge>
             </div>
             <div className="flex items-center space-x-6">
-              <span className="text-sm text-secondary-600">{user?.email || 'User'}</span>
+              <span className="text-sm text-secondary-600">User</span>
               <button 
                 onClick={() => {
                   if (typeof window !== 'undefined') {
@@ -751,7 +751,7 @@ export default function ReviewPage() {
               <Badge variant="purple" size="sm">Employer Portal</Badge>
             </div>
             <div className="flex items-center space-x-6">
-              <span className="text-sm text-secondary-600">{user?.email || 'User'}</span>
+              <span className="text-sm text-secondary-600">User</span>
               <button 
                 onClick={() => {
                   if (typeof window !== 'undefined') {
