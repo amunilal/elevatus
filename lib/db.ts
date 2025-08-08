@@ -5,7 +5,7 @@ import { PrismaClient } from '@prisma/client'
 // Enable connection caching for better performance
 neonConfig.fetchConnectionCache = true
 
-const createPrismaClient = () => {
+const createPrismaClient = (): PrismaClient => {
   // Use Neon adapter for serverless environments (Vercel)
   if (process.env.NODE_ENV === 'production' || process.env.VERCEL) {
     const pool = new Pool({ 
@@ -18,9 +18,9 @@ const createPrismaClient = () => {
     const adapter = new PrismaNeon(pool)
     
     return new PrismaClient({ 
-      adapter,
+      adapter: adapter as any,
       log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error']
-    })
+    } as any)
   }
   
   // Use standard Prisma client for local development
