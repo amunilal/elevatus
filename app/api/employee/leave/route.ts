@@ -5,16 +5,12 @@ const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Get actual employee ID from session
-    // For now, use the first employee as demo
-    const employee = await prisma.employee.findFirst({
-      orderBy: { createdAt: 'asc' }
-    })
-
-    if (!employee) {
-      // Return empty array if no employee found instead of error
-      return NextResponse.json([])
-    }
+    // TODO: Implement proper authentication
+    // Authentication required - no demo data in production
+    return NextResponse.json(
+      { error: 'Authentication required' },
+      { status: 401 }
+    )
 
     const leaves = await prisma.leave.findMany({
       where: {

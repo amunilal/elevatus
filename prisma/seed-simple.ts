@@ -4,10 +4,18 @@ import bcrypt from 'bcryptjs'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🌱 Starting simplified database seed...')
+  console.log('🌱 Starting DEVELOPMENT simplified database seed...')
+  console.log('⚠️  WARNING: This seed file contains demo credentials!')
+  console.log('⚠️  DO NOT use in production!')
+  
+  if (process.env.NODE_ENV === 'production') {
+    console.error('❌ Cannot run development seed in production!')
+    console.error('Use npm run db:seed:production instead')
+    process.exit(1)
+  }
 
-  // Create admin user
-  const adminPassword = await bcrypt.hash('admin123', 10)
+  // Create demo admin user (DEVELOPMENT ONLY)
+  const adminPassword = await bcrypt.hash('demo_admin_123', 10)
   const adminUser = await prisma.user.upsert({
     where: { email: 'admin@company.co.za' },
     update: {
@@ -22,8 +30,8 @@ async function main() {
 
   console.log('✅ Created/Updated admin user:', adminUser.email)
 
-  // Create HR admin
-  const hrPassword = await bcrypt.hash('hr123', 10)
+  // Create demo HR admin (DEVELOPMENT ONLY)
+  const hrPassword = await bcrypt.hash('demo_hr_123', 10)
   const hrUser = await prisma.user.upsert({
     where: { email: 'hr@company.co.za' },
     update: {
@@ -38,8 +46,8 @@ async function main() {
 
   console.log('✅ Created/Updated HR admin:', hrUser.email)
 
-  // Create manager
-  const managerPassword = await bcrypt.hash('manager123', 10)
+  // Create demo manager (DEVELOPMENT ONLY)
+  const managerPassword = await bcrypt.hash('demo_manager_123', 10)
   const managerUser = await prisma.user.upsert({
     where: { email: 'manager@company.co.za' },
     update: {

@@ -5,19 +5,12 @@ const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
-    // TODO: Get user ID from session/authentication
-    // For now, we'll use the first employee as demo
-    const employee = await prisma.employee.findFirst({
-      include: {
-        user: {
-          select: {
-            email: true,
-            userType: true
-          }
-        }
-      },
-      orderBy: { createdAt: 'asc' }
-    })
+    // TODO: Implement proper authentication
+    // Authentication required - no demo data in production
+    return NextResponse.json(
+      { error: 'Authentication required' },
+      { status: 401 }
+    )
 
     if (!employee) {
       return NextResponse.json(
@@ -80,11 +73,12 @@ export async function PUT(request: NextRequest) {
   try {
     const body = await request.json()
 
-    // TODO: Get actual employee ID from session
-    // For now, update the first employee as demo
-    const employee = await prisma.employee.findFirst({
-      orderBy: { createdAt: 'asc' }
-    })
+    // TODO: Implement proper authentication
+    // Authentication required - no demo data in production
+    return NextResponse.json(
+      { error: 'Authentication required' },
+      { status: 401 }
+    )
 
     if (!employee) {
       return NextResponse.json(
