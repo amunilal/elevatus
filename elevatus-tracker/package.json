@@ -11,8 +11,14 @@
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
+    "db:migrate:production": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed-simple.ts",
-    "db:studio": "prisma studio"
+    "db:seed:production": "tsx prisma/seed-production.ts",
+    "db:studio": "prisma studio",
+    "production:setup": "./setup-production.sh",
+    "production:validate": "node scripts/validate-env.js",
+    "production:build": "NODE_ENV=production npm run build",
+    "production:start": "NODE_ENV=production npm start"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

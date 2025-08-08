@@ -121,7 +121,7 @@ export default function EmployeeDashboardPage() {
       {/* Main Content */}
       <div className="px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-secondary-900 mb-2">Good morning, John! 👋</h1>
+          <h1 className="text-4xl font-bold text-secondary-900 mb-2">Good morning! 👋</h1>
           <p className="text-secondary-700 text-base">{currentDate}</p>
         </div>
 

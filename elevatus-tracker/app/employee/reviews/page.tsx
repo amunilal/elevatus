@@ -126,7 +126,18 @@ export default function EmployeeReviewsPage() {
                 Profile
               </button>
             </Link>
-            <button className="text-sm text-hover-magenta font-medium">Sign out</button>
+            <button 
+              onClick={() => {
+                if (typeof window !== 'undefined') {
+                  localStorage.removeItem('user')
+                  sessionStorage.clear()
+                  window.location.href = '/employee/login'
+                }
+              }}
+              className="text-sm text-hover-magenta hover:text-brand-middle font-medium"
+            >
+              Sign out
+            </button>
           </div>
         </div>
       </div>
