@@ -217,8 +217,11 @@ npx prisma db push --force-reset
 # Generate migration
 npx prisma migrate dev
 
-# Deploy migrations
+# Deploy migrations (for production)
 npx prisma migrate deploy
+
+# Apply Prisma migration to Neon database
+DATABASE_URL="postgresql://username:password@your-neon-host/dbname" npx prisma migrate deploy
 ```
 
 ### Docker Development
@@ -356,6 +359,14 @@ The repository includes a GitHub Actions workflow that:
   - Created missing authentication library with proper NextRequest handling
   - Fixed employee API endpoint authentication to work with NextAuth middleware
   - Employee list now displays real employee data from database
+- **Email Notification System**: Complete user onboarding and password management
+  - **Password Setup Tokens**: Secure token-based password setup system with 24-hour expiration
+  - **Welcome Email Templates**: Professional HTML emails with setup links and branding
+  - **Automated User Onboarding**: New employees automatically receive welcome emails with password setup links
+  - **Password Setup Page**: Complete UI for secure password setting with validation and error handling
+  - **Amazon SES Integration**: Production-ready email service with SMTP configuration
+  - **User Account States**: Users created without passwords until they complete setup via email link
+  - **Security Features**: Token validation, password complexity requirements, one-time use tokens
 - **Production Cleanup**: Removed all test data and debugging artifacts
   - Eliminated hardcoded mock data from review pages and history
   - Removed all test scripts and dummy data creation files

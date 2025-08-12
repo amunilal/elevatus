@@ -55,6 +55,11 @@ const handler = NextAuth({
             return null
           }
 
+          // Check if user has a password set (new users won't have one until they set it via email)
+          if (!user.password) {
+            return null
+          }
+
           const isPasswordValid = await bcrypt.compare(credentials.password, user.password)
 
           if (!isPasswordValid) {

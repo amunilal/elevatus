@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { isValidDepartmentPosition } from '@/lib/departmentPositions'
 import { requireEmployerAuth } from '@/lib/auth'
+import { sendWelcomeEmail } from '@/lib/email'
 
 const prisma = new PrismaClient()
 
@@ -159,13 +160,13 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create user first
+    // Create user first (without password - will be set via email link)
     const user = await prisma.user.create({
       data: {
         email: body.email,
-        password: '$2a$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', // Default password: password
+        password: null, // No password initially
         userType: 'EMPLOYEE',
-        isActive: true
+        isActive: false // Will be activated when they set their password
       }
     })
 
@@ -201,6 +202,16 @@ export async function POST(request: NextRequest) {
         } : undefined
       }
     })
+
+    // Send welcome email with password setup link
+    try {
+      const fullName = `${body.firstName} ${body.lastName}`
+      await sendWelcomeEmail(user.id, body.email, fullName, 'EMPLOYEE')
+      console.log(`Welcome email sent to ${body.email}`)
+    } catch (emailError) {
+      console.error(`Failed to send welcome email to ${body.email}:`, emailError)
+      // Don't fail the employee creation if email fails
+    }
 
     return NextResponse.json(employee, { status: 201 })
   } catch (error) {
