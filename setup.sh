@@ -56,16 +56,24 @@ else
     npm install --legacy-peer-deps
 fi
 
+# Load environment variables from .env.local
+if [ -f .env.local ]; then
+    echo "🔧 Loading environment variables from .env.local..."
+    export $(cat .env.local | grep -v '^#' | grep '=' | xargs)
+    echo "✅ Environment variables loaded"
+else
+    echo "⚠️  .env.local not found, using default DATABASE_URL"
+    export DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev"
+fi
+
 # Generate Prisma client
 echo "🔧 Setting up database..."
 npx prisma generate
 
-# Run database migrations with explicit DATABASE_URL
+# Run database migrations
 echo "🗄️ Running database migrations..."
-if DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npx prisma db push --accept-data-loss; then
+if npx prisma db push --accept-data-loss; then
     echo "✅ Database schema applied successfully"
-elif DATABASE_URL="postgresql://postgres:password@0.0.0.0:5432/elevatus_dev" npx prisma db push --accept-data-loss; then
-    echo "✅ Database schema applied successfully (using 0.0.0.0)"
 else
     echo "⚠️  Database migration failed. Please check Docker containers are running."
     echo "    Try: docker-compose down && docker-compose up -d"
@@ -73,13 +81,11 @@ fi
 
 # Seed the database
 echo "🌱 Seeding database with demo users..."
-if DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npx tsx scripts/setup-demo-users.ts; then
+if npx tsx scripts/setup-demo-users.ts; then
     echo "✅ Demo users created successfully"
-elif DATABASE_URL="postgresql://postgres:password@0.0.0.0:5432/elevatus_dev" npx tsx scripts/setup-demo-users.ts; then
-    echo "✅ Demo users created successfully (using 0.0.0.0)"
 else
     echo "⚠️  Database seeding failed. You may need to set up users manually."
-    echo "    Try: DATABASE_URL=\"postgresql://postgres:password@localhost:5432/elevatus_dev\" npx tsx scripts/setup-demo-users.ts"
+    echo "    Try: npx tsx scripts/setup-demo-users.ts"
 fi
 
 # Create uploads directory
