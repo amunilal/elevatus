@@ -10,24 +10,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/Button'
 import { Badge } from '@/components/ui/Badge'
 import { Logo } from '@/components/ui/Logo'
-import { 
-  getRandomEmployee, 
-  getRandomBankDetails, 
-  getRandomAddress, 
-  generateRandomPhoneNumber,
-  generateRandomIdNumber,
-  generateRandomEmployeeNumber,
-  generateRandomBankAccount,
-  getBankingDetails,
-  isDevelopment
-} from '../../../../lib/test-data'
 
 export default function NewEmployeePage() {
   const router = useRouter()
   const { showToast } = useToast()
   const { addActivity } = useActivity()
   const [loading, setLoading] = useState(false)
-  const bankingDetails = getBankingDetails()
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -69,36 +57,6 @@ export default function NewEmployeePage() {
     }
   }, [formData.department, formData.position])
 
-  // Auto-fill with test data in development
-  const fillWithTestData = () => {
-    const randomEmployee = getRandomEmployee()
-    const randomBank = getRandomBankDetails()
-    const randomAddress = getRandomAddress()
-    
-    setFormData({
-      firstName: randomEmployee.firstName,
-      lastName: randomEmployee.lastName,
-      email: randomEmployee.email,
-      employeeNumber: generateRandomEmployeeNumber(),
-      position: randomEmployee.position,
-      department: randomEmployee.department,
-      hireDate: randomEmployee.hiredDate,
-      salary: randomEmployee.salary.toString(),
-      phoneNumber: generateRandomPhoneNumber(),
-      address: randomAddress.address,
-      idNumber: generateRandomIdNumber(),
-      taxNumber: generateRandomIdNumber(),
-      bankAccount: generateRandomBankAccount().toString(),
-      bankName: randomBank.bankName,
-      branchCode: randomBank.branchCode,
-      emergencyContactName: `${randomEmployee.firstName} Emergency Contact`,
-      emergencyContactPhone: generateRandomPhoneNumber(),
-      status: 'ACTIVE'
-    })
-    
-    // Clear any existing errors
-    setErrors({})
-  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -203,15 +161,6 @@ export default function NewEmployeePage() {
               <Button variant="secondary" size="sm" asChild>
                 <Link href="/employer/dashboard">Dashboard</Link>
               </Button>
-              {isDevelopment() && (
-                <Button
-                  variant="gradient"
-                  size="sm"
-                  onClick={fillWithTestData}
-                >
-                  Fill Test Data
-                </Button>
-              )}
               <Button variant="outline" size="sm" asChild>
                 <Link href="/employer/employees">Back to Employees</Link>
               </Button>
@@ -499,9 +448,16 @@ export default function NewEmployeePage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select Bank</option>
-                  {bankingDetails.map(bank => (
-                    <option key={bank.bankName} value={bank.bankName}>{bank.bankName}</option>
-                  ))}
+                  <option value="ABSA Bank">ABSA Bank</option>
+                  <option value="Standard Bank">Standard Bank</option>
+                  <option value="FNB">FNB</option>
+                  <option value="Nedbank">Nedbank</option>
+                  <option value="Capitec Bank">Capitec Bank</option>
+                  <option value="African Bank">African Bank</option>
+                  <option value="Discovery Bank">Discovery Bank</option>
+                  <option value="Investec">Investec</option>
+                  <option value="Bidvest Bank">Bidvest Bank</option>
+                  <option value="TymeBank">TymeBank</option>
                 </select>
               </div>
 

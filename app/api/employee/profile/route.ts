@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 export async function GET(request: NextRequest) {
   let session
   try {
-    session = await requireEmployeeAuth()
+    session = await requireEmployeeAuth(request)
   } catch (authError) {
     if (authError instanceof Error) {
       if (authError.message === 'Unauthorized') {
@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
   try {
 
     const employee = await prisma.employee.findFirst({
-      where: { userId: session.user.id },
+      where: { userId: (session.user as any).id },
       include: {
         user: {
           select: {
@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
 export async function PUT(request: NextRequest) {
   let session
   try {
-    session = await requireEmployeeAuth()
+    session = await requireEmployeeAuth(request)
   } catch (authError) {
     if (authError instanceof Error) {
       if (authError.message === 'Unauthorized') {
@@ -92,7 +92,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
 
     const employee = await prisma.employee.findFirst({
-      where: { userId: session.user.id }
+      where: { userId: (session.user as any).id }
     })
 
     if (!employee) {

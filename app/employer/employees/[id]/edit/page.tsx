@@ -3,15 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { 
-  getRandomEmployee,
-  getRandomBankDetails,
-  generateRandomPhoneNumber,
-  getDepartments,
-  getPositions,
-  getBankingDetails,
-  isDevelopment
-} from '../../../../../lib/test-data'
+import { getDepartments, getPositionsForDepartment } from '@/lib/departmentPositions'
 
 interface Employee {
   id: string
@@ -39,8 +31,7 @@ export default function EditEmployeePage() {
   const params = useParams()
   const router = useRouter()
   const departments = getDepartments()
-  const positions = getPositions()
-  const bankingDetails = getBankingDetails()
+  const [availablePositions, setAvailablePositions] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [employee, setEmployee] = useState<Employee | null>(null)
