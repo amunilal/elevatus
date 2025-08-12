@@ -6,8 +6,9 @@ export default withAuth(
     const { pathname } = req.nextUrl
     const token = req.nextauth.token
 
-    // Skip authentication check for login pages
-    if (pathname === '/employer/login' || pathname === '/employee/login') {
+    // Public paths that should be accessible without authentication
+    const publicPaths = ['/', '/employer/login', '/employee/login']
+    if (publicPaths.includes(pathname)) {
       return NextResponse.next()
     }
 
@@ -19,11 +20,11 @@ export default withAuth(
       if (pathname.startsWith('/employee')) {
         return NextResponse.redirect(new URL('/employee/login', req.url))
       }
-      // Default redirect to home page instead of non-existent /login
+      // For any other protected route, redirect to home page
       return NextResponse.redirect(new URL('/', req.url))
     }
 
-    // Check user type access
+    // Check user type access for authenticated users
     if (pathname.startsWith('/employer') && token.userType !== 'EMPLOYER') {
       return NextResponse.redirect(new URL('/employee/dashboard', req.url))
     }
@@ -57,11 +58,12 @@ export default withAuth(
           '/api/health'
         ]
 
-        // Check if the path is public or starts with a public path
+        // Check if the path is public
         const isPublicPath = publicPaths.some(path => 
           pathname === path || pathname.startsWith(`${path}/`)
         )
 
+        // Allow access to public paths
         if (isPublicPath) {
           return true
         }
