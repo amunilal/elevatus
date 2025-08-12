@@ -8,8 +8,10 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 
 - **No default credentials**: All test/demo users removed for production security
 - **Password visibility toggle**: Show/hide password option on all login forms  
-- **Forgot password functionality**: Full password reset flow with email notifications
-- **Secure authentication**: JWT-based sessions with role-based access control
+- **Forgot password functionality**: Complete password reset flow with email notifications
+- **Custom authentication flow**: Dedicated login/forgot password pages for each portal
+- **Secure middleware**: Custom authentication middleware with proper route protection
+- **JWT-based sessions**: Role-based access control with NextAuth.js
 - **Clean production deployment**: No test data in production environment
 
 ## 🚀 Features
@@ -51,7 +53,8 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 - **Modern Interface**: Consistent design system with intuitive hover effects and transitions
 
 ### Technical Features
-- **Dual Authentication**: Separate login systems for employers and employees
+- **Dual Authentication**: Separate login systems for employers and employees with custom middleware
+- **Password Management**: Visibility toggles and complete forgot password flow
 - **South African Compliance**: BCEA leave policies, POPIA data protection
 - **Real-time Updates**: Live attendance tracking and notifications
 - **Responsive Design**: Mobile-first design with Tailwind CSS
@@ -141,6 +144,25 @@ This automated script handles:
 2. Access employer portal: `/employer/login`
 3. Access employee portal: `/employee/login`
 4. Create user accounts through admin interface
+
+## 🔐 Authentication System
+
+### Login Flow
+- **Employer Portal**: `/employer/login` - Administrative access with management permissions
+- **Employee Portal**: `/employee/login` - Self-service employee access
+- **Password Visibility**: Toggle show/hide on all password fields
+- **Remember Me**: Persistent sessions with secure JWT tokens
+
+### Password Management
+- **Forgot Password**: `/employer/forgot-password` and `/employee/forgot-password`
+- **Email Notifications**: HTML email templates with reset links
+- **Security**: Reset links expire after 1 hour
+- **Production Notice**: Clear guidance for admin assistance
+
+### Route Protection
+- **Custom Middleware**: Protects routes based on user type and authentication status
+- **Role-Based Access**: Separate dashboards and permissions for employers vs employees
+- **API Protection**: Secure endpoints with user type validation
 
 ## 🗄️ Database Schema
 

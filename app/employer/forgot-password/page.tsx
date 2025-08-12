@@ -208,14 +208,22 @@ export default function EmployerForgotPasswordPage() {
           </CardContent>
         </Card>
 
+        {/* Production Notice */}
+        <div className="text-center">
+          <div className="inline-block bg-secondary-50 rounded-lg px-4 py-3 mb-4">
+            <p className="text-sm font-medium text-secondary-900 mb-1">Production System</p>
+            <p className="text-sm text-secondary-700">Contact your administrator for password assistance</p>
+          </div>
+        </div>
+
         {/* Info Notice */}
         <div className="text-center">
-          <div className="inline-flex items-center bg-secondary-50 rounded-lg px-4 py-3">
-            <svg className="h-5 w-5 text-secondary-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          <div className="inline-flex items-center bg-blue-50 rounded-lg px-4 py-3">
+            <svg className="h-5 w-5 text-blue-400 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            <p className="text-sm text-secondary-700">
-              For security, reset links expire after 1 hour
+            <p className="text-sm text-blue-700">
+              Reset links expire after 1 hour for security
             </p>
           </div>
         </div>
