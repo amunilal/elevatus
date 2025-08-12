@@ -58,36 +58,7 @@ export default function ReviewHistoryPage() {
         }
       } else {
         console.error('Failed to fetch reviews:', response.status)
-        // Fallback to mock data if API fails
-        const mockReviews: ReviewHistory[] = [
-          {
-            id: 'review-john-doe-2025',
-            employee: {
-              firstName: 'John',
-              lastName: 'Doe',
-              designation: 'Senior Developer',
-              department: 'Engineering'
-            },
-            date: '2025-01-15',
-            status: 'completed',
-            completedTasks: 12,
-            totalTasks: 12
-          },
-          {
-            id: 'mock-review-2',
-            employee: {
-              firstName: 'Jane',
-              lastName: 'Smith',
-              designation: 'Product Manager',
-              department: 'Product'
-            },
-            date: '2025-01-10',
-            status: 'in_progress',
-            completedTasks: 8,
-            totalTasks: 15
-          }
-        ]
-        setReviews(mockReviews)
+        setReviews([])
       }
     } catch (error) {
       console.error('Failed to fetch reviews:', error)

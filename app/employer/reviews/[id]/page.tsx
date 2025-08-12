@@ -110,121 +110,12 @@ export default function ReviewPage() {
         }
         
       } else {
-        // Fallback to mock data if API fails
-        console.warn('API call failed, using mock data')
-        const mockReview: Review = {
-          id: id,
-          employee: {
-            id: '1',
-            firstName: 'John',
-            lastName: 'Doe',
-            designation: 'Senior Developer',
-            department: 'Engineering'
-          },
-          date: '1 January 2025',
-          tasks: [
-            {
-              id: '1',
-              title: 'Complete project documentation',
-              dateAdded: '01/01/2025',
-              status: 'todo'
-            },
-            {
-              id: '2',
-              title: 'Code review for new features',
-              dateAdded: '01/01/2025',
-              status: 'todo'
-            },
-            {
-              id: '3',
-              title: 'Team collaboration assessment',
-              dateAdded: '01/01/2025',
-              status: 'todo'
-            },
-            {
-              id: '4',
-              title: 'Technical skills evaluation',
-              dateAdded: '01/01/2025',
-              dateCompleted: '3 months',
-              status: 'in_progress'
-            },
-            {
-              id: '5',
-              title: 'Leadership development goals',
-              dateAdded: '01/01/2025',
-              dateCompleted: '3 months',
-              status: 'in_progress'
-            },
-            {
-              id: '6',
-              title: 'Client communication review',
-              dateAdded: '01/01/2025',
-              dateCompleted: '3 months',
-              status: 'in_progress'
-            },
-            {
-              id: '7',
-              title: 'Performance goals Q1',
-              dateAdded: '01/01/2025',
-              dateCompleted: '3 months',
-              status: 'complete'
-            },
-            {
-              id: '8',
-              title: 'Training completion certificate',
-              dateAdded: '01/01/2025',
-              dateCompleted: '3 months',
-              status: 'complete'
-            },
-            {
-              id: '9',
-              title: 'Annual objectives review',
-              dateAdded: '01/01/2025',
-              dateCompleted: '3 months',
-              status: 'complete'
-            },
-            {
-              id: '10',
-              title: 'Salary review discussion',
-              dateAdded: '01/01/2025',
-              dateCompleted: '3 months',
-              status: 'on_hold'
-            },
-            {
-              id: '11',
-              title: 'Department restructure planning',
-              dateAdded: '01/01/2025',
-              dateCompleted: '3 months',
-              status: 'on_hold'
-            },
-            {
-              id: '12',
-              title: 'Remote work policy review',
-              dateAdded: '01/01/2025',
-              dateCompleted: '3 months',
-              status: 'on_hold'
-            }
-          ]
-        }
-        
-        setReview(mockReview)
+        console.error('Failed to fetch review: API returned error')
+        setReview(null)
       }
     } catch (error) {
       console.error('Failed to fetch review:', error)
-      // Use mock data as fallback
-      const mockReview: Review = {
-        id: id,
-        employee: {
-          id: '1',
-          firstName: 'John',
-          lastName: 'Doe',
-          designation: 'Senior Developer',
-          department: 'Engineering'
-        },
-        date: '1 January 2025',
-        tasks: []
-      }
-      setReview(mockReview)
+      setReview(null)
     } finally {
       setLoading(false)
     }

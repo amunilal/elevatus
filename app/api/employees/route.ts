@@ -7,7 +7,7 @@ const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
   try {
-    await requireEmployerAuth()
+    await requireEmployerAuth(request)
   } catch (authError) {
     if (authError instanceof Error) {
       if (authError.message === 'Unauthorized') {
@@ -92,7 +92,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    await requireEmployerAuth()
+    await requireEmployerAuth(request)
   } catch (authError) {
     if (authError instanceof Error) {
       if (authError.message === 'Unauthorized') {

@@ -4,9 +4,42 @@ import Link from 'next/link'
 import { Badge } from '@/components/ui/Badge'
 import { Logo } from '@/components/ui/Logo'
 import { useActivity } from '@/contexts/ActivityContext'
+import { useEffect, useState } from 'react'
+
+interface DashboardStats {
+  totalEmployees: number
+  pendingReviews: number
+  completedReviews: number
+}
 
 export default function EmployerDashboardPage() {
   const { activities } = useActivity()
+  const [stats, setStats] = useState<DashboardStats>({
+    totalEmployees: 0,
+    pendingReviews: 0,
+    completedReviews: 0
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchDashboardStats()
+  }, [])
+
+  const fetchDashboardStats = async () => {
+    try {
+      const response = await fetch('/api/dashboard/stats')
+      if (response.ok) {
+        const data = await response.json()
+        setStats(data)
+      } else {
+        console.error('Failed to fetch dashboard stats')
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard stats:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const formatRelativeTime = (timestamp: string) => {
     const now = new Date()
@@ -69,7 +102,9 @@ export default function EmployerDashboardPage() {
                 </div>
                 <div>
                   <p className="text-sm font-medium text-hover-teal mb-1">Total Employees</p>
-                  <p className="text-2xl font-bold text-secondary-900">24</p>
+                  <p className="text-2xl font-bold text-secondary-900">
+                    {loading ? '...' : stats.totalEmployees}
+                  </p>
                 </div>
               </div>
             </div>
@@ -85,7 +120,9 @@ export default function EmployerDashboardPage() {
               </div>
               <div>
                 <p className="text-sm font-medium mb-1" style={{ color: '#E9A1E5' }}>Pending reviews</p>
-                <p className="text-2xl font-bold text-secondary-900">6</p>
+                <p className="text-2xl font-bold text-secondary-900">
+                  {loading ? '...' : stats.pendingReviews}
+                </p>
               </div>
             </div>
           </div>
@@ -100,7 +137,9 @@ export default function EmployerDashboardPage() {
               </div>
               <div>
                 <p className="text-sm font-medium text-success-600 mb-1">Completed reviews</p>
-                <p className="text-2xl font-bold text-secondary-900">18</p>
+                <p className="text-2xl font-bold text-secondary-900">
+                  {loading ? '...' : stats.completedReviews}
+                </p>
               </div>
             </div>
           </div>
