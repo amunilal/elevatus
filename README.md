@@ -220,8 +220,13 @@ npx prisma migrate dev
 # Deploy migrations (for production)
 npx prisma migrate deploy
 
-# Apply Prisma migration to Neon database
+# Apply Prisma migration to Neon database (for existing databases)
 DATABASE_URL="postgresql://username:password@your-neon-host/dbname" npx prisma migrate deploy
+
+# Latest migration: 20250812174800_add_password_setup_fields
+# - Makes password field nullable for new users
+# - Adds passwordSetupToken, passwordSetupExpires, passwordSetupUsed fields
+# - Creates unique index for password setup tokens
 ```
 
 ### Docker Development
