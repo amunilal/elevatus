@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Production Setup Script for Elevatus Tracker
-# This script prepares a production environment with no dummy data
+# This script prepares a production environment
 
 set -e  # Exit on error
 
@@ -223,7 +223,7 @@ echo "  ✓ Production dependencies installed"
 echo "  ✓ Database migrated"
 echo "  ✓ Admin user created"
 echo "  ✓ Application built"
-echo "  ✓ No dummy data or test credentials"
+echo "  ✓ Clean production database"
 echo ""
 echo "🚀 Next Steps:"
 echo "  1. Deploy to your hosting platform:"

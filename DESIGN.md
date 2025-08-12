@@ -480,7 +480,7 @@ For broader CSS support, define custom properties:
 - **Centered Logo**: Logo component prominently displayed above login form
 - **Design System Form**: Input and Button components with consistent styling
 - **Error Handling**: Light pink background with coral border for error messages
-- **Demo Information**: Light yellow highlight box for demo credentials
+- **Information Boxes**: Light yellow highlight box for important information
 - **Brand Consistency**: Maintains visual consistency with rest of application
 
 #### Implementation Examples

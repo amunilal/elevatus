@@ -4,6 +4,14 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 
 > ✅ **Production Ready**: Fully tested setup with automated CI/CD pipeline and database branching
 
+## 🔒 Security Features
+
+- **No default credentials**: All test/demo users removed for production security
+- **Password visibility toggle**: Show/hide password option on all login forms  
+- **Forgot password functionality**: Full password reset flow with email notifications
+- **Secure authentication**: JWT-based sessions with role-based access control
+- **Clean production deployment**: No test data in production environment
+
 ## 🚀 Features
 
 ### Employer Portal
@@ -49,7 +57,7 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 - **Responsive Design**: Mobile-first design with Tailwind CSS
 - **Database Branching**: Automatic preview environments with Neon
 - **CI/CD Pipeline**: GitHub Actions with automated testing and deployment
-- **Development Test Data**: Auto-fill forms with realistic South African test data
+- **Production Ready**: Clean deployment without any test data
 
 ## 🏗️ Tech Stack
 
@@ -105,8 +113,7 @@ npx prisma generate
 # Run database migrations
 npx prisma db push
 
-# Seed database with sample data
-npx tsx prisma/seed-simple.ts
+# Database is ready for use (no test data included)
 ```
 
 ### 5. Start Development Server
@@ -125,7 +132,7 @@ Visit [http://localhost:3000](http://localhost:3000)
 This automated script handles:
 - ✅ Dependency installation
 - ✅ Docker services (PostgreSQL, Redis, MailHog)  
-- ✅ Database migrations and seeding
+- ✅ Database migrations
 - ✅ Development environment setup
 - ✅ Team collaboration configuration
 
@@ -133,7 +140,7 @@ This automated script handles:
 1. Follow installation steps above
 2. Access employer portal: `/employer/login`
 3. Access employee portal: `/employee/login`
-4. Use seeded credentials or create new accounts
+4. Create user accounts through admin interface
 
 ## 🗄️ Database Schema
 
@@ -362,7 +369,7 @@ The repository includes a GitHub Actions workflow that:
   - Consistent use of Logo, Button, Input, and Card components
   - Applied brand color scheme and modern styling throughout
   - Added clickable logo navigation to home page on both login pages
-  - Professional demo credentials display with consistent styling
+  - Professional login system with consistent styling
 - **Brand Consistency**: Updated all instances of "ElevateUs" to "ElevatUs" across codebase
   - Consistent branding in 16+ files including components, documentation, and scripts
   - Updated page titles, meta descriptions, and copyright notices

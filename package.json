@@ -12,16 +12,11 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:migrate:production": "prisma migrate deploy",
-    "db:seed": "npx tsx prisma/seed-simple.ts",
-    "db:seed:production": "npx tsx prisma/seed-production.ts",
     "db:studio": "prisma studio",
     "production:setup": "./setup-production.sh",
     "production:validate": "node scripts/validate-env.js",
     "production:build": "NODE_ENV=production npm run build",
     "production:start": "NODE_ENV=production npm start"
-  },
-  "prisma": {
-    "seed": "npx tsx prisma/seed-simple.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.4",

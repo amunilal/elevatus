@@ -82,14 +82,9 @@ else
     echo "    Or manually apply: npx prisma db push --accept-data-loss"
 fi
 
-# Seed the database
-echo "🌱 Seeding database with demo users..."
-if npm run db:seed; then
-    echo "✅ Demo users created successfully"
-else
-    echo "⚠️  Database seeding failed. You may need to set up users manually."
-    echo "    Try: npm run db:seed"
-fi
+# Database is ready - no demo users will be created
+echo "✅ Database is ready for production use"
+echo "   No demo users have been created for security reasons"
 
 # Create uploads directory
 echo "📁 Setting up file storage..."
@@ -148,17 +143,6 @@ echo "🔑 Authentication System:"
 echo "   ✨ Using NextAuth.js with JWT sessions"
 echo "   🔒 Separate login portals for Employers and Employees"
 echo "   📧 Email notifications via Amazon SES (production) / MailHog (local)"
-echo ""
-echo "🔑 Demo login credentials:"
-echo "   👨‍💼 Employer Portal:"
-echo "      - Admin: admin@elevatus.co.za / Admin123!@#"
-echo "      - HR Manager: hr@elevatus.co.za / HR123!@#"
-echo "      - Manager: manager@elevatus.co.za / Manager123!@#"
-echo ""
-echo "   👥 Employee Portal:"
-echo "      - Employee 1: john.doe@elevatus.co.za / Employee123!@#"
-echo "      - Employee 2: jane.smith@elevatus.co.za / Employee123!@#"
-echo "      - Employee 3: sarah.jones@elevatus.co.za / Employee123!@#"
 echo ""
 echo "📋 TEAM COLLABORATION SETUP:"
 echo "   1. Share this IP address with team: $LOCAL_IP"

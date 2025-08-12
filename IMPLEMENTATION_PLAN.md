@@ -217,15 +217,16 @@ The application will feature two distinct portals with separate authentication f
   - Employee Portal: http://localhost:3000/employee
   - Prisma Studio: http://localhost:5555
   - MailHog UI: http://localhost:8025
-- [ ] Development accounts (seeded)
+- [ ] User account management
   ```
-  Employer Admin:
-  Email: admin@company.com
-  Password: admin123
+  Create accounts through:
+  - Admin panel interface
+  - Database migrations
+  - API endpoints
   
-  Employee:
-  Email: john.doe@company.com
-  Password: employee123
+  Security requirements:
+  - Strong password policy
+  - Role-based access control
   ```
 
 ### 1.3 Local Development Troubleshooting
