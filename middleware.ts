@@ -14,7 +14,7 @@ export async function middleware(request: NextRequest) {
   ]
 
   // API auth paths that should always be accessible
-  if (pathname.startsWith('/api/auth')) {
+  if (pathname.startsWith('/api/auth') || pathname.startsWith('/api/health')) {
     return NextResponse.next()
   }
 
@@ -24,7 +24,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Get the session token
-  const token = await getToken({ req: request })
+  const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET })
 
   // Redirect to appropriate login page if not authenticated
   if (!token) {
@@ -62,6 +62,6 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     // Match all paths except static files and some API routes
-    '/((?!_next/static|_next/image|favicon.ico).*)'
+    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:css|js|png|jpg|jpeg|gif|ico|svg)$).*)'
   ]
 }
