@@ -2,7 +2,10 @@ import { getToken } from 'next-auth/jwt'
 import { NextRequest } from 'next/server'
 
 export async function requireEmployerAuth(request: NextRequest) {
-  const token = await getToken({ req: request })
+  const token = await getToken({ 
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET 
+  })
   
   if (!token) {
     throw new Error('Unauthorized')
@@ -16,7 +19,10 @@ export async function requireEmployerAuth(request: NextRequest) {
 }
 
 export async function requireEmployeeAuth(request: NextRequest) {
-  const token = await getToken({ req: request })
+  const token = await getToken({ 
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET 
+  })
   
   if (!token) {
     throw new Error('Unauthorized')
@@ -30,7 +36,10 @@ export async function requireEmployeeAuth(request: NextRequest) {
 }
 
 export async function requireAuth(request: NextRequest) {
-  const token = await getToken({ req: request })
+  const token = await getToken({ 
+    req: request,
+    secret: process.env.NEXTAUTH_SECRET 
+  })
   
   if (!token) {
     throw new Error('Unauthorized')

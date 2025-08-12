@@ -17,6 +17,11 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/api/auth') || pathname.startsWith('/api/health')) {
     return NextResponse.next()
   }
+  
+  // API routes that need authentication should pass through to route handlers
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next()
+  }
 
   // Allow public paths
   if (publicPaths.includes(pathname)) {
@@ -47,15 +52,8 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/employer/dashboard', request.url))
   }
 
-  // API route protection
-  if (pathname.startsWith('/api/employer') && token.userType !== 'EMPLOYER') {
-    return NextResponse.json({ error: 'Access denied' }, { status: 403 })
-  }
-
-  if (pathname.startsWith('/api/employee') && token.userType !== 'EMPLOYEE') {
-    return NextResponse.json({ error: 'Access denied' }, { status: 403 })
-  }
-
+  // API routes handle their own authentication
+  
   return NextResponse.next()
 }
 

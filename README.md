@@ -315,7 +315,7 @@ The repository includes a GitHub Actions workflow that:
 ## 📱 Features Overview
 
 ### Current Features ✅
-- Complete employee management system with modern UI design and live database integration
+- **Complete employee management system** with modern UI design, live database integration, and dual account management options (deactivate vs. delete)
 - **Live Dashboard Statistics**: Real-time employee count, pending/completed reviews from database
 - **Secure Authentication System**: Protected routes with automatic redirects to appropriate login pages
 - Real-time attendance tracking with comprehensive reporting
@@ -372,6 +372,13 @@ The repository includes a GitHub Actions workflow that:
   - **Amazon SES Integration**: Production-ready email service with SMTP configuration
   - **User Account States**: Users created without passwords until they complete setup via email link
   - **Security Features**: Token validation, password complexity requirements, one-time use tokens
+- **Enhanced Account Management**: Clear distinction between deactivating and deleting employee accounts
+  - **Deactivate Account**: Soft delete that marks employee as inactive while preserving all data
+  - **Delete Account**: Hard delete that permanently removes employee and all associated data
+  - **Security Safeguards**: Double confirmation required for permanent deletions with typed verification
+  - **Transaction Safety**: Database transactions ensure complete removal of both employee and user records
+  - **Clear UI Indicators**: Color-coded buttons (yellow for deactivate, red for delete) with explanatory tooltips
+  - **Warning System**: Informational panel explaining the difference between deactivate and delete actions
 - **Production Cleanup**: Removed all test data and debugging artifacts
   - Eliminated hardcoded mock data from review pages and history
   - Removed all test scripts and dummy data creation files

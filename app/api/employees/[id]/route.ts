@@ -141,9 +141,15 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
+    const { searchParams } = new URL(request.url)
+    const action = searchParams.get('action') // 'deactivate' or 'delete'
+
     // Check if employee exists
     const existingEmployee = await prisma.employee.findUnique({
-      where: { id: params.id }
+      where: { id: params.id },
+      include: {
+        user: true
+      }
     })
 
     if (!existingEmployee) {
@@ -153,19 +159,37 @@ export async function DELETE(
       )
     }
 
-    // Soft delete - update status to INACTIVE instead of hard delete
-    await prisma.employee.update({
-      where: { id: params.id },
-      data: {
-        employmentStatus: 'INACTIVE'
-      }
-    })
-
-    return NextResponse.json({ message: 'Employee deactivated successfully' })
+    if (action === 'deactivate') {
+      // Soft delete - update status to INACTIVE
+      await prisma.employee.update({
+        where: { id: params.id },
+        data: {
+          employmentStatus: 'INACTIVE'
+        }
+      })
+      return NextResponse.json({ message: 'Employee deactivated successfully' })
+    } else {
+      // Hard delete - permanently remove employee and associated user
+      await prisma.$transaction(async (tx) => {
+        // Delete employee first (due to foreign key constraint)
+        await tx.employee.delete({
+          where: { id: params.id }
+        })
+        
+        // Delete associated user
+        if (existingEmployee.userId) {
+          await tx.user.delete({
+            where: { id: existingEmployee.userId }
+          })
+        }
+      })
+      
+      return NextResponse.json({ message: 'Employee deleted permanently' })
+    }
   } catch (error) {
-    console.error('Error deleting employee:', error)
+    console.error('Error processing employee deletion:', error)
     return NextResponse.json(
-      { error: 'Failed to delete employee' },
+      { error: 'Failed to process request' },
       { status: 500 }
     )
   }

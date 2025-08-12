@@ -24,7 +24,11 @@ const createTransporter = () => {
 
 // Verify SMTP connection configuration
 export async function verifyEmailConfig(): Promise<boolean> {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  // For development with MailHog, SMTP_USER and SMTP_PASS can be empty
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  const isMailHog = process.env.SMTP_HOST === 'localhost' && process.env.SMTP_PORT === '1025'
+  
+  if (!isDevelopment && !isMailHog && (!process.env.SMTP_USER || !process.env.SMTP_PASS)) {
     console.error('Email configuration missing: SMTP_USER or SMTP_PASS not set')
     return false
   }
@@ -51,7 +55,11 @@ interface EmailOptions {
 
 // Send email function
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
-  if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
+  // For development with MailHog, SMTP_USER and SMTP_PASS can be empty
+  const isDevelopment = process.env.NODE_ENV === 'development'
+  const isMailHog = process.env.SMTP_HOST === 'localhost' && process.env.SMTP_PORT === '1025'
+  
+  if (!isDevelopment && !isMailHog && (!process.env.SMTP_USER || !process.env.SMTP_PASS)) {
     console.error('Email configuration missing: Cannot send email')
     return false
   }

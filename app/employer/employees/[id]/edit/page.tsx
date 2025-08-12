@@ -34,6 +34,8 @@ export default function EditEmployeePage() {
   const [availablePositions, setAvailablePositions] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [deactivating, setDeactivating] = useState(false)
+  const [deleting, setDeleting] = useState(false)
   const [employee, setEmployee] = useState<Employee | null>(null)
   const [formData, setFormData] = useState({
     firstName: '',
@@ -154,6 +156,61 @@ export default function EditEmployeePage() {
       setErrors({ submit: 'Network error. Please try again.' })
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleDeactivate = async () => {
+    if (!confirm(`Are you sure you want to deactivate ${employee?.firstName} ${employee?.lastName}? They will be marked as inactive but their data will be preserved.`)) {
+      return
+    }
+
+    setDeactivating(true)
+    try {
+      const response = await fetch(`/api/employees/${params.id}?action=deactivate`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        router.push('/employer/employees')
+      } else {
+        const error = await response.json()
+        setErrors({ submit: error.message || 'Failed to deactivate employee' })
+      }
+    } catch (error) {
+      setErrors({ submit: 'Network error. Please try again.' })
+    } finally {
+      setDeactivating(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    if (!confirm(`⚠️ PERMANENT DELETION WARNING ⚠️\n\nAre you sure you want to permanently delete ${employee?.firstName} ${employee?.lastName}?\n\nThis action:\n• Cannot be undone\n• Will permanently remove all employee data\n• Will delete their user account\n• Will remove all associated records\n\nType "DELETE" to confirm this permanent action.`)) {
+      return
+    }
+
+    const confirmation = prompt('Type "DELETE" to confirm permanent deletion:')
+    if (confirmation !== 'DELETE') {
+      alert('Deletion cancelled. You must type "DELETE" exactly to confirm.')
+      return
+    }
+
+    setDeleting(true)
+    try {
+      const response = await fetch(`/api/employees/${params.id}?action=delete`, {
+        method: 'DELETE'
+      })
+
+      if (response.ok) {
+        alert('Employee has been permanently deleted.')
+        router.push('/employer/employees')
+      } else {
+        const error = await response.json()
+        setErrors({ submit: error.message || 'Failed to delete employee' })
+      }
+    } catch (error) {
+      setErrors({ submit: 'Network error. Please try again.' })
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -536,21 +593,63 @@ export default function EditEmployeePage() {
             </div>
           </div>
 
+          {/* Account Actions */}
+          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <svg className="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-yellow-700">
+                  <strong>Account Actions:</strong> Use "Deactivate Account" to mark employee as inactive (preserves data). Use "Delete Account" to permanently remove all data (cannot be undone).
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Submit Buttons */}
-          <div className="flex justify-end space-x-4">
-            <Link
-              href={`/employer/employees/${params.id}`}
-              className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors"
-            >
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              disabled={saving}
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              {saving ? 'Saving...' : 'Update Employee'}
-            </button>
+          <div className="flex justify-between">
+            <div className="flex space-x-4">
+              {/* Deactivate Account Button */}
+              <button
+                type="button"
+                onClick={handleDeactivate}
+                disabled={deactivating || saving || deleting}
+                className="bg-yellow-600 text-white px-6 py-2 rounded-md hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Mark employee as inactive but preserve all data"
+              >
+                {deactivating ? 'Deactivating...' : 'Deactivate Account'}
+              </button>
+              
+              {/* Delete Account Button */}
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={deleting || saving || deactivating}
+                className="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                title="Permanently delete employee and all associated data (cannot be undone)"
+              >
+                {deleting ? 'Deleting...' : 'Delete Account'}
+              </button>
+            </div>
+            
+            <div className="flex space-x-4">
+              <Link
+                href={`/employer/employees/${params.id}`}
+                className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700 transition-colors"
+              >
+                Cancel
+              </Link>
+              <button
+                type="submit"
+                disabled={saving || deactivating || deleting}
+                className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {saving ? 'Saving...' : 'Update Employee'}
+              </button>
+            </div>
           </div>
 
           {errors.submit && (
