@@ -19,7 +19,8 @@ export default withAuth(
       if (pathname.startsWith('/employee')) {
         return NextResponse.redirect(new URL('/employee/login', req.url))
       }
-      return NextResponse.redirect(new URL('/login', req.url))
+      // Default redirect to home page instead of non-existent /login
+      return NextResponse.redirect(new URL('/', req.url))
     }
 
     // Check user type access
@@ -50,7 +51,6 @@ export default withAuth(
         // Public paths that don't require authentication
         const publicPaths = [
           '/',
-          '/login',
           '/employer/login',
           '/employee/login',
           '/api/auth',
