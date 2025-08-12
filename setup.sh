@@ -72,20 +72,23 @@ npx prisma generate
 
 # Run database migrations
 echo "🗄️ Running database migrations..."
-if npx prisma db push --accept-data-loss; then
-    echo "✅ Database schema applied successfully"
+if npx prisma migrate deploy; then
+    echo "✅ Database migrations applied successfully"
+elif npx prisma migrate dev --name auto-migration; then
+    echo "✅ Database migrations created and applied successfully"
 else
     echo "⚠️  Database migration failed. Please check Docker containers are running."
     echo "    Try: docker-compose down && docker-compose up -d"
+    echo "    Or manually apply: npx prisma db push --accept-data-loss"
 fi
 
 # Seed the database
 echo "🌱 Seeding database with demo users..."
-if npx tsx scripts/setup-demo-users.ts; then
+if npm run db:seed; then
     echo "✅ Demo users created successfully"
 else
     echo "⚠️  Database seeding failed. You may need to set up users manually."
-    echo "    Try: npx tsx scripts/setup-demo-users.ts"
+    echo "    Try: npm run db:seed"
 fi
 
 # Create uploads directory
@@ -136,9 +139,10 @@ echo "   - Employer Portal: http://$LOCAL_IP:3000/employer/login"
 echo "   - Employee Portal: http://$LOCAL_IP:3000/employee/login"
 echo ""
 echo "🛠️  DEVELOPMENT TOOLS:"
-echo "   - Prisma Studio: DATABASE_URL=\"postgresql://postgres:password@localhost:5432/elevatus_dev\" npx prisma studio"
+echo "   - Prisma Studio: npx prisma studio"
+echo "   - Database Migrations: npm run db:migrate"
+echo "   - Database Seeding: npm run db:seed"
 echo "   - MailHog UI: http://localhost:8025 (Email testing)"
-echo "   - Database Reset: npm run db:seed"
 echo ""
 echo "🔑 Authentication System:"
 echo "   ✨ Using NextAuth.js with JWT sessions"
