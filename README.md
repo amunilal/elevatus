@@ -71,9 +71,40 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 - **Database**: Neon (Serverless Postgres)
 - **Authentication**: NextAuth.js
 - **Email Service**: Amazon SES (SMTP)
+- **UI Components**: Custom React components with TypeScript
+- **Notifications**: Custom toast system with Portal API
+- **Modals**: Custom dialog system with accessibility features
+- **State Management**: React hooks with custom hooks
 - **Deployment**: Vercel
 - **Database Branching**: Neon Database Branching
 - **CI/CD**: GitHub Actions
+
+## 🎨 UI/UX Components
+
+### Toast Notification System
+- **Location**: `/components/ui/Toast.tsx`
+- **Hook**: `/hooks/useToast.tsx`
+- **Features**: 
+  - Auto-dismiss with configurable duration
+  - Success, error, warning, and info types
+  - Smooth slide animations
+  - Portal-based rendering
+  - Stack management for multiple toasts
+  - Accessible with ARIA labels
+
+### Dialog System
+- **Location**: `/components/ui/Dialog.tsx`
+- **Components**:
+  - Base `Dialog` component with full customization
+  - `ConfirmDialog` for confirmations with visual icons
+  - `PromptDialog` for text input with validation
+- **Features**:
+  - Escape key and overlay click handling
+  - Keyboard navigation support
+  - Size variants (sm, md, lg, xl)
+  - Custom button variants
+  - Input validation for prompts
+  - Smooth scale and fade animations
 
 ## 📋 Prerequisites
 
@@ -379,6 +410,13 @@ The repository includes a GitHub Actions workflow that:
   - **Transaction Safety**: Database transactions ensure complete removal of both employee and user records
   - **Clear UI Indicators**: Color-coded buttons (yellow for deactivate, red for delete) with explanatory tooltips
   - **Warning System**: Informational panel explaining the difference between deactivate and delete actions
+- **Modern UI/UX System**: Replaced all browser alerts with professional toast notifications and modal dialogs
+  - **Toast Notification System**: Custom-built toast component with success, error, warning, and info types
+  - **Modal Dialog System**: Professional confirmation and prompt dialogs with proper validation
+  - **Enhanced User Experience**: Smooth animations, auto-dismiss functionality, and consistent positioning
+  - **Improved Error Handling**: Clear, actionable error messages with proper visual feedback
+  - **Accessibility Features**: Keyboard navigation, screen reader support, and focus management
+  - **Consistent Design**: Color-coded notifications and dialogs that match the application's design system
 - **Production Cleanup**: Removed all test data and debugging artifacts
   - Eliminated hardcoded mock data from review pages and history
   - Removed all test scripts and dummy data creation files

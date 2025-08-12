@@ -7,6 +7,9 @@ import { Logo } from '@/components/ui/Logo'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
+import { ToastContainer } from '@/components/ui/Toast'
+import { ConfirmDialog, PromptDialog } from '@/components/ui/Dialog'
+import { useToast } from '@/hooks/useToast'
 
 interface Employee {
   id: string
@@ -39,6 +42,16 @@ export default function EmployeesPage() {
   const [isResizing, setIsResizing] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
   const [editedEmployee, setEditedEmployee] = useState<Employee | null>(null)
+  const [deactivating, setDeactivating] = useState(false)
+  const [deleting, setDeleting] = useState(false)
+  
+  // Dialog states
+  const [showDeactivateDialog, setShowDeactivateDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showDeletePrompt, setShowDeletePrompt] = useState(false)
+  
+  // Toast hook
+  const toast = useToast()
 
   useEffect(() => {
     fetchEmployees()
@@ -143,11 +156,12 @@ export default function EmployeesPage() {
         setIsEditing(false)
         setEditedEmployee(null)
       } else {
-        alert('Failed to update employee')
+        const errorData = await response.json()
+        toast.error('Update Failed', errorData.message || 'Failed to update employee')
       }
     } catch (error) {
       console.error('Error updating employee:', error)
-      alert('Failed to update employee')
+      toast.error('Update Failed', 'Network error. Please try again.')
     }
   }
 
@@ -156,27 +170,84 @@ export default function EmployeesPage() {
     setEditedEmployee(null)
   }
 
-  const handleDeleteEmployee = async () => {
+  const handleDeactivateEmployee = () => {
+    if (!selectedEmployee) return
+    setShowDeactivateDialog(true)
+  }
+
+  const confirmDeactivateEmployee = async () => {
     if (!selectedEmployee) return
     
-    if (confirm(`Are you sure you want to delete ${selectedEmployee.firstName} ${selectedEmployee.lastName}? This action cannot be undone.`)) {
-      try {
-        // TODO: Make API call to delete employee
-        const response = await fetch(`/api/employees/${selectedEmployee.id}`, {
-          method: 'DELETE',
-        })
-        
-        if (response.ok) {
-          // Update local state
-          setEmployees(prev => prev.filter(emp => emp.id !== selectedEmployee.id))
-          closeSidebar()
-        } else {
-          alert('Failed to delete employee')
-        }
-      } catch (error) {
-        console.error('Error deleting employee:', error)
-        alert('Failed to delete employee')
+    setShowDeactivateDialog(false)
+    setDeactivating(true)
+    
+    try {
+      const response = await fetch(`/api/employees/${selectedEmployee.id}?action=deactivate`, {
+        method: 'DELETE',
+      })
+      
+      if (response.ok) {
+        // Update local state to reflect inactive status
+        setEmployees(prev => prev.map(emp => 
+          emp.id === selectedEmployee.id 
+            ? { ...emp, employmentStatus: 'INACTIVE' as const }
+            : emp
+        ))
+        setSelectedEmployee(prev => prev ? { ...prev, employmentStatus: 'INACTIVE' as const } : null)
+        setIsEditing(false)
+        toast.success('Employee Deactivated', `${selectedEmployee.firstName} ${selectedEmployee.lastName} has been deactivated`)
+      } else {
+        const error = await response.json()
+        toast.error('Deactivation Failed', error.message || 'Failed to deactivate employee')
       }
+    } catch (error) {
+      console.error('Error deactivating employee:', error)
+      toast.error('Deactivation Failed', 'Network error. Please try again.')
+    } finally {
+      setDeactivating(false)
+    }
+  }
+
+  const handleDeleteEmployee = () => {
+    if (!selectedEmployee) return
+    setShowDeleteDialog(true)
+  }
+
+  const confirmDeleteEmployee = () => {
+    setShowDeleteDialog(false)
+    setShowDeletePrompt(true)
+  }
+
+  const executeDeleteEmployee = async (confirmation: string) => {
+    if (!selectedEmployee) return
+    
+    if (confirmation !== 'DELETE') {
+      toast.error('Deletion Cancelled', 'You must type "DELETE" exactly to confirm.')
+      return
+    }
+
+    setShowDeletePrompt(false)
+    setDeleting(true)
+    
+    try {
+      const response = await fetch(`/api/employees/${selectedEmployee.id}?action=delete`, {
+        method: 'DELETE',
+      })
+      
+      if (response.ok) {
+        // Remove employee from local state
+        setEmployees(prev => prev.filter(emp => emp.id !== selectedEmployee.id))
+        closeSidebar()
+        toast.success('Employee Deleted', `${selectedEmployee.firstName} ${selectedEmployee.lastName} has been permanently deleted.`)
+      } else {
+        const error = await response.json()
+        toast.error('Deletion Failed', error.message || 'Failed to delete employee')
+      }
+    } catch (error) {
+      console.error('Error deleting employee:', error)
+      toast.error('Deletion Failed', 'Network error. Please try again.')
+    } finally {
+      setDeleting(false)
     }
   }
 
@@ -660,17 +731,49 @@ export default function EmployeesPage() {
                 </div>
               </div>
               
-              {/* Delete Account Button - Only show in edit mode */}
+              {/* Account Actions - Only show in edit mode */}
               {isEditing && (
-                <div className="border-t border-secondary-200 pt-6">
+                <div className="border-t border-secondary-200 pt-6 space-y-4">
+                  {/* Warning Message */}
+                  <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3">
+                    <div className="flex">
+                      <div className="flex-shrink-0">
+                        <svg className="h-4 w-4 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                      <div className="ml-2">
+                        <p className="text-xs text-yellow-700">
+                          <strong>Account Actions:</strong> Use "Deactivate" to preserve data. Use "Delete" to permanently remove all data.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Deactivate Account Button */}
+                  <button
+                    onClick={handleDeactivateEmployee}
+                    disabled={deactivating || deleting}
+                    className="w-full inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-yellow-600 text-white hover:bg-yellow-700 focus:ring-yellow-500 h-10 px-4 py-2"
+                    title="Mark employee as inactive but preserve all data"
+                  >
+                    <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728L5.636 5.636m12.728 12.728L18.364 5.636M5.636 18.364l12.728-12.728" />
+                    </svg>
+                    {deactivating ? 'Deactivating...' : 'Deactivate Account'}
+                  </button>
+
+                  {/* Delete Account Button */}
                   <button
                     onClick={handleDeleteEmployee}
+                    disabled={deleting || deactivating}
                     className="w-full inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-error-500 text-white hover:bg-error-600 focus:ring-error-500 h-10 px-4 py-2"
+                    title="Permanently delete employee and all associated data (cannot be undone)"
                   >
                     <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
-                    Delete Account
+                    {deleting ? 'Deleting...' : 'Delete Account'}
                   </button>
                 </div>
               )}
@@ -678,6 +781,53 @@ export default function EmployeesPage() {
           </div>
         </>
       )}
+
+      {/* Toast Container */}
+      <ToastContainer
+        toasts={toast.toasts}
+        onDismiss={toast.removeToast}
+        position="top-right"
+      />
+
+      {/* Deactivate Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeactivateDialog}
+        onClose={() => setShowDeactivateDialog(false)}
+        onConfirm={confirmDeactivateEmployee}
+        title="Deactivate Employee"
+        message={`Are you sure you want to deactivate ${selectedEmployee?.firstName} ${selectedEmployee?.lastName}? They will be marked as inactive but their data will be preserved.`}
+        confirmText="Deactivate"
+        cancelText="Cancel"
+        confirmVariant="primary"
+        type="warning"
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onConfirm={confirmDeleteEmployee}
+        title="⚠️ Permanent Deletion Warning"
+        message={`Are you sure you want to permanently delete ${selectedEmployee?.firstName} ${selectedEmployee?.lastName}?\n\nThis action:\n• Cannot be undone\n• Will permanently remove all employee data\n• Will delete their user account\n• Will remove all associated records`}
+        confirmText="Continue to Delete"
+        cancelText="Cancel"
+        confirmVariant="error"
+        type="error"
+      />
+
+      {/* Delete Confirmation Prompt */}
+      <PromptDialog
+        isOpen={showDeletePrompt}
+        onClose={() => setShowDeletePrompt(false)}
+        onConfirm={executeDeleteEmployee}
+        title="Confirm Permanent Deletion"
+        message="Type 'DELETE' to confirm permanent deletion:"
+        placeholder="DELETE"
+        confirmText="Delete Permanently"
+        cancelText="Cancel"
+        required={true}
+        validation={(value) => value !== 'DELETE' ? 'You must type "DELETE" exactly to confirm.' : null}
+      />
     </div>
   )
 }

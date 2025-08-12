@@ -4,6 +4,9 @@ import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { getDepartments, getPositionsForDepartment } from '@/lib/departmentPositions'
+import { ToastContainer } from '@/components/ui/Toast'
+import { ConfirmDialog, PromptDialog } from '@/components/ui/Dialog'
+import { useToast } from '@/hooks/useToast'
 
 interface Employee {
   id: string
@@ -37,6 +40,14 @@ export default function EditEmployeePage() {
   const [deactivating, setDeactivating] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [employee, setEmployee] = useState<Employee | null>(null)
+  
+  // Dialog states
+  const [showDeactivateDialog, setShowDeactivateDialog] = useState(false)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showDeletePrompt, setShowDeletePrompt] = useState(false)
+  
+  // Toast hook
+  const toast = useToast()
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -147,67 +158,87 @@ export default function EditEmployeePage() {
       })
 
       if (response.ok) {
+        toast.success('Employee Updated', 'Employee information has been updated successfully')
         router.push(`/employer/employees/${params.id}`)
       } else {
         const error = await response.json()
+        toast.error('Update Failed', error.message || 'Failed to update employee')
         setErrors({ submit: error.message || 'Failed to update employee' })
       }
     } catch (error) {
+      toast.error('Update Failed', 'Network error. Please try again.')
       setErrors({ submit: 'Network error. Please try again.' })
     } finally {
       setSaving(false)
     }
   }
 
-  const handleDeactivate = async () => {
-    if (!confirm(`Are you sure you want to deactivate ${employee?.firstName} ${employee?.lastName}? They will be marked as inactive but their data will be preserved.`)) {
-      return
-    }
+  const handleDeactivate = () => {
+    setShowDeactivateDialog(true)
+  }
 
+  const confirmDeactivateEmployee = async () => {
+    if (!employee) return
+    
+    setShowDeactivateDialog(false)
     setDeactivating(true)
+    
     try {
       const response = await fetch(`/api/employees/${params.id}?action=deactivate`, {
         method: 'DELETE'
       })
 
       if (response.ok) {
+        toast.success('Employee Deactivated', `${employee.firstName} ${employee.lastName} has been deactivated`)
         router.push('/employer/employees')
       } else {
         const error = await response.json()
+        toast.error('Deactivation Failed', error.message || 'Failed to deactivate employee')
         setErrors({ submit: error.message || 'Failed to deactivate employee' })
       }
     } catch (error) {
+      toast.error('Deactivation Failed', 'Network error. Please try again.')
       setErrors({ submit: 'Network error. Please try again.' })
     } finally {
       setDeactivating(false)
     }
   }
 
-  const handleDelete = async () => {
-    if (!confirm(`⚠️ PERMANENT DELETION WARNING ⚠️\n\nAre you sure you want to permanently delete ${employee?.firstName} ${employee?.lastName}?\n\nThis action:\n• Cannot be undone\n• Will permanently remove all employee data\n• Will delete their user account\n• Will remove all associated records\n\nType "DELETE" to confirm this permanent action.`)) {
-      return
-    }
+  const handleDelete = () => {
+    setShowDeleteDialog(true)
+  }
 
-    const confirmation = prompt('Type "DELETE" to confirm permanent deletion:')
+  const confirmDeleteEmployee = () => {
+    setShowDeleteDialog(false)
+    setShowDeletePrompt(true)
+  }
+
+  const executeDeleteEmployee = async (confirmation: string) => {
+    if (!employee) return
+    
     if (confirmation !== 'DELETE') {
-      alert('Deletion cancelled. You must type "DELETE" exactly to confirm.')
+      toast.error('Deletion Cancelled', 'You must type "DELETE" exactly to confirm.')
       return
     }
 
+    setShowDeletePrompt(false)
     setDeleting(true)
+    
     try {
       const response = await fetch(`/api/employees/${params.id}?action=delete`, {
         method: 'DELETE'
       })
 
       if (response.ok) {
-        alert('Employee has been permanently deleted.')
+        toast.success('Employee Deleted', `${employee.firstName} ${employee.lastName} has been permanently deleted.`)
         router.push('/employer/employees')
       } else {
         const error = await response.json()
+        toast.error('Deletion Failed', error.message || 'Failed to delete employee')
         setErrors({ submit: error.message || 'Failed to delete employee' })
       }
     } catch (error) {
+      toast.error('Deletion Failed', 'Network error. Please try again.')
       setErrors({ submit: 'Network error. Please try again.' })
     } finally {
       setDeleting(false)
@@ -656,6 +687,53 @@ export default function EditEmployeePage() {
             <div className="text-red-500 text-center mt-4">{errors.submit}</div>
           )}
         </form>
+
+        {/* Toast Container */}
+        <ToastContainer
+          toasts={toast.toasts}
+          onDismiss={toast.removeToast}
+          position="top-right"
+        />
+
+        {/* Deactivate Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={showDeactivateDialog}
+          onClose={() => setShowDeactivateDialog(false)}
+          onConfirm={confirmDeactivateEmployee}
+          title="Deactivate Employee"
+          message={`Are you sure you want to deactivate ${employee?.firstName} ${employee?.lastName}? They will be marked as inactive but their data will be preserved.`}
+          confirmText="Deactivate"
+          cancelText="Cancel"
+          confirmVariant="primary"
+          type="warning"
+        />
+
+        {/* Delete Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={showDeleteDialog}
+          onClose={() => setShowDeleteDialog(false)}
+          onConfirm={confirmDeleteEmployee}
+          title="⚠️ Permanent Deletion Warning"
+          message={`Are you sure you want to permanently delete ${employee?.firstName} ${employee?.lastName}?\n\nThis action:\n• Cannot be undone\n• Will permanently remove all employee data\n• Will delete their user account\n• Will remove all associated records`}
+          confirmText="Continue to Delete"
+          cancelText="Cancel"
+          confirmVariant="error"
+          type="error"
+        />
+
+        {/* Delete Confirmation Prompt */}
+        <PromptDialog
+          isOpen={showDeletePrompt}
+          onClose={() => setShowDeletePrompt(false)}
+          onConfirm={executeDeleteEmployee}
+          title="Confirm Permanent Deletion"
+          message="Type 'DELETE' to confirm permanent deletion:"
+          placeholder="DELETE"
+          confirmText="Delete Permanently"
+          cancelText="Cancel"
+          required={true}
+          validation={(value) => value !== 'DELETE' ? 'You must type "DELETE" exactly to confirm.' : null}
+        />
       </div>
     </div>
   )

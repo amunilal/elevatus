@@ -171,7 +171,59 @@ export async function DELETE(
     } else {
       // Hard delete - permanently remove employee and associated user
       await prisma.$transaction(async (tx) => {
-        // Delete employee first (due to foreign key constraint)
+        // First, check for foreign key dependencies that would prevent deletion
+        const reviewsAsReviewer = await tx.review.count({
+          where: { reviewerId: params.id }
+        })
+        
+        const reviewsAsEmployee = await tx.review.count({
+          where: { employeeId: params.id }
+        })
+
+        // If employee has reviews as reviewer, we need to handle this
+        if (reviewsAsReviewer > 0) {
+          throw new Error(`Cannot delete employee: They are assigned as reviewer for ${reviewsAsReviewer} review(s). Please reassign or complete these reviews first.`)
+        }
+
+        // Delete reviews where employee is the subject
+        if (reviewsAsEmployee > 0) {
+          // First delete goals associated with reviews
+          await tx.goal.deleteMany({
+            where: {
+              review: {
+                employeeId: params.id
+              }
+            }
+          })
+          
+          // Then delete the reviews
+          await tx.review.deleteMany({
+            where: { employeeId: params.id }
+          })
+        }
+
+        // Delete other associated records
+        await tx.userBadge.deleteMany({
+          where: { employeeId: params.id }
+        })
+
+        await tx.enrollment.deleteMany({
+          where: { employeeId: params.id }
+        })
+
+        await tx.document.deleteMany({
+          where: { employeeId: params.id }
+        })
+
+        await tx.leave.deleteMany({
+          where: { employeeId: params.id }
+        })
+
+        await tx.attendance.deleteMany({
+          where: { employeeId: params.id }
+        })
+
+        // Delete employee record
         await tx.employee.delete({
           where: { id: params.id }
         })
@@ -188,8 +240,17 @@ export async function DELETE(
     }
   } catch (error) {
     console.error('Error processing employee deletion:', error)
+    
+    // Return specific error messages for better user experience
+    if (error instanceof Error) {
+      return NextResponse.json(
+        { message: error.message },
+        { status: 400 }
+      )
+    }
+    
     return NextResponse.json(
-      { error: 'Failed to process request' },
+      { message: 'Failed to process request' },
       { status: 500 }
     )
   }
