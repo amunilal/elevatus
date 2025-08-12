@@ -1,10 +1,8 @@
 #!/usr/bin/env tsx
-import dotenv from 'dotenv'
-import path from 'path'
 import { verifyEmailConfig, sendEmail } from '../lib/email'
 
-// Load environment variables
-dotenv.config({ path: path.resolve(process.cwd(), '.env.production.local') })
+// This script is for local testing only
+// Environment variables should be loaded by the runtime
 
 async function testSESEmail() {
   console.log('Amazon SES SMTP Configuration Test')
