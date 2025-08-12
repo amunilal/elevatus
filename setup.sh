@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "🚀 Setting up ElevatUs Employee Tracker..."
-echo "📋 Team Setup Guide for Collaborative Development"
+echo "🚀 Setting up ElevatUs Employee Management System..."
+echo "📋 Complete Setup Guide with Authentication & Email Configuration"
 echo ""
 
 # Function to get local IP address
@@ -62,20 +62,52 @@ npx prisma generate
 
 # Run database migrations with explicit DATABASE_URL
 echo "🗄️ Running database migrations..."
-DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npx prisma migrate dev --name init
+if DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npx prisma db push --accept-data-loss; then
+    echo "✅ Database schema applied successfully"
+elif DATABASE_URL="postgresql://postgres:password@0.0.0.0:5432/elevatus_dev" npx prisma db push --accept-data-loss; then
+    echo "✅ Database schema applied successfully (using 0.0.0.0)"
+else
+    echo "⚠️  Database migration failed. Please check Docker containers are running."
+    echo "    Try: docker-compose down && docker-compose up -d"
+fi
 
 # Seed the database
-echo "🌱 Seeding database with sample data..."
-if DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npm run db:seed; then
-    echo "✅ Database seeded successfully"
+echo "🌱 Seeding database with demo users..."
+if DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev" npx tsx scripts/setup-demo-users.ts; then
+    echo "✅ Demo users created successfully"
+elif DATABASE_URL="postgresql://postgres:password@0.0.0.0:5432/elevatus_dev" npx tsx scripts/setup-demo-users.ts; then
+    echo "✅ Demo users created successfully (using 0.0.0.0)"
 else
-    echo "⚠️  Database seeding completed with warnings (this is normal if data already exists)"
+    echo "⚠️  Database seeding failed. You may need to set up users manually."
+    echo "    Try: DATABASE_URL=\"postgresql://postgres:password@localhost:5432/elevatus_dev\" npx tsx scripts/setup-demo-users.ts"
 fi
 
 # Create uploads directory
 echo "📁 Setting up file storage..."
 mkdir -p uploads
 chmod 755 uploads
+
+# Setup environment files if needed
+echo "🔐 Setting up environment configuration..."
+if [ ! -f .env.local ]; then
+    echo "Creating .env.local file..."
+    cat > .env.local << 'EOF'
+# Database Configuration
+DATABASE_URL="postgresql://postgres:password@localhost:5432/elevatus_dev"
+
+# NextAuth Configuration
+NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_SECRET="development-secret-key-change-in-production"
+
+# Email Configuration (Local Development - MailHog)
+SMTP_HOST="localhost"
+SMTP_PORT="1025"
+SMTP_USER=""
+SMTP_PASS=""
+SMTP_FROM="noreply@elevatus.local"
+EOF
+    echo "✅ Created .env.local with development settings"
+fi
 
 # Get local IP for team access
 LOCAL_IP=$(get_local_ip)
@@ -102,16 +134,21 @@ echo "   - Prisma Studio: DATABASE_URL=\"postgresql://postgres:password@localhos
 echo "   - MailHog UI: http://localhost:8025 (Email testing)"
 echo "   - Database Reset: npm run db:seed"
 echo ""
+echo "🔑 Authentication System:"
+echo "   ✨ Using NextAuth.js with JWT sessions"
+echo "   🔒 Separate login portals for Employers and Employees"
+echo "   📧 Email notifications via Amazon SES (production) / MailHog (local)"
+echo ""
 echo "🔑 Demo login credentials:"
 echo "   👨‍💼 Employer Portal:"
-echo "      - Super Admin: admin@company.co.za / admin123"
-echo "      - HR Admin: hr@company.co.za / hr123"
-echo "      - Manager: manager@company.co.za / manager123"
+echo "      - Admin: admin@elevatus.co.za / Admin123!@#"
+echo "      - HR Manager: hr@elevatus.co.za / HR123!@#"
+echo "      - Manager: manager@elevatus.co.za / Manager123!@#"
 echo ""
 echo "   👥 Employee Portal:"
-echo "      - Employee 1: john.doe@company.co.za / employee123"
-echo "      - Employee 2: jane.smith@company.co.za / employee123"
-echo "      - Employee 3: peter.jones@company.co.za / employee123"
+echo "      - Employee 1: john.doe@elevatus.co.za / Employee123!@#"
+echo "      - Employee 2: jane.smith@elevatus.co.za / Employee123!@#"
+echo "      - Employee 3: sarah.jones@elevatus.co.za / Employee123!@#"
 echo ""
 echo "📋 TEAM COLLABORATION SETUP:"
 echo "   1. Share this IP address with team: $LOCAL_IP"
@@ -125,9 +162,29 @@ echo "   - Docker issues: docker-compose down && docker-compose up -d"
 echo "   - Database reset: docker-compose down -v && ./setup.sh"
 echo "   - Clear Next.js cache: rm -rf .next && npm run dev"
 echo ""
-echo "📚 Documentation:"
-echo "   - Implementation Plan: ../IMPLEMENTATION_PLAN.md"
-echo "   - Serverless Migration: ../SERVERLESS_MIGRATION_PLAN.md"
-echo "   - Project Roadmap: ../ROADMAP.md"
+echo "📧 EMAIL CONFIGURATION:"
+echo "   🔹 Local Development: MailHog (SMTP on port 1025)"
+echo "   🔹 Production: Amazon SES (EU-WEST-1 region)"
+echo "   🔹 View test emails: http://localhost:8025"
 echo ""
-echo "🎯 Ready for Phase 2 development!"
+echo "   For production SES setup:"
+echo "   1. Verify sender domain/email in AWS SES console"
+echo "   2. Update SMTP credentials in .env.production.local"
+echo "   3. Test with: npx tsx scripts/test-ses-email.ts <email>"
+echo ""
+echo "📚 Documentation:"
+echo "   - README: ./README.md"
+echo "   - SES Setup: ./SES_SETUP.md"
+echo "   - Implementation Plan: ./IMPLEMENTATION_PLAN.md"
+echo "   - Project Roadmap: ./ROADMAP.md"
+echo ""
+echo "🎯 Setup Complete! Your development environment is ready."
+echo ""
+echo "🚀 To start developing:"
+echo "   npm run dev"
+echo ""
+echo "💡 Pro Tips:"
+echo "   - Use 'npm run lint' to check code quality"
+echo "   - Use 'npm run typecheck' for TypeScript validation"
+echo "   - Database viewer: npx prisma studio"
+echo "   - Email testing: http://localhost:8025"
