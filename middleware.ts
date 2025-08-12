@@ -6,6 +6,11 @@ export default withAuth(
     const { pathname } = req.nextUrl
     const token = req.nextauth.token
 
+    // Skip authentication check for login pages
+    if (pathname === '/employer/login' || pathname === '/employee/login') {
+      return NextResponse.next()
+    }
+
     // Redirect to appropriate login page if not authenticated
     if (!token) {
       if (pathname.startsWith('/employer')) {
