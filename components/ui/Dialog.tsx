@@ -262,7 +262,7 @@ export function ConfirmDialog({
     >
       <div className="text-center">
         {getIcon()}
-        <p className="text-secondary-600 leading-relaxed">{message}</p>
+        <p className="text-secondary-600 leading-relaxed whitespace-pre-wrap">{message}</p>
       </div>
     </Dialog>
   )

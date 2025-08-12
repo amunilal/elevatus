@@ -808,7 +808,13 @@ export default function EmployeesPage() {
         onClose={() => setShowDeleteDialog(false)}
         onConfirm={confirmDeleteEmployee}
         title="⚠️ Permanent Deletion Warning"
-        message={`Are you sure you want to permanently delete ${selectedEmployee?.firstName} ${selectedEmployee?.lastName}?\n\nThis action:\n• Cannot be undone\n• Will permanently remove all employee data\n• Will delete their user account\n• Will remove all associated records`}
+        message={`Are you sure you want to permanently delete ${selectedEmployee?.firstName} ${selectedEmployee?.lastName}?
+
+This action:
+• Cannot be undone
+• Will permanently remove all employee data  
+• Will delete their user account
+• Will remove all associated records`}
         confirmText="Continue to Delete"
         cancelText="Cancel"
         confirmVariant="error"
