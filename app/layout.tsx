@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { ActivityProvider } from '@/contexts/ActivityContext'
+import NextAuthSessionProvider from '@/components/providers/SessionProvider'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,11 +20,13 @@ export default function RootLayout({
   return (
     <html lang="en-ZA" suppressHydrationWarning>
       <body className={inter.className}>
-        <ActivityProvider>
-          <ToastProvider>
-            {children}
-          </ToastProvider>
-        </ActivityProvider>
+        <NextAuthSessionProvider>
+          <ActivityProvider>
+            <ToastProvider>
+              {children}
+            </ToastProvider>
+          </ActivityProvider>
+        </NextAuthSessionProvider>
       </body>
     </html>
   )

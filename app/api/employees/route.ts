@@ -1,10 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 import { isValidDepartmentPosition } from '@/lib/departmentPositions'
+import { requireEmployerAuth } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
+  try {
+    await requireEmployerAuth()
+  } catch (authError) {
+    if (authError instanceof Error) {
+      if (authError.message === 'Unauthorized') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      if (authError.message.includes('Access denied')) {
+        return NextResponse.json({ error: authError.message }, { status: 403 })
+      }
+    }
+    return NextResponse.json({ error: 'Authentication error' }, { status: 500 })
+  }
+
   try {
     const { searchParams } = new URL(request.url)
     const search = searchParams.get('search')
@@ -76,6 +91,20 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  try {
+    await requireEmployerAuth()
+  } catch (authError) {
+    if (authError instanceof Error) {
+      if (authError.message === 'Unauthorized') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      if (authError.message.includes('Access denied')) {
+        return NextResponse.json({ error: authError.message }, { status: 403 })
+      }
+    }
+    return NextResponse.json({ error: 'Authentication error' }, { status: 500 })
+  }
+
   try {
     const body = await request.json()
     

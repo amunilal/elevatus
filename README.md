@@ -57,6 +57,7 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 - **Backend**: Next.js API Routes, Prisma ORM
 - **Database**: Neon (Serverless Postgres)
 - **Authentication**: NextAuth.js
+- **Email Service**: Amazon SES (SMTP)
 - **Deployment**: Vercel
 - **Database Branching**: Neon Database Branching
 - **CI/CD**: GitHub Actions
@@ -216,6 +217,13 @@ docker-compose down
 DATABASE_URL="your-neon-database-url"
 NEXTAUTH_SECRET="secure-random-string"
 NEXTAUTH_URL="https://your-domain.vercel.app"
+
+# Email Service - Amazon SES
+SMTP_HOST="email-smtp.eu-west-1.amazonaws.com"
+SMTP_PORT="587"
+SMTP_USER="your-ses-smtp-username"
+SMTP_PASS="your-ses-smtp-password"
+SMTP_FROM="noreply@your-verified-domain.com"
 ```
 
 ## 🔄 GitHub Actions Workflow
@@ -272,6 +280,7 @@ The repository includes a GitHub Actions workflow that:
 - Real-time attendance tracking with comprehensive reporting
 - BCEA-compliant leave management with policies and bulk operations
 - Employee self-service portal with updated design system
+- **Email Notifications**: Transactional emails via Amazon SES for password resets, welcome emails, review notifications, and leave requests
 - Fully functional Quick Actions dashboard with color-coordinated actions
 - Complete performance review system with fully interactive Kanban-style task boards
 - Individual review pages with seamless drag & drop task management across all columns

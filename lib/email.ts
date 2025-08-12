@@ -1,10 +1,10 @@
 import nodemailer from 'nodemailer'
 import type { SendMailOptions } from 'nodemailer'
 
-// Create reusable transporter object using SMTP transport
+// Create reusable transporter object using Amazon SES SMTP transport
 const createTransporter = () => {
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST || 'in-v3.mailjet.com',
+    host: process.env.SMTP_HOST || 'email-smtp.eu-west-1.amazonaws.com',
     port: parseInt(process.env.SMTP_PORT || '587'),
     secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
     auth: {
@@ -12,8 +12,8 @@ const createTransporter = () => {
       pass: process.env.SMTP_PASS,
     },
     tls: {
-      // Do not fail on invalid certs
-      rejectUnauthorized: false,
+      // Required for SES
+      rejectUnauthorized: true,
     },
   })
 }
@@ -55,7 +55,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   const transporter = createTransporter()
   
   const mailOptions: SendMailOptions = {
-    from: options.from || process.env.SMTP_FROM || 'noreply@elevatus.co.za',
+    from: options.from || process.env.SMTP_FROM || 'noreply@mad.app',
     to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
     subject: options.subject,
     text: options.text,

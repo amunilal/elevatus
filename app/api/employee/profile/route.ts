@@ -1,16 +1,47 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
+import { requireEmployeeAuth } from '@/lib/auth'
 
 const prisma = new PrismaClient()
 
 export async function GET(request: NextRequest) {
+  let session
   try {
-    // TODO: Implement proper authentication
-    // Authentication required - no demo data in production
-    return NextResponse.json(
-      { error: 'Authentication required' },
-      { status: 401 }
-    )
+    session = await requireEmployeeAuth()
+  } catch (authError) {
+    if (authError instanceof Error) {
+      if (authError.message === 'Unauthorized') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      if (authError.message.includes('Access denied')) {
+        return NextResponse.json({ error: authError.message }, { status: 403 })
+      }
+    }
+    return NextResponse.json({ error: 'Authentication error' }, { status: 500 })
+  }
+
+  try {
+
+    const employee = await prisma.employee.findFirst({
+      where: { userId: session.user.id },
+      include: {
+        user: {
+          select: {
+            email: true,
+            isActive: true
+          }
+        }
+      }
+    })
+
+    if (!employee) {
+      return NextResponse.json(
+        { error: 'Employee profile not found' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json(employee)
   } catch (error) {
     console.error('Error fetching employee profile:', error)
     
@@ -42,13 +73,57 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PUT(request: NextRequest) {
+  let session
   try {
-    // TODO: Implement proper authentication
-    // Authentication required - no demo data in production
-    return NextResponse.json(
-      { error: 'Authentication required' },
-      { status: 401 }
-    )
+    session = await requireEmployeeAuth()
+  } catch (authError) {
+    if (authError instanceof Error) {
+      if (authError.message === 'Unauthorized') {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      if (authError.message.includes('Access denied')) {
+        return NextResponse.json({ error: authError.message }, { status: 403 })
+      }
+    }
+    return NextResponse.json({ error: 'Authentication error' }, { status: 500 })
+  }
+
+  try {
+    const body = await request.json()
+
+    const employee = await prisma.employee.findFirst({
+      where: { userId: session.user.id }
+    })
+
+    if (!employee) {
+      return NextResponse.json(
+        { error: 'Employee profile not found' },
+        { status: 404 }
+      )
+    }
+
+    const updatedEmployee = await prisma.employee.update({
+      where: { id: employee.id },
+      data: {
+        firstName: body.firstName,
+        lastName: body.lastName,
+        phoneNumber: body.phoneNumber,
+        personalEmail: body.personalEmail,
+        address: body.address,
+        emergencyContact: body.emergencyContact,
+        updatedAt: new Date()
+      },
+      include: {
+        user: {
+          select: {
+            email: true,
+            isActive: true
+          }
+        }
+      }
+    })
+
+    return NextResponse.json(updatedEmployee)
   } catch (error) {
     console.error('Error updating employee profile:', error)
     return NextResponse.json(

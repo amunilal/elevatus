@@ -27,7 +27,7 @@ export async function POST(request: Request) {
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h1 style="color: #2D1B69;">Test Email from Elevatus</h1>
-        <p>This is a test email to verify that the Mailjet SMTP configuration is working correctly.</p>
+        <p>This is a test email to verify that the Amazon SES SMTP configuration is working correctly.</p>
         <p>Email sent at: ${new Date().toLocaleString()}</p>
         <p style="margin-top: 20px; padding: 10px; background-color: #f5f5f5; border-radius: 4px;">
           <strong>Configuration Details:</strong><br>

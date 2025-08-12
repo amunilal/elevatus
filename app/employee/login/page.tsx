@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
+import { signIn } from 'next-auth/react'
 import { Logo } from '@/components/ui/Logo'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -21,11 +22,18 @@ export default function EmployeeLoginPage() {
     setIsLoading(true)
 
     try {
-      // TODO: Implement actual authentication
-      console.log('Login attempt:', { email, password })
-      
-      // Authentication not implemented yet
-      setError('Authentication system is being configured. Please contact your administrator.')
+      const result = await signIn('credentials', {
+        email,
+        password,
+        userType: 'EMPLOYEE',
+        redirect: false,
+      })
+
+      if (result?.error) {
+        setError('Invalid email or password')
+      } else if (result?.ok) {
+        router.push('/employee/dashboard')
+      }
     } catch (err) {
       setError('An error occurred. Please try again.')
     } finally {
