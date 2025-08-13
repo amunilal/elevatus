@@ -8,7 +8,7 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 
 - **No default credentials**: All test/demo users removed for production security
 - **Password visibility toggle**: Show/hide password option on all login forms  
-- **Forgot password functionality**: Complete password reset flow with email notifications
+- **Password reset system**: Complete forgot password and reset functionality with secure token-based flow
 - **Custom authentication flow**: Dedicated login/forgot password pages for each portal
 - **Secure middleware**: Custom authentication middleware with proper route protection and authentication redirects
 - **JWT-based sessions**: Role-based access control with NextAuth.js
@@ -189,9 +189,10 @@ This automated script handles:
 
 ### Password Management
 - **Forgot Password**: `/employer/forgot-password` and `/employee/forgot-password`
-- **Email Notifications**: HTML email templates with reset links
-- **Security**: Reset links expire after 1 hour
-- **Production Notice**: Clear guidance for admin assistance
+- **Password Reset**: `/employer/reset-password` and `/employee/reset-password` with secure token validation
+- **Email Notifications**: HTML email templates with reset links that expire after 1 hour
+- **Database Security**: Reset tokens stored securely with expiration timestamps
+- **Token Validation**: Comprehensive validation of reset tokens and user authorization
 
 ### Route Protection
 - **Custom Middleware**: Protects routes based on user type and authentication status
@@ -260,7 +261,10 @@ npx prisma migrate deploy
 # Apply Prisma migration to Neon database (for existing databases)
 DATABASE_URL="postgresql://username:password@your-neon-host/dbname" npx prisma migrate deploy
 
-# Latest migration: 20250812174800_add_password_setup_fields
+# Latest migration: 20250813171706_add_password_reset_fields  
+# - Adds resetToken and resetTokenExpires fields for password reset functionality
+# - Creates unique index for reset tokens
+# Previous: 20250812174800_add_password_setup_fields
 # - Makes password field nullable for new users
 # - Adds passwordSetupToken, passwordSetupExpires, passwordSetupUsed fields
 # - Creates unique index for password setup tokens
@@ -411,6 +415,13 @@ The repository includes a GitHub Actions workflow that:
   - **Amazon SES Integration**: Production-ready email service with SMTP configuration
   - **User Account States**: Users created without passwords until they complete setup via email link
   - **Security Features**: Token validation, password complexity requirements, one-time use tokens
+- **Password Reset System**: Comprehensive password reset functionality with secure token-based flow
+  - **Forgot Password Pages**: Dedicated pages for employer and employee password reset requests
+  - **Reset Password Pages**: Secure password reset interfaces with token validation and error handling
+  - **Reset Token Management**: Database-stored tokens with 1-hour expiration and automatic cleanup
+  - **Email Integration**: HTML email templates with reset links and security notices
+  - **Comprehensive Validation**: Token verification, password strength requirements, and user authorization
+  - **API Endpoints**: Complete `/api/auth/reset-password` endpoint with bcrypt password hashing
 - **Enhanced Account Management**: Clear distinction between deactivating and deleting employee accounts
   - **Deactivate Account**: Soft delete that marks employee as inactive while preserving all data
   - **Delete Account**: Hard delete that permanently removes employee and all associated data

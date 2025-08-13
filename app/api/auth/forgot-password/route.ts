@@ -36,11 +36,14 @@ export async function POST(request: NextRequest) {
     const resetToken = crypto.randomBytes(32).toString('hex')
     const resetTokenExpiry = new Date(Date.now() + 3600000) // 1 hour from now
 
-    // Store reset token in database (you'd need to add these fields to your User model)
-    // For now, we'll just simulate this
-    console.log('Reset token generated for user:', email)
-    console.log('Token:', resetToken)
-    console.log('Expiry:', resetTokenExpiry)
+    // Store reset token in database
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        resetToken,
+        resetTokenExpires: resetTokenExpiry
+      }
+    })
 
     // Determine the portal URL based on user type
     const portalType = userType === 'EMPLOYER' ? 'employer' : 'employee'
