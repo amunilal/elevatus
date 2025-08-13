@@ -147,8 +147,10 @@ export async function POST(request: NextRequest) {
     // Send welcome email with password setup link
     try {
       await sendWelcomeEmail(
+        result.user.id,
         email,
-        `${process.env.NEXTAUTH_URL}/auth/setup-password?token=${result.passwordSetupToken}&type=employer`
+        email.split('@')[0], // Use part before @ as name fallback
+        'EMPLOYER'
       )
       console.log(`Welcome email sent to ${email}`)
     } catch (emailError) {
