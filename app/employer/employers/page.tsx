@@ -279,7 +279,7 @@ export default function EmployersPage() {
     switch (role) {
       case 'SUPER_ADMIN': return 'error'
       case 'HR_ADMIN': return 'warning' 
-      case 'MANAGER': return 'info'
+      case 'MANAGER': return 'primary'
       default: return 'secondary'
     }
   }
