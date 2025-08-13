@@ -9,11 +9,12 @@ const prisma = new PrismaClient()
 export async function GET(request: NextRequest) {
   try {
     // Check authentication
-    const authResult = await requireEmployerAuth(request)
-    if (authResult.error) {
+    try {
+      await requireEmployerAuth(request)
+    } catch (error) {
       return NextResponse.json(
-        { message: authResult.error },
-        { status: authResult.status }
+        { message: error instanceof Error ? error.message : 'Unauthorized' },
+        { status: 401 }
       )
     }
 
@@ -49,11 +50,12 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Check authentication
-    const authResult = await requireEmployerAuth(request)
-    if (authResult.error) {
+    try {
+      await requireEmployerAuth(request)
+    } catch (error) {
       return NextResponse.json(
-        { message: authResult.error },
-        { status: authResult.status }
+        { message: error instanceof Error ? error.message : 'Unauthorized' },
+        { status: 401 }
       )
     }
 

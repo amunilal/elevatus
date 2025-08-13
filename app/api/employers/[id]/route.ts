@@ -10,11 +10,12 @@ export async function GET(
 ) {
   try {
     // Check authentication
-    const authResult = await requireEmployerAuth(request)
-    if (authResult.error) {
+    try {
+      await requireEmployerAuth(request)
+    } catch (error) {
       return NextResponse.json(
-        { message: authResult.error },
-        { status: authResult.status }
+        { message: error instanceof Error ? error.message : 'Unauthorized' },
+        { status: 401 }
       )
     }
 
@@ -57,11 +58,12 @@ export async function PUT(
 ) {
   try {
     // Check authentication
-    const authResult = await requireEmployerAuth(request)
-    if (authResult.error) {
+    try {
+      await requireEmployerAuth(request)
+    } catch (error) {
       return NextResponse.json(
-        { message: authResult.error },
-        { status: authResult.status }
+        { message: error instanceof Error ? error.message : 'Unauthorized' },
+        { status: 401 }
       )
     }
 
@@ -198,11 +200,12 @@ export async function DELETE(
 ) {
   try {
     // Check authentication
-    const authResult = await requireEmployerAuth(request)
-    if (authResult.error) {
+    try {
+      await requireEmployerAuth(request)
+    } catch (error) {
       return NextResponse.json(
-        { message: authResult.error },
-        { status: authResult.status }
+        { message: error instanceof Error ? error.message : 'Unauthorized' },
+        { status: 401 }
       )
     }
 
