@@ -66,6 +66,12 @@ const handler = NextAuth({
             return null
           }
 
+          // Update last login timestamp
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { lastLoginAt: new Date() }
+          })
+
           return {
             id: user.id,
             email: user.email,

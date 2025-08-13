@@ -8,6 +8,7 @@ import { Logo } from '@/components/ui/Logo'
 import { Button } from '@/components/ui/Button'
 import { ToastContainer } from '@/components/ui/Toast'
 import { useToast } from '@/hooks/useToast'
+import { getDepartments } from '@/lib/departmentPositions'
 
 export default function NewEmployerPage() {
   const router = useRouter()
@@ -19,6 +20,7 @@ export default function NewEmployerPage() {
     department: ''
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [departments] = useState<string[]>(getDepartments())
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target
@@ -235,14 +237,19 @@ export default function NewEmployerPage() {
                   <label className="block text-sm font-medium text-secondary-700 mb-2">
                     Department
                   </label>
-                  <input
-                    type="text"
+                  <select
                     name="department"
                     value={formData.department}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-middle focus:border-brand-middle placeholder-secondary-500 text-secondary-900"
-                    placeholder="e.g., Human Resources, IT, Finance"
-                  />
+                    className="w-full px-4 py-3 bg-secondary-50 border border-secondary-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-middle focus:border-brand-middle text-secondary-900"
+                  >
+                    <option value="">Select Department (Optional)</option>
+                    {departments.map(department => (
+                      <option key={department} value={department}>
+                        {department}
+                      </option>
+                    ))}
+                  </select>
                   <p className="text-xs text-secondary-500 mt-1">
                     Optional: Specify the department this employer will manage or belong to.
                   </p>

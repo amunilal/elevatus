@@ -393,6 +393,7 @@ The repository includes a GitHub Actions workflow that:
   - Enhanced middleware with proper NextAuth integration and JWT token validation
   - Fixed NEXTAUTH_URL configuration for development server port compatibility
   - Added comprehensive route protection for both employer and employee portals
+  - **Last Login Tracking**: Users' lastLoginAt field now updates automatically during successful authentication
 - **Dashboard Statistics**: Replaced hardcoded values with live database queries
   - Total Employees count now pulls from active Employee records
   - Pending Reviews count from NOT_STARTED and IN_PROGRESS review statuses
@@ -432,6 +433,7 @@ The repository includes a GitHub Actions workflow that:
   - **Dual Account Actions**: Deactivate (soft delete) vs Delete (permanent removal) with security safeguards
   - **Dashboard Integration**: New "Manage Employers" quick action tile with consistent design
   - **Toast Notifications**: Modern feedback system integrated throughout employer management workflow
+  - **Consistent Department Selection**: Both new employer and employer edit forms use standardized department dropdowns
 - **Production Cleanup**: Removed all test data and debugging artifacts
   - Eliminated hardcoded mock data from review pages and history
   - Removed all test scripts and dummy data creation files

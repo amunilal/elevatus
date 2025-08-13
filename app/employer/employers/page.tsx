@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button'
 import { ToastContainer } from '@/components/ui/Toast'
 import { ConfirmDialog, PromptDialog } from '@/components/ui/Dialog'
 import { useToast } from '@/hooks/useToast'
+import { getDepartments } from '@/lib/departmentPositions'
 
 interface Employer {
   id: string
@@ -47,6 +48,7 @@ export default function EmployersPage() {
   
   // Toast hook
   const toast = useToast()
+  const [departments] = useState<string[]>(getDepartments())
 
   useEffect(() => {
     fetchEmployers()
@@ -599,13 +601,18 @@ export default function EmployersPage() {
                   <div>
                     <p className="text-sm text-secondary-500 mb-1">Department</p>
                     {isEditing ? (
-                      <input
-                        type="text"
+                      <select
                         value={editedEmployer?.department || ''}
                         onChange={(e) => handleEditFieldChange('department', e.target.value)}
                         className="text-sm font-medium bg-white border border-secondary-200 rounded px-2 py-1 w-full focus:outline-none focus:ring-2 focus:ring-brand-middle"
-                        placeholder="Department"
-                      />
+                      >
+                        <option value="">Select Department</option>
+                        {departments.map(department => (
+                          <option key={department} value={department}>
+                            {department}
+                          </option>
+                        ))}
+                      </select>
                     ) : (
                       <p className="text-sm font-medium text-secondary-900">{selectedEmployer?.department || 'N/A'}</p>
                     )}
