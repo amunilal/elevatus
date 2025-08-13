@@ -15,7 +15,7 @@ export interface DialogProps {
   confirmText?: string
   onConfirm?: () => void
   onCancel?: () => void
-  confirmVariant?: 'primary' | 'secondary' | 'outline' | 'error'
+  confirmVariant?: 'primary' | 'secondary' | 'outline' | 'destructive'
   size?: 'sm' | 'md' | 'lg' | 'xl'
   closeOnOverlayClick?: boolean
 }
@@ -196,7 +196,7 @@ export interface ConfirmDialogProps {
   message: string
   confirmText?: string
   cancelText?: string
-  confirmVariant?: 'primary' | 'secondary' | 'outline' | 'error'
+  confirmVariant?: 'primary' | 'secondary' | 'outline' | 'destructive'
   type?: 'info' | 'warning' | 'error' | 'success'
 }
 

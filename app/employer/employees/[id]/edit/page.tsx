@@ -723,7 +723,7 @@ This action:
 • Will remove all associated records`}
           confirmText="Continue to Delete"
           cancelText="Cancel"
-          confirmVariant="error"
+          confirmVariant="destructive"
           type="error"
         />
 
