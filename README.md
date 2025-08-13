@@ -19,10 +19,11 @@ A comprehensive employee management system built with Next.js 14, TypeScript, Pr
 
 ### Employer Portal
 - **Employee Management**: Complete CRUD operations with South African ID validation and live database integration
+- **Employer Management**: Complete multi-employer system with role-based access control and account administration
 - **Dashboard Statistics**: Real-time stats from database - Total Employees, Pending Reviews, Completed Reviews
 - **Attendance Tracking**: Real-time monitoring with reports, exports, settings, and bulk operations
 - **Leave Management**: BCEA-compliant leave with policies, reports, exports, and bulk operations
-- **Quick Actions Dashboard**: Fully functional navigation to all management features
+- **Quick Actions Dashboard**: Fully functional navigation to all management features including employer administration
 - **Performance Reviews**: Complete Kanban-style review system with task management
 - **Learning & Development**: Training and development tracking (planned)
 - **Reports & Analytics**: Comprehensive reporting dashboard (planned)
@@ -194,8 +195,13 @@ This automated script handles:
 
 ### Route Protection
 - **Custom Middleware**: Protects routes based on user type and authentication status
-- **Role-Based Access**: Separate dashboards and permissions for employers vs employees
+- **Role-Based Access**: Separate dashboards and permissions for employers vs employees with three-tier employer roles
 - **API Protection**: Secure endpoints with user type validation
+
+### Employer Roles & Permissions
+- **Super Admin**: Complete system access, can manage all employers and employees
+- **HR Admin**: Employee management, reviews, leave administration, and HR-related functions
+- **Manager**: Team oversight, performance reviews, and departmental employee management
 
 ## 🗄️ Database Schema
 
@@ -347,6 +353,7 @@ The repository includes a GitHub Actions workflow that:
 
 ### Current Features ✅
 - **Complete employee management system** with modern UI design, live database integration, and dual account management options (deactivate vs. delete)
+- **Multi-employer administration system** with role-based access control and comprehensive account management
 - **Live Dashboard Statistics**: Real-time employee count, pending/completed reviews from database
 - **Secure Authentication System**: Protected routes with automatic redirects to appropriate login pages
 - Real-time attendance tracking with comprehensive reporting
@@ -417,6 +424,14 @@ The repository includes a GitHub Actions workflow that:
   - **Improved Error Handling**: Clear, actionable error messages with proper visual feedback
   - **Accessibility Features**: Keyboard navigation, screen reader support, and focus management
   - **Consistent Design**: Color-coded notifications and dialogs that match the application's design system
+- **Employer Management System**: Complete multi-employer administration with role-based access control
+  - **Employer Creation**: Add new employers with Super Admin, HR Admin, and Manager roles
+  - **Role-Based Permissions**: Three-tier permission system with appropriate access levels
+  - **Account Management**: Professional employer list with search, filtering, and detailed sidebar
+  - **Email Integration**: Automatic welcome emails with secure password setup links
+  - **Dual Account Actions**: Deactivate (soft delete) vs Delete (permanent removal) with security safeguards
+  - **Dashboard Integration**: New "Manage Employers" quick action tile with consistent design
+  - **Toast Notifications**: Modern feedback system integrated throughout employer management workflow
 - **Production Cleanup**: Removed all test data and debugging artifacts
   - Eliminated hardcoded mock data from review pages and history
   - Removed all test scripts and dummy data creation files
@@ -582,7 +597,14 @@ ls -la .env*  # Should show .env.local
 - `POST /api/employees` - Create employee  
 - `GET /api/employees/[id]` - Get employee
 - `PUT /api/employees/[id]` - Update employee
-- `DELETE /api/employees/[id]` - Delete employee
+- `DELETE /api/employees/[id]` - Delete employee (supports ?action=deactivate|delete)
+
+### Employer Endpoints
+- `GET /api/employers` - List all employers with user information
+- `POST /api/employers` - Create new employer with email notification
+- `GET /api/employers/[id]` - Get specific employer details
+- `PUT /api/employers/[id]` - Update employer information and role
+- `DELETE /api/employers/[id]` - Delete or deactivate employer (supports ?action=deactivate|delete)
 
 ### Attendance Endpoints
 - `GET /api/attendance` - Get attendance records
@@ -594,6 +616,9 @@ ls -la .env*  # Should show .env.local
 - `POST /api/leave` - Create leave request
 - `PUT /api/leave/[id]` - Update leave status
 - `GET /api/leave/stats` - Leave statistics
+
+### Dashboard Endpoints
+- `GET /api/dashboard/stats` - Real-time dashboard statistics
 
 ### Health Check
 - `GET /api/health` - Application and database health

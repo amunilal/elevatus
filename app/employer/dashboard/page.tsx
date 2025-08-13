@@ -148,7 +148,7 @@ export default function EmployerDashboardPage() {
         {/* Quick Actions - Matching Figma layout */}
         <div className="bg-nav-white rounded-2xl p-8 mb-12">
           <h2 className="text-xl font-bold text-secondary-900 mb-6">Quick Actions</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <Link 
               href="/employer/employees/new"
               className="block p-6 rounded-2xl transition-colors"
@@ -191,6 +191,17 @@ export default function EmployerDashboardPage() {
             >
               <h3 className="font-semibold text-secondary-900 mb-2">Report Analyst</h3>
               <p className="text-sm text-secondary-600">Generate and analyze reports</p>
+            </Link>
+            
+            <Link 
+              href="/employer/employers"
+              className="block p-6 rounded-2xl transition-colors"
+              style={{ backgroundColor: '#FFE2E2' }}
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#FFB6B6'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#FFE2E2'}
+            >
+              <h3 className="font-semibold text-secondary-900 mb-2">Manage Employers</h3>
+              <p className="text-sm text-secondary-600">Add and manage employer accounts</p>
             </Link>
           </div>
         </div>
