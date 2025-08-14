@@ -159,34 +159,48 @@ export default function ReportAnalystPage() {
         {/* Report Types Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           {reportTypes.map((report) => {
-            const Component = (report as any).isLink ? Link : 'button'
-            const componentProps = (report as any).isLink 
-              ? { href: (report as any).href }
-              : { onClick: () => setSelectedReport(report.id) }
-            
-            return (
-              <Component
-                key={report.id}
-                {...componentProps}
-                className={`bg-nav-white rounded-2xl p-6 text-left transition-all duration-200 ${
-                  selectedReport === report.id && !(report as any).isLink
-                    ? 'ring-2 ring-brand-middle shadow-medium'
-                    : 'hover:shadow-medium'
-                } ${(report as any).isLink ? 'block' : ''}`}
-              >
-                <div className="flex items-start space-x-4">
-                  <div 
-                    className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                    style={{ backgroundColor: report.color }}
-                  >
-                    {report.icon}
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="font-semibold text-secondary-900 mb-1">{report.title}</h3>
-                    <p className="text-sm text-secondary-600">{report.description}</p>
-                  </div>
+            const isLinkReport = (report as any).isLink
+            const commonClassName = `bg-nav-white rounded-2xl p-6 text-left transition-all duration-200 ${
+              selectedReport === report.id && !isLinkReport
+                ? 'ring-2 ring-brand-middle shadow-medium'
+                : 'hover:shadow-medium'
+            } ${isLinkReport ? 'block' : ''}`
+
+            const content = (
+              <div className="flex items-start space-x-4">
+                <div 
+                  className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{ backgroundColor: report.color }}
+                >
+                  {report.icon}
                 </div>
-              </Component>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-secondary-900 mb-1">{report.title}</h3>
+                  <p className="text-sm text-secondary-600">{report.description}</p>
+                </div>
+              </div>
+            )
+            
+            if (isLinkReport) {
+              return (
+                <Link
+                  key={report.id}
+                  href={(report as any).href}
+                  className={commonClassName}
+                >
+                  {content}
+                </Link>
+              )
+            }
+
+            return (
+              <button
+                key={report.id}
+                onClick={() => setSelectedReport(report.id)}
+                className={commonClassName}
+              >
+                {content}
+              </button>
             )
           })}
         </div>
