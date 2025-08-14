@@ -298,6 +298,21 @@ model AuditLog {
   createdAt DateTime @default(now())
 }
 
+model EmailLog {
+  id          String      @id @default(cuid())
+  to          String
+  subject     String
+  emailType   EmailType
+  status      EmailStatus @default(SENT)
+  templateUsed String?
+  userId      String?
+  employeeId  String?
+  employerId  String?
+  sentAt      DateTime    @default(now())
+  failureReason String?
+  metadata    Json?
+}
+
 enum UserType {
   EMPLOYEE
   EMPLOYER
@@ -412,4 +427,21 @@ enum DocumentType {
   MEDICAL_CERTIFICATE
   LEAVE_DOCUMENT
   OTHER
+}
+
+enum EmailType {
+  WELCOME
+  PASSWORD_SETUP
+  PASSWORD_RESET
+  REVIEW_NOTIFICATION
+  LEAVE_REQUEST
+  SYSTEM_NOTIFICATION
+  OTHER
+}
+
+enum EmailStatus {
+  SENT
+  FAILED
+  PENDING
+  DELIVERED
 }

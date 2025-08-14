@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer'
 import type { SendMailOptions } from 'nodemailer'
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, EmailType, EmailStatus } from '@prisma/client'
 import crypto from 'crypto'
 
 const prisma = new PrismaClient()
@@ -51,6 +51,39 @@ interface EmailOptions {
   text?: string
   from?: string
   replyTo?: string
+  emailType?: EmailType
+  templateUsed?: string
+  userId?: string
+  employeeId?: string
+  employerId?: string
+  metadata?: any
+}
+
+// Log email to database
+async function logEmail(options: EmailOptions, status: EmailStatus, failureReason?: string): Promise<void> {
+  try {
+    const recipients = Array.isArray(options.to) ? options.to : [options.to]
+    
+    // Log each recipient separately for better tracking
+    for (const recipient of recipients) {
+      await prisma.emailLog.create({
+        data: {
+          to: recipient,
+          subject: options.subject,
+          emailType: options.emailType || EmailType.OTHER,
+          status: status,
+          templateUsed: options.templateUsed,
+          userId: options.userId,
+          employeeId: options.employeeId,
+          employerId: options.employerId,
+          failureReason: failureReason,
+          metadata: options.metadata ? JSON.parse(JSON.stringify(options.metadata)) : null,
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Failed to log email:', error)
+  }
 }
 
 // Send email function
@@ -61,6 +94,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   
   if (!isDevelopment && !isMailHog && (!process.env.SMTP_USER || !process.env.SMTP_PASS)) {
     console.error('Email configuration missing: Cannot send email')
+    await logEmail(options, EmailStatus.FAILED, 'Email configuration missing')
     return false
   }
 
@@ -78,9 +112,11 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   try {
     const info = await transporter.sendMail(mailOptions)
     console.log('Email sent successfully:', info.messageId)
+    await logEmail(options, EmailStatus.SENT)
     return true
   } catch (error) {
     console.error('Failed to send email:', error)
+    await logEmail(options, EmailStatus.FAILED, error instanceof Error ? error.message : 'Unknown error')
     return false
   }
 }
@@ -278,7 +314,15 @@ export async function sendWelcomeEmail(
       to: userEmail,
       subject: emailTemplate.subject,
       html: emailTemplate.html,
-      text: emailTemplate.text
+      text: emailTemplate.text,
+      emailType: EmailType.PASSWORD_SETUP,
+      templateUsed: 'welcomeNewUser',
+      userId: userId,
+      metadata: {
+        userType,
+        setupUrl,
+        tokenGenerated: true
+      }
     })
     
     if (success) {

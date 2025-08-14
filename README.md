@@ -261,13 +261,13 @@ npx prisma migrate deploy
 # Apply Prisma migration to Neon database (for existing databases)
 DATABASE_URL="postgresql://username:password@your-neon-host/dbname" npx prisma migrate deploy
 
-# Latest migration: 20250813171706_add_password_reset_fields  
+# Latest migration: 20250814113841_add_email_tracking
+# - Creates EmailType and EmailStatus enums for categorization
+# - Adds EmailLog table for comprehensive email tracking and monitoring
+# - Links emails to users, employees, and employers for audit trails
+# Previous: 20250813171706_add_password_reset_fields  
 # - Adds resetToken and resetTokenExpires fields for password reset functionality
 # - Creates unique index for reset tokens
-# Previous: 20250812174800_add_password_setup_fields
-# - Makes password field nullable for new users
-# - Adds passwordSetupToken, passwordSetupExpires, passwordSetupUsed fields
-# - Creates unique index for password setup tokens
 ```
 
 ### Docker Development
@@ -364,6 +364,7 @@ The repository includes a GitHub Actions workflow that:
 - BCEA-compliant leave management with policies and bulk operations
 - Employee self-service portal with updated design system
 - **Email Notifications**: Transactional emails via Amazon SES for password resets, welcome emails, review notifications, and leave requests
+- **Email Tracking System**: Comprehensive email logging and monitoring system integrated into Report Analyst dashboard
 - Fully functional Quick Actions dashboard with color-coordinated actions
 - Complete performance review system with fully interactive Kanban-style task boards
 - Individual review pages with seamless drag & drop task management across all columns
@@ -373,12 +374,13 @@ The repository includes a GitHub Actions workflow that:
 - Review history dashboard with progress tracking and status management
 - Advanced review notes section with database persistence and automatic saving
 - Complete Review workflow with smart validation and confirmation dialogs
-- **Report Analyst Dashboard**: Comprehensive reporting interface with 6 report types
+- **Report Analyst Dashboard**: Comprehensive reporting interface with 7 report types
   - Attendance Report: Track employee attendance patterns and trends
   - Leave Analysis: Analyze leave patterns and balances
   - Performance Overview: Review performance metrics and reviews
   - Payroll Summary: Employee compensation and deductions
   - Compliance Report: BCEA and POPIA compliance status
+  - Email Logs: Track all emails sent from the system with filtering and search
   - Custom Report: Build custom reports with flexible parameters
 - Advanced export and import capabilities
 - South African compliance features
@@ -416,6 +418,17 @@ The repository includes a GitHub Actions workflow that:
   - **User Account States**: Users created without passwords until they complete setup via email link
   - **Security Features**: Token validation, password complexity requirements, one-time use tokens
   - **Resend Password Setup**: Button in employer/employee lists to resend password setup emails when tokens expire
+- **Email Tracking System**: Comprehensive email monitoring and audit capabilities
+  - **Database Logging**: All sent emails automatically tracked in EmailLog database table
+  - **Email Categorization**: Emails categorized by type (Welcome, Password Setup, Password Reset, Review Notifications, etc.)
+  - **Status Tracking**: Monitor email status (Sent, Failed, Pending, Delivered) with failure reason logging
+  - **User Association**: Link emails to specific users, employees, and employers for audit trails
+  - **Metadata Storage**: Store additional email context and parameters for detailed analysis
+  - **Professional UI Dashboard**: Clean, filterable interface for email log management accessible via Report Analyst section
+  - **Search & Filter**: Search by recipient/subject and filter by email type and status
+  - **Detailed Email View**: Expandable sidebar showing full email details including metadata and failure information
+  - **Pagination Support**: Efficient handling of large email log datasets with proper pagination
+  - **Report Integration**: Seamlessly integrated into Report Analyst dashboard for centralized monitoring
 - **Password Reset System**: Comprehensive password reset functionality with secure token-based flow
   - **Forgot Password Pages**: Dedicated pages for employer and employee password reset requests
   - **Reset Password Pages**: Secure password reset interfaces with token validation and error handling
@@ -483,7 +496,8 @@ The repository includes a GitHub Actions workflow that:
   - Preserved employee sidebar with resizable functionality
   - Enhanced visual hierarchy with proper spacing and typography
 - **Report Analyst Dashboard**: Complete reporting interface implementation
-  - 6 comprehensive report types with color-coded cards and descriptions
+  - 7 comprehensive report types with color-coded cards and descriptions
+  - Email Logs integration with direct navigation to email tracking system
   - Interactive date range selector (week, month, quarter, year)
   - Visual report selection with hover effects and generate functionality
   - Professional layout with consistent design system integration
@@ -628,6 +642,9 @@ ls -la .env*  # Should show .env.local
 - `GET /api/employers/[id]` - Get specific employer details
 - `PUT /api/employers/[id]` - Update employer information and role
 - `DELETE /api/employers/[id]` - Delete or deactivate employer (supports ?action=deactivate|delete)
+
+### Email Tracking Endpoints
+- `GET /api/email-logs` - Retrieve email logs with pagination, filtering, and search
 
 ### Attendance Endpoints
 - `GET /api/attendance` - Get attendance records

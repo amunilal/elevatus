@@ -66,6 +66,19 @@ export default function ReportAnalystPage() {
       color: '#F2CEF0'
     },
     {
+      id: 'email-logs',
+      title: 'Email Logs',
+      description: 'Track all emails sent from the system',
+      icon: (
+        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 7.89a2 2 0 002.83 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+      ),
+      color: '#C9E9FF',
+      isLink: true,
+      href: '/employer/email-logs'
+    },
+    {
       id: 'custom',
       title: 'Custom Report',
       description: 'Build your own custom report',
@@ -145,30 +158,37 @@ export default function ReportAnalystPage() {
 
         {/* Report Types Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          {reportTypes.map((report) => (
-            <button
-              key={report.id}
-              onClick={() => setSelectedReport(report.id)}
-              className={`bg-nav-white rounded-2xl p-6 text-left transition-all duration-200 ${
-                selectedReport === report.id
-                  ? 'ring-2 ring-brand-middle shadow-medium'
-                  : 'hover:shadow-medium'
-              }`}
-            >
-              <div className="flex items-start space-x-4">
-                <div 
-                  className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
-                  style={{ backgroundColor: report.color }}
-                >
-                  {report.icon}
+          {reportTypes.map((report) => {
+            const Component = (report as any).isLink ? Link : 'button'
+            const componentProps = (report as any).isLink 
+              ? { href: (report as any).href }
+              : { onClick: () => setSelectedReport(report.id) }
+            
+            return (
+              <Component
+                key={report.id}
+                {...componentProps}
+                className={`bg-nav-white rounded-2xl p-6 text-left transition-all duration-200 ${
+                  selectedReport === report.id && !(report as any).isLink
+                    ? 'ring-2 ring-brand-middle shadow-medium'
+                    : 'hover:shadow-medium'
+                } ${(report as any).isLink ? 'block' : ''}`}
+              >
+                <div className="flex items-start space-x-4">
+                  <div 
+                    className="w-12 h-12 rounded-lg flex items-center justify-center flex-shrink-0"
+                    style={{ backgroundColor: report.color }}
+                  >
+                    {report.icon}
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-secondary-900 mb-1">{report.title}</h3>
+                    <p className="text-sm text-secondary-600">{report.description}</p>
+                  </div>
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-secondary-900 mb-1">{report.title}</h3>
-                  <p className="text-sm text-secondary-600">{report.description}</p>
-                </div>
-              </div>
-            </button>
-          ))}
+              </Component>
+            )
+          })}
         </div>
 
         {/* Generate Report Button */}
