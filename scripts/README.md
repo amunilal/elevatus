@@ -1,29 +1,30 @@
-# ElevatUs Release Scripts
+# ElevatUs Development Scripts
 
-Automated release workflow with TypeScript checking, version bumping, README updates, and git operations with user confirmation.
+Core development and deployment scripts for the ElevatUs project.
 
-## 🚀 Quick Start
+## 🚀 Available Scripts
 
-### Option 1: Direct Execution
+### Main Release Script
 ```bash
-# From project root
+# Interactive release workflow
 ./scripts/release.sh
 ```
 
-### Option 2: Setup Shell Alias
+### Shell Alias Setup
 ```bash
-# Run setup once
+# Setup elevatus-release command
 ./scripts/setup-alias.sh
-
-# Then use anywhere in the project
-elevatus-release
 ```
 
-### Option 3: Claude Code Integration
-```bash
-# From project root
-./scripts/claude-release
-```
+## 📂 Claude Code Integration
+
+**Claude Code aliases have been moved to `.claude/` directory:**
+- Claude aliases: `.claude/aliases/`
+- Standalone scripts: `.claude/scripts-*`
+- Setup script: `.claude/setup-shortcuts.sh`
+- Documentation: `.claude/README.md`
+
+For Claude Code workflows, see the `.claude/README.md` file.
 
 ## 📋 What the Script Does
 

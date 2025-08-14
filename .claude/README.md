@@ -1,6 +1,27 @@
-# Claude Code Aliases for ElevatUs
+# Claude Code Integration for ElevatUs
 
-This directory contains Claude Code aliases that can be used directly in Claude conversations for streamlined development workflows.
+This directory contains Claude Code aliases and scripts for streamlined development workflows.
+
+## 📁 Directory Structure
+
+```
+.claude/
+├── README.md           # This documentation
+├── settings.local.json # Claude Code settings
+├── aliases/            # Claude aliases (use with /alias-name)
+│   ├── commit          # /commit <message>
+│   ├── patch           # /patch [notes]
+│   ├── hotfix          # /hotfix <description>
+│   ├── check           # /check
+│   ├── status          # /status
+│   ├── build           # /build
+│   ├── dev             # /dev
+│   ├── deploy          # /deploy
+│   ├── db-push         # /db-push
+│   └── db-studio       # /db-studio
+├── scripts-*           # Standalone executable scripts
+└── setup-shortcuts.sh  # Setup script for shell aliases
+```
 
 ## 🚀 Available Aliases
 
@@ -112,6 +133,29 @@ These aliases integrate with:
 - ✅ NPM package management
 - ✅ ElevatUs project structure
 
+## 📜 Standalone Scripts
+
+For direct execution outside of Claude Code:
+
+```bash
+# Interactive versions with more features
+./.claude/scripts-commit "Your message here"
+./.claude/scripts-patch "Release notes"
+./.claude/scripts-status
+./.claude/scripts-check
+./.claude/scripts-deploy
+./.claude/scripts-hotfix "Critical fix description"
+
+# Setup shell aliases
+./.claude/setup-shortcuts.sh
+```
+
+These standalone scripts include additional features like:
+- Interactive prompts and confirmations
+- Enhanced error handling and validation
+- Colored output and progress indicators
+- More detailed status information
+
 ## 🎯 Best Practices
 
 1. **Use `/check`** before major changes
@@ -120,3 +164,15 @@ These aliases integrate with:
 4. **Use `/hotfix`** only for critical issues
 5. **Review git status** before deploying
 6. **Test locally** before production deployment
+
+## 🔄 Migration from scripts/
+
+All Claude-related scripts have been moved from `scripts/` to `.claude/`:
+- `scripts/commit` → `.claude/scripts-commit`
+- `scripts/patch` → `.claude/scripts-patch`
+- `scripts/deploy` → `.claude/scripts-deploy`
+- `scripts/check` → `.claude/scripts-check`
+- `scripts/status` → `.claude/scripts-status`
+- `scripts/hotfix` → `.claude/scripts-hotfix`
+- `scripts/claude-release` → `.claude/scripts-release`
+- `scripts/setup-claude-shortcuts.sh` → `.claude/setup-shortcuts.sh`
