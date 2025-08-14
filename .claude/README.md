@@ -19,7 +19,14 @@ This directory contains Claude Code aliases and scripts for streamlined developm
 │   ├── deploy          # /deploy
 │   ├── db-push         # /db-push
 │   └── db-studio       # /db-studio
-├── scripts-*           # Standalone executable scripts
+├── scripts/            # Standalone executable scripts
+│   ├── commit          # Enhanced commit script
+│   ├── patch           # Enhanced patch script  
+│   ├── hotfix          # Enhanced hotfix script
+│   ├── check           # Enhanced check script
+│   ├── status          # Enhanced status script
+│   ├── deploy          # Enhanced deploy script
+│   └── release         # Enhanced release script
 └── setup-shortcuts.sh  # Setup script for shell aliases
 ```
 
@@ -139,12 +146,15 @@ For direct execution outside of Claude Code:
 
 ```bash
 # Interactive versions with more features
-./.claude/scripts-commit "Your message here"
-./.claude/scripts-patch "Release notes"
-./.claude/scripts-status
-./.claude/scripts-check
-./.claude/scripts-deploy
-./.claude/scripts-hotfix "Critical fix description"
+./.claude/scripts/commit "Your message here"
+./.claude/scripts/patch "Release notes"
+./.claude/scripts/status
+./.claude/scripts/check
+./.claude/scripts/deploy
+./.claude/scripts/hotfix "Critical fix description"
+
+# Interactive release workflow
+./.claude/scripts/release
 
 # Setup shell aliases
 ./.claude/setup-shortcuts.sh
@@ -168,11 +178,11 @@ These standalone scripts include additional features like:
 ## 🔄 Migration from scripts/
 
 All Claude-related scripts have been moved from `scripts/` to `.claude/`:
-- `scripts/commit` → `.claude/scripts-commit`
-- `scripts/patch` → `.claude/scripts-patch`
-- `scripts/deploy` → `.claude/scripts-deploy`
-- `scripts/check` → `.claude/scripts-check`
-- `scripts/status` → `.claude/scripts-status`
-- `scripts/hotfix` → `.claude/scripts-hotfix`
-- `scripts/claude-release` → `.claude/scripts-release`
+- `scripts/commit` → `.claude/scripts/commit`
+- `scripts/patch` → `.claude/scripts/patch`
+- `scripts/deploy` → `.claude/scripts/deploy`
+- `scripts/check` → `.claude/scripts/check`
+- `scripts/status` → `.claude/scripts/status`
+- `scripts/hotfix` → `.claude/scripts/hotfix`
+- `scripts/claude-release` → `.claude/scripts/release`
 - `scripts/setup-claude-shortcuts.sh` → `.claude/setup-shortcuts.sh`
