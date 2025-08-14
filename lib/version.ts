@@ -1,6 +1,6 @@
 // Application version information
 export const APP_VERSION = {
-  version: '1.0.1',
+  version: '1.0.2',
   releaseDate: '2025-01-14',
   buildNumber: process.env.NEXT_PUBLIC_BUILD_NUMBER || 'dev',
   environment: process.env.NODE_ENV || 'development'

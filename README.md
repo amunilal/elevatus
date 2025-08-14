@@ -394,6 +394,13 @@ The repository includes a GitHub Actions workflow that:
 - Enhanced user experience with consistent navigation and branding
 
 ### Latest Production Updates ⚡
+
+- **Application Versioning System (v1.0.1)**: Added comprehensive versioning with footer display
+  - **Version Configuration**: Centralized version management in `lib/version.ts`
+  - **Footer Component**: Reusable Footer component displaying current app version
+  - **Multi-environment Support**: Shows 'v1.0.2' in production, 'v1.0.2-development' in dev
+  - **Build Number Integration**: Ready for CI/CD build numbers via `NEXT_PUBLIC_BUILD_NUMBER`
+  - **Cross-platform Display**: Version visible in footer on home page, employer dashboard, and employee dashboard
 - **Authentication Security**: Fixed and enhanced route protection middleware
   - All protected routes now properly redirect unauthenticated users to appropriate login pages
   - Enhanced middleware with proper NextAuth integration and JWT token validation
@@ -683,7 +690,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔐 Security Updates
 
-### Safari Compatibility Fix (2025-08-14)
+### Safari Compatibility Fix & Debugging (v1.0.2 - 2025-08-14)
+- **Enhanced Safari debugging system**: Comprehensive logging and visual debug panels for password reset URLs
+- **Multiple token extraction methods**: Three-tier fallback system (useSearchParams → window.location → regex parsing)
+- **Visual debug indicators**: Real-time debug panels showing URL, token state, and browser detection
+- **Error handling improvements**: Try-catch blocks around each extraction method with detailed error logging
+- **Browser compatibility checks**: User agent detection and compatibility verification
 - **Fixed password reset URL handling in Safari**: Enhanced token extraction with fallback mechanism
 - **Improved client-side hydration**: Safari-specific handling of `useSearchParams()` hook
 - **Added window.location fallback**: Secondary token extraction method for better browser compatibility
