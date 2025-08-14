@@ -18,8 +18,7 @@ interface TokenValidation {
 function SetupPasswordContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const token = searchParams.get('token')
-
+  
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [tokenValid, setTokenValid] = useState<TokenValidation | null>(null)
@@ -28,19 +27,36 @@ function SetupPasswordContent() {
   const [showPassword, setShowPassword] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [success, setSuccess] = useState(false)
+  const [token, setToken] = useState<string | null>(null)
 
   useEffect(() => {
-    if (token) {
-      validateToken()
+    // Extract token only on client side after mount
+    let tokenParam: string | null = null
+    
+    // Try to get token from searchParams first
+    if (searchParams) {
+      tokenParam = searchParams.get('token')
+    }
+    
+    // Fallback: Extract token from window.location for Safari compatibility
+    if (!tokenParam && typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      tokenParam = urlParams.get('token')
+    }
+    
+    setToken(tokenParam)
+    
+    if (tokenParam) {
+      validateToken(tokenParam)
     } else {
       setLoading(false)
       setErrors({ token: 'Invalid setup link' })
     }
-  }, [token])
+  }, [searchParams])
 
-  const validateToken = async () => {
+  const validateToken = async (tokenValue: string) => {
     try {
-      const response = await fetch(`/api/auth/setup-password?token=${token}`)
+      const response = await fetch(`/api/auth/setup-password?token=${tokenValue}`)
       const data = await response.json()
 
       if (response.ok && data.valid) {

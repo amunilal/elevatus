@@ -681,6 +681,14 @@ ls -la .env*  # Should show .env.local
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
+## 🔐 Security Updates
+
+### Safari Compatibility Fix (2025-08-14)
+- **Fixed password reset URL handling in Safari**: Enhanced token extraction with fallback mechanism
+- **Improved client-side hydration**: Safari-specific handling of `useSearchParams()` hook
+- **Added window.location fallback**: Secondary token extraction method for better browser compatibility
+- **Ensured proper SSR/hydration**: Token extraction now only occurs after component mount
+
 ## 🆘 Support
 
 - **Issues**: [GitHub Issues](https://github.com/your-org/elevatus-tracker/issues)
