@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Badge } from '@/components/ui/Badge'
 import { Logo } from '@/components/ui/Logo'
+import { Footer } from '@/components/ui/Footer'
 import Link from 'next/link'
 
 interface Review {
@@ -355,6 +356,8 @@ export default function EmployeeDashboardPage() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   )
 }

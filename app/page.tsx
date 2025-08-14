@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { Logo } from '@/components/ui/Logo'
 import { Button } from '@/components/ui/Button'
 import { Card, CardContent } from '@/components/ui/Card'
+import { Footer } from '@/components/ui/Footer'
 
 export default function HomePage() {
   return (
@@ -131,18 +132,7 @@ export default function HomePage() {
       </div>
 
       {/* Footer */}
-      <div className="bg-secondary-900 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
-              <Logo size="sm" variant="icon" />
-            </div>
-            <p className="text-secondary-400 text-sm">
-              © 2024 ElevatUs. Empowering South African businesses through effective employee management.
-            </p>
-          </div>
-        </div>
-      </div>
+      <Footer className="py-8 mt-0" />
     </div>
   )
 }

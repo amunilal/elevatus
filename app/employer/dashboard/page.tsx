@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Badge } from '@/components/ui/Badge'
 import { Logo } from '@/components/ui/Logo'
+import { Footer } from '@/components/ui/Footer'
 import { useActivity } from '@/contexts/ActivityContext'
 import { useEffect, useState } from 'react'
 
@@ -251,6 +252,8 @@ export default function EmployerDashboardPage() {
           </div>
         </div>
       </div>
+      
+      <Footer />
     </div>
   )
 }
