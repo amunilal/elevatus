@@ -16,6 +16,22 @@ interface TokenValidation {
 }
 
 function SetupPasswordContent() {
+  // Basic browser compatibility check
+  if (typeof window !== 'undefined') {
+    console.log('SAFARI DEBUG: Window object available')
+    console.log('SAFARI DEBUG: User Agent:', navigator.userAgent)
+    console.log('SAFARI DEBUG: URL:', window.location.href)
+    console.log('SAFARI DEBUG: Search params:', window.location.search)
+    
+    // Try to write to document title to see if basic DOM manipulation works
+    try {
+      document.title = 'ElevatUs - Setup Password (Debug)'
+      console.log('SAFARI DEBUG: Document title update successful')
+    } catch (e) {
+      console.error('SAFARI DEBUG: Document title update failed:', e)
+    }
+  }
+  
   console.log('=== SetupPasswordContent Rendering ===')
   console.log('Initial render at:', new Date().toISOString())
   
@@ -40,28 +56,62 @@ function SetupPasswordContent() {
     console.log('2. searchParams object:', searchParams)
     console.log('3. typeof window:', typeof window)
     
-    // Extract token only on client side after mount
+    // Safari Compatibility: Multiple extraction methods
     let tokenParam: string | null = null
+    const extractionMethods = []
     
-    // Try to get token from searchParams first
-    if (searchParams) {
-      console.log('4. Trying searchParams.get("token")')
-      tokenParam = searchParams.get('token')
-      console.log('5. Token from searchParams:', tokenParam)
-    } else {
-      console.log('4. searchParams is null/undefined')
+    // Method 1: Try searchParams if available
+    try {
+      if (searchParams) {
+        console.log('4. Trying searchParams.get("token")')
+        tokenParam = searchParams.get('token')
+        console.log('5. Token from searchParams:', tokenParam)
+        extractionMethods.push('searchParams: ' + (tokenParam || 'null'))
+      } else {
+        console.log('4. searchParams is null/undefined')
+        extractionMethods.push('searchParams: unavailable')
+      }
+    } catch (e) {
+      console.error('SAFARI DEBUG: searchParams failed:', e)
+      extractionMethods.push('searchParams: error - ' + e.message)
     }
     
-    // Fallback: Extract token from window.location for Safari compatibility
+    // Method 2: Direct window.location parsing
     if (!tokenParam && typeof window !== 'undefined') {
-      console.log('6. Trying window.location fallback')
-      console.log('7. window.location.href:', window.location.href)
-      console.log('8. window.location.search:', window.location.search)
-      const urlParams = new URLSearchParams(window.location.search)
-      tokenParam = urlParams.get('token')
-      console.log('9. Token from window.location:', tokenParam)
+      try {
+        console.log('6. Trying window.location fallback')
+        console.log('7. window.location.href:', window.location.href)
+        console.log('8. window.location.search:', window.location.search)
+        
+        const urlParams = new URLSearchParams(window.location.search)
+        tokenParam = urlParams.get('token')
+        console.log('9. Token from window.location:', tokenParam)
+        extractionMethods.push('window.location: ' + (tokenParam || 'null'))
+      } catch (e) {
+        console.error('SAFARI DEBUG: window.location parsing failed:', e)
+        extractionMethods.push('window.location: error - ' + e.message)
+      }
     }
     
+    // Method 3: Manual regex parsing as last resort
+    if (!tokenParam && typeof window !== 'undefined') {
+      try {
+        const url = window.location.href
+        const tokenMatch = url.match(/[?&]token=([^&]+)/)
+        if (tokenMatch) {
+          tokenParam = decodeURIComponent(tokenMatch[1])
+          console.log('10. Token from regex parsing:', tokenParam)
+          extractionMethods.push('regex: ' + tokenParam)
+        } else {
+          extractionMethods.push('regex: no match')
+        }
+      } catch (e) {
+        console.error('SAFARI DEBUG: regex parsing failed:', e)
+        extractionMethods.push('regex: error - ' + e.message)
+      }
+    }
+    
+    console.log('SAFARI DEBUG: All extraction methods attempted:', extractionMethods)
     console.log('10. Final token value:', tokenParam)
     setToken(tokenParam)
     
@@ -169,6 +219,16 @@ function SetupPasswordContent() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Validating setup link...</p>
+          {/* Safari Debug Info */}
+          {typeof window !== 'undefined' && (
+            <div className="mt-4 p-4 bg-blue-100 rounded-lg text-left text-xs">
+              <p><strong>Debug Info:</strong></p>
+              <p>URL: {window.location.href}</p>
+              <p>Search: {window.location.search}</p>
+              <p>User Agent: {navigator.userAgent.includes('Safari') ? 'Safari' : 'Other'}</p>
+              <p>Token State: {token ? 'Found' : 'Not Found'}</p>
+            </div>
+          )}
         </div>
       </div>
     )
@@ -197,6 +257,16 @@ function SetupPasswordContent() {
                 <p className="text-sm text-gray-600 mb-6">
                   The password setup link may have expired or been used already. Please contact your administrator for a new setup link.
                 </p>
+                {/* Safari Debug Info in Error State */}
+                {typeof window !== 'undefined' && (
+                  <div className="mb-4 p-3 bg-yellow-100 rounded text-left text-xs">
+                    <p><strong>Safari Debug:</strong></p>
+                    <p>URL: {window.location.href}</p>
+                    <p>Search: {window.location.search}</p>
+                    <p>Token Found: {token || 'None'}</p>
+                    <p>Browser: {navigator.userAgent.includes('Safari') ? 'Safari' : 'Other'}</p>
+                  </div>
+                )}
                 <Link href="/" className="text-indigo-600 hover:text-indigo-500">
                   Return to Home
                 </Link>
