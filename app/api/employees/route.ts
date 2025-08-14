@@ -60,7 +60,13 @@ export async function GET(request: NextRequest) {
         employmentStatus: true,
         hiredDate: true,
         phoneNumber: true,
-        idNumber: true
+        idNumber: true,
+        user: {
+          select: {
+            id: true,
+            lastLoginAt: true
+          }
+        }
       },
       orderBy: { createdAt: 'desc' }
     })

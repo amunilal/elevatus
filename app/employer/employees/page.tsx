@@ -28,6 +28,10 @@ interface Employee {
   emergencyContactName: string | null
   emergencyContactPhone: string | null
   profileImage?: string
+  user?: {
+    id: string
+    lastLoginAt: string | null
+  }
 }
 
 export default function EmployeesPage() {
@@ -44,6 +48,7 @@ export default function EmployeesPage() {
   const [editedEmployee, setEditedEmployee] = useState<Employee | null>(null)
   const [deactivating, setDeactivating] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [resending, setResending] = useState(false)
   
   // Dialog states
   const [showDeactivateDialog, setShowDeactivateDialog] = useState(false)
@@ -248,6 +253,44 @@ export default function EmployeesPage() {
       toast.error('Deletion Failed', 'Network error. Please try again.')
     } finally {
       setDeleting(false)
+    }
+  }
+
+  const handleResendPasswordSetup = async () => {
+    if (!selectedEmployee?.user) return
+    
+    setResending(true)
+    
+    try {
+      const response = await fetch('/api/auth/resend-password-setup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: selectedEmployee.user.id
+        }),
+      })
+      
+      if (response.ok) {
+        const data = await response.json()
+        toast.success(
+          'Password Setup Email Sent', 
+          `A new password setup email has been sent to ${selectedEmployee.personalEmail}`
+        )
+      } else {
+        const error = await response.json()
+        if (error.error.includes('already has a password')) {
+          toast.error('Cannot Resend', 'This user already has a password set. Use password reset instead.')
+        } else {
+          toast.error('Failed to Send Email', error.error || 'Failed to send password setup email')
+        }
+      }
+    } catch (error) {
+      console.error('Error resending password setup email:', error)
+      toast.error('Failed to Send Email', 'Network error. Please try again.')
+    } finally {
+      setResending(false)
     }
   }
 
@@ -762,6 +805,21 @@ export default function EmployeesPage() {
                     </svg>
                     {deactivating ? 'Deactivating...' : 'Deactivate Account'}
                   </button>
+
+                  {/* Resend Password Setup Button */}
+                  {selectedEmployee?.user && !selectedEmployee?.user?.lastLoginAt && (
+                    <button
+                      onClick={handleResendPasswordSetup}
+                      disabled={resending || deleting || deactivating}
+                      className="w-full inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 h-10 px-4 py-2"
+                      title="Resend password setup email if the previous one expired"
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 7.89a2 2 0 002.83 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 002 2z" />
+                      </svg>
+                      {resending ? 'Sending...' : 'Resend Password Setup Email'}
+                    </button>
+                  )}
 
                   {/* Delete Account Button */}
                   <button

@@ -415,6 +415,7 @@ The repository includes a GitHub Actions workflow that:
   - **Amazon SES Integration**: Production-ready email service with SMTP configuration
   - **User Account States**: Users created without passwords until they complete setup via email link
   - **Security Features**: Token validation, password complexity requirements, one-time use tokens
+  - **Resend Password Setup**: Button in employer/employee lists to resend password setup emails when tokens expire
 - **Password Reset System**: Comprehensive password reset functionality with secure token-based flow
   - **Forgot Password Pages**: Dedicated pages for employer and employee password reset requests
   - **Reset Password Pages**: Secure password reset interfaces with token validation and error handling
@@ -604,6 +605,15 @@ ls -la .env*  # Should show .env.local
 ```
 
 ## 📖 API Documentation
+
+### Authentication Endpoints
+- `POST /api/auth/[...nextauth]` - NextAuth.js authentication
+- `POST /api/auth/forgot-password` - Password reset request
+- `GET /api/auth/reset-password` - Validate reset token
+- `POST /api/auth/reset-password` - Reset password with token
+- `GET /api/auth/setup-password` - Validate setup token
+- `POST /api/auth/setup-password` - Set password with setup token
+- `POST /api/auth/resend-password-setup` - Resend password setup email for expired tokens
 
 ### Employee Endpoints
 - `GET /api/employees` - List employees
