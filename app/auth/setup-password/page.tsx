@@ -73,7 +73,7 @@ function SetupPasswordContent() {
       }
     } catch (e) {
       console.error('SAFARI DEBUG: searchParams failed:', e)
-      extractionMethods.push('searchParams: error - ' + e.message)
+      extractionMethods.push('searchParams: error - ' + (e instanceof Error ? e.message : String(e)))
     }
     
     // Method 2: Direct window.location parsing
@@ -89,7 +89,7 @@ function SetupPasswordContent() {
         extractionMethods.push('window.location: ' + (tokenParam || 'null'))
       } catch (e) {
         console.error('SAFARI DEBUG: window.location parsing failed:', e)
-        extractionMethods.push('window.location: error - ' + e.message)
+        extractionMethods.push('window.location: error - ' + (e instanceof Error ? e.message : String(e)))
       }
     }
     
@@ -107,7 +107,7 @@ function SetupPasswordContent() {
         }
       } catch (e) {
         console.error('SAFARI DEBUG: regex parsing failed:', e)
-        extractionMethods.push('regex: error - ' + e.message)
+        extractionMethods.push('regex: error - ' + (e instanceof Error ? e.message : String(e)))
       }
     }
     
