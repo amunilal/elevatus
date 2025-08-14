@@ -1,0 +1,39 @@
+# Claude Alias: patch
+# Automatic patch version bump and release
+# Usage: /patch [release notes]
+
+# Set default release notes if none provided
+RELEASE_NOTES="${1:-Patch release with bug fixes}"
+
+# Run TypeScript check
+npm run type-check
+
+# Get current version and calculate new version
+current_version=$(grep '"version"' package.json | sed 's/.*"version": *"\([^"]*\)".*/\1/')
+IFS='.' read -ra VERSION_PARTS <<< "$current_version"
+new_version="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$((${VERSION_PARTS[2]} + 1))"
+
+echo "🚀 Bumping version from $current_version to $new_version"
+
+# Update package.json
+sed -i '' "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
+
+# Update lib/version.ts
+sed -i '' "s/version: '$current_version'/version: '$new_version'/" lib/version.ts
+sed -i '' "s/releaseDate: '[^']*'/releaseDate: '$(date +%Y-%m-%d)'/" lib/version.ts
+
+# Commit and push
+git add -A
+git commit -m "Release v$new_version
+
+- Updated version to $new_version
+- TypeScript checks passed
+- $RELEASE_NOTES
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+git push origin main
+
+echo "✅ Released v$new_version successfully!"

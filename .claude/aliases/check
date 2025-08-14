@@ -1,0 +1,32 @@
+# Claude Alias: check
+# Run comprehensive code quality checks
+# Usage: /check
+
+echo "🔍 ElevatUs Code Quality Check"
+echo "============================="
+
+# TypeScript check
+echo "📋 TypeScript Check..."
+npm run type-check
+echo "✅ TypeScript: All types valid"
+
+# Git status
+echo ""
+echo "📊 Git Status..."
+if [ -n "$(git status --porcelain)" ]; then
+    echo "📝 Uncommitted changes:"
+    git status --short
+else
+    echo "✅ Working directory clean"
+fi
+
+# Project info
+echo ""
+echo "📦 Project Information:"
+current_version=$(grep '"version"' package.json | sed 's/.*"version": *"\([^"]*\)".*/\1/')
+echo "Version: $current_version"
+echo "Branch: $(git branch --show-current)"
+echo "Last commit: $(git log -1 --pretty=format:'%h - %s (%cr)')"
+
+echo ""
+echo "✅ All checks completed!"

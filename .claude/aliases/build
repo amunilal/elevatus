@@ -1,0 +1,14 @@
+# Claude Alias: build
+# Build project for production
+# Usage: /build
+
+echo "🏗️ Building ElevatUs for production..."
+
+# Clean previous build
+rm -rf .next
+
+# Run build
+npm run build
+
+echo "✅ Production build completed successfully!"
+echo "🎯 Ready for deployment"

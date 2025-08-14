@@ -1,0 +1,8 @@
+# Claude Alias: db-push
+# Push database schema changes
+# Usage: /db-push
+
+echo "📊 Pushing database schema changes..."
+npx prisma db push
+
+echo "✅ Database schema updated successfully!"

@@ -1,0 +1,6 @@
+# Claude Alias: db-studio
+# Open Prisma Studio
+# Usage: /db-studio
+
+echo "🎯 Opening Prisma Studio on port 5556..."
+npx prisma studio --port 5556
