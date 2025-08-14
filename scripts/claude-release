@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Claude Code Release Alias for ElevatUs
+# This script can be called directly by Claude Code
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RELEASE_SCRIPT="$SCRIPT_DIR/release.sh"
+
+# Check if we're in the ElevatUs project directory
+if [ ! -f "package.json" ] || [ ! -f "lib/version.ts" ]; then
+    echo "❌ Error: This script must be run from the ElevatUs project root directory"
+    echo "💡 Make sure you're in the directory containing package.json and lib/version.ts"
+    exit 1
+fi
+
+# Run the release script
+exec "$RELEASE_SCRIPT"
