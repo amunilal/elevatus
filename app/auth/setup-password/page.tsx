@@ -16,8 +16,13 @@ interface TokenValidation {
 }
 
 function SetupPasswordContent() {
+  console.log('=== SetupPasswordContent Rendering ===')
+  console.log('Initial render at:', new Date().toISOString())
+  
   const router = useRouter()
   const searchParams = useSearchParams()
+  
+  console.log('searchParams immediately after useSearchParams():', searchParams)
   
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -30,43 +35,73 @@ function SetupPasswordContent() {
   const [token, setToken] = useState<string | null>(null)
 
   useEffect(() => {
+    console.log('=== Password Setup Debug ===')
+    console.log('1. Component mounted')
+    console.log('2. searchParams object:', searchParams)
+    console.log('3. typeof window:', typeof window)
+    
     // Extract token only on client side after mount
     let tokenParam: string | null = null
     
     // Try to get token from searchParams first
     if (searchParams) {
+      console.log('4. Trying searchParams.get("token")')
       tokenParam = searchParams.get('token')
+      console.log('5. Token from searchParams:', tokenParam)
+    } else {
+      console.log('4. searchParams is null/undefined')
     }
     
     // Fallback: Extract token from window.location for Safari compatibility
     if (!tokenParam && typeof window !== 'undefined') {
+      console.log('6. Trying window.location fallback')
+      console.log('7. window.location.href:', window.location.href)
+      console.log('8. window.location.search:', window.location.search)
       const urlParams = new URLSearchParams(window.location.search)
       tokenParam = urlParams.get('token')
+      console.log('9. Token from window.location:', tokenParam)
     }
     
+    console.log('10. Final token value:', tokenParam)
     setToken(tokenParam)
     
     if (tokenParam) {
+      console.log('11. Calling validateToken with:', tokenParam)
       validateToken(tokenParam)
     } else {
+      console.log('11. No token found, showing error')
       setLoading(false)
       setErrors({ token: 'Invalid setup link' })
     }
   }, [searchParams])
 
   const validateToken = async (tokenValue: string) => {
+    console.log('=== ValidateToken Debug ===')
+    console.log('1. Starting validation with token:', tokenValue)
+    
     try {
-      const response = await fetch(`/api/auth/setup-password?token=${tokenValue}`)
+      const url = `/api/auth/setup-password?token=${tokenValue}`
+      console.log('2. Fetching URL:', url)
+      
+      const response = await fetch(url)
+      console.log('3. Response status:', response.status)
+      console.log('4. Response ok:', response.ok)
+      
       const data = await response.json()
+      console.log('5. Response data:', data)
 
       if (response.ok && data.valid) {
+        console.log('6. Token is valid, setting tokenValid')
         setTokenValid(data)
       } else {
+        console.log('6. Token is invalid, error:', data.error)
         setErrors({ token: data.error || 'Invalid or expired setup link' })
       }
     } catch (error) {
+      console.log('7. Caught error during validation:', error)
       setErrors({ token: 'Failed to validate setup link' })
     } finally {
+      console.log('8. Setting loading to false')
       setLoading(false)
     }
   }
