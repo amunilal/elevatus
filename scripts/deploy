@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Claude Code Shortcut: /deploy:
+# Deploy to production with pre-flight checks
+# Usage: /deploy:
+
+set -e
+
+echo "🔍 Pre-deployment checks..."
+echo "Running TypeScript validation..."
+npm run type-check
+
+echo "📊 Checking git status..."
+if [ -n "$(git status --porcelain)" ]; then
+    echo "⚠️  Uncommitted changes detected:"
+    git status --short
+    echo ""
+    read -p "Continue deployment with uncommitted changes? (y/N): " continue_deploy
+    if [[ ! $continue_deploy =~ ^[Yy]$ ]]; then
+        echo "❌ Deployment cancelled"
+        exit 1
+    fi
+fi
+
+echo "🚀 Deploying to Vercel production..."
+vercel --prod
+
+echo "✅ Deployment completed successfully!"
+echo "🌐 Check your deployment at: https://elevatus-pm2nhzrfd-ashveer.vercel.app"

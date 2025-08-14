@@ -1,0 +1,63 @@
+#!/bin/bash
+
+# Claude Code Shortcut: /hotfix:
+# Emergency hotfix with auto-deploy
+# Usage: /hotfix: Description of the critical fix
+
+set -e
+
+HOTFIX_DESC="$*"
+if [ -z "$HOTFIX_DESC" ]; then
+    echo "❌ Error: Hotfix description required"
+    echo "Usage: /hotfix: Description of the critical fix"
+    exit 1
+fi
+
+echo "🚨 EMERGENCY HOTFIX DEPLOYMENT"
+echo "==============================="
+echo "Description: $HOTFIX_DESC"
+echo ""
+
+echo "🔍 Running TypeScript check..."
+npm run type-check
+
+# Get current version and bump patch
+current_version=$(grep '"version"' package.json | sed 's/.*"version": *"\([^"]*\)".*/\1/')
+IFS='.' read -ra VERSION_PARTS <<< "$current_version"
+new_version="${VERSION_PARTS[0]}.${VERSION_PARTS[1]}.$((${VERSION_PARTS[2]} + 1))"
+
+echo "🚀 Creating hotfix version: $new_version"
+
+# Update versions
+sed -i '' "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
+sed -i '' "s/version: '$current_version'/version: '$new_version'/" lib/version.ts
+sed -i '' "s/releaseDate: '[^']*'/releaseDate: '$(date +%Y-%m-%d)'/" lib/version.ts
+
+echo "📝 Committing hotfix..."
+git add -A
+git commit -m "🚨 Hotfix v$new_version
+
+Critical fix: $HOTFIX_DESC
+
+- Updated version to $new_version
+- TypeScript checks passed
+- Immediate production deployment
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+Co-Authored-By: Claude <noreply@anthropic.com>"
+
+echo "🚀 Pushing to repository..."
+git push origin main
+
+echo "⚡ Deploying to production..."
+vercel --prod
+
+echo ""
+echo "🎉 HOTFIX DEPLOYMENT COMPLETED"
+echo "==============================="
+echo "🏷️  Version: $new_version"
+echo "🌐 Production URL: https://elevatus-pm2nhzrfd-ashveer.vercel.app"
+echo "⏰ Deployed at: $(date)"
+echo ""
+echo "✅ Critical fix is now live in production!"

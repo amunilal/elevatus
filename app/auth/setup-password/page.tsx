@@ -16,29 +16,51 @@ interface TokenValidation {
 }
 
 function SetupPasswordContent() {
+  // Production-friendly debugging methods
+  const [debugInfo, setDebugInfo] = useState<string[]>([])
+  
+  const addDebugInfo = (message: string) => {
+    setDebugInfo(prev => [...prev, `${new Date().toISOString()}: ${message}`])
+    console.log('SAFARI DEBUG:', message)
+    
+    // Also store in localStorage for persistent debugging
+    if (typeof window !== 'undefined') {
+      try {
+        const existing = localStorage.getItem('safari-debug') || '[]'
+        const logs = JSON.parse(existing)
+        logs.push(`${new Date().toISOString()}: ${message}`)
+        // Keep only last 50 entries
+        if (logs.length > 50) logs.splice(0, logs.length - 50)
+        localStorage.setItem('safari-debug', JSON.stringify(logs))
+      } catch (e) {
+        console.warn('Could not write to localStorage:', e)
+      }
+    }
+  }
+  
   // Basic browser compatibility check
   if (typeof window !== 'undefined') {
-    console.log('SAFARI DEBUG: Window object available')
-    console.log('SAFARI DEBUG: User Agent:', navigator.userAgent)
-    console.log('SAFARI DEBUG: URL:', window.location.href)
-    console.log('SAFARI DEBUG: Search params:', window.location.search)
+    addDebugInfo('Window object available')
+    addDebugInfo(`User Agent: ${navigator.userAgent}`)
+    addDebugInfo(`URL: ${window.location.href}`)
+    addDebugInfo(`Search params: ${window.location.search}`)
     
     // Try to write to document title to see if basic DOM manipulation works
     try {
       document.title = 'ElevatUs - Setup Password (Debug)'
-      console.log('SAFARI DEBUG: Document title update successful')
+      addDebugInfo('Document title update successful')
     } catch (e) {
-      console.error('SAFARI DEBUG: Document title update failed:', e)
+      addDebugInfo(`Document title update failed: ${e}`)
     }
   }
   
-  console.log('=== SetupPasswordContent Rendering ===')
-  console.log('Initial render at:', new Date().toISOString())
+  addDebugInfo('=== SetupPasswordContent Rendering ===')
+  addDebugInfo('Component mounted and starting initialization')
   
   const router = useRouter()
   const searchParams = useSearchParams()
   
-  console.log('searchParams immediately after useSearchParams():', searchParams)
+  addDebugInfo(`searchParams object: ${searchParams ? 'available' : 'null/undefined'}`)
   
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -51,10 +73,9 @@ function SetupPasswordContent() {
   const [token, setToken] = useState<string | null>(null)
 
   useEffect(() => {
-    console.log('=== Password Setup Debug ===')
-    console.log('1. Component mounted')
-    console.log('2. searchParams object:', searchParams)
-    console.log('3. typeof window:', typeof window)
+    addDebugInfo('=== Starting useEffect ===')
+    addDebugInfo('useEffect triggered by searchParams change')
+    addDebugInfo(`typeof window: ${typeof window}`)
     
     // Safari Compatibility: Multiple extraction methods
     let tokenParam: string | null = null
@@ -63,32 +84,32 @@ function SetupPasswordContent() {
     // Method 1: Try searchParams if available
     try {
       if (searchParams) {
-        console.log('4. Trying searchParams.get("token")')
+        addDebugInfo('Method 1: Trying searchParams.get("token")')
         tokenParam = searchParams.get('token')
-        console.log('5. Token from searchParams:', tokenParam)
+        addDebugInfo(`Token from searchParams: ${tokenParam}`)
         extractionMethods.push('searchParams: ' + (tokenParam || 'null'))
       } else {
-        console.log('4. searchParams is null/undefined')
+        addDebugInfo('Method 1: searchParams is null/undefined')
         extractionMethods.push('searchParams: unavailable')
       }
     } catch (e) {
-      console.error('SAFARI DEBUG: searchParams failed:', e)
+      addDebugInfo(`Method 1 failed: ${e instanceof Error ? e.message : String(e)}`)
       extractionMethods.push('searchParams: error - ' + (e instanceof Error ? e.message : String(e)))
     }
     
     // Method 2: Direct window.location parsing
     if (!tokenParam && typeof window !== 'undefined') {
       try {
-        console.log('6. Trying window.location fallback')
-        console.log('7. window.location.href:', window.location.href)
-        console.log('8. window.location.search:', window.location.search)
+        addDebugInfo('Method 2: Trying window.location fallback')
+        addDebugInfo(`window.location.href: ${window.location.href}`)
+        addDebugInfo(`window.location.search: ${window.location.search}`)
         
         const urlParams = new URLSearchParams(window.location.search)
         tokenParam = urlParams.get('token')
-        console.log('9. Token from window.location:', tokenParam)
+        addDebugInfo(`Token from window.location: ${tokenParam}`)
         extractionMethods.push('window.location: ' + (tokenParam || 'null'))
       } catch (e) {
-        console.error('SAFARI DEBUG: window.location parsing failed:', e)
+        addDebugInfo(`Method 2 failed: ${e instanceof Error ? e.message : String(e)}`)
         extractionMethods.push('window.location: error - ' + (e instanceof Error ? e.message : String(e)))
       }
     }
@@ -100,58 +121,59 @@ function SetupPasswordContent() {
         const tokenMatch = url.match(/[?&]token=([^&]+)/)
         if (tokenMatch) {
           tokenParam = decodeURIComponent(tokenMatch[1])
-          console.log('10. Token from regex parsing:', tokenParam)
+          addDebugInfo(`Token from regex parsing: ${tokenParam}`)
           extractionMethods.push('regex: ' + tokenParam)
         } else {
+          addDebugInfo('Method 3: No regex match found')
           extractionMethods.push('regex: no match')
         }
       } catch (e) {
-        console.error('SAFARI DEBUG: regex parsing failed:', e)
+        addDebugInfo(`Method 3 failed: ${e instanceof Error ? e.message : String(e)}`)
         extractionMethods.push('regex: error - ' + (e instanceof Error ? e.message : String(e)))
       }
     }
     
-    console.log('SAFARI DEBUG: All extraction methods attempted:', extractionMethods)
-    console.log('10. Final token value:', tokenParam)
+    addDebugInfo(`All extraction methods: ${extractionMethods.join(', ')}`)
+    addDebugInfo(`Final token value: ${tokenParam}`)
     setToken(tokenParam)
     
     if (tokenParam) {
-      console.log('11. Calling validateToken with:', tokenParam)
+      addDebugInfo('Token found - calling validateToken')
       validateToken(tokenParam)
     } else {
-      console.log('11. No token found, showing error')
+      addDebugInfo('No token found - showing error state')
       setLoading(false)
       setErrors({ token: 'Invalid setup link' })
     }
   }, [searchParams])
 
   const validateToken = async (tokenValue: string) => {
-    console.log('=== ValidateToken Debug ===')
-    console.log('1. Starting validation with token:', tokenValue)
+    addDebugInfo('=== Starting Token Validation ===')
+    addDebugInfo(`Validating token: ${tokenValue.substring(0, 10)}...`)
     
     try {
       const url = `/api/auth/setup-password?token=${tokenValue}`
-      console.log('2. Fetching URL:', url)
+      addDebugInfo(`API URL: ${url.substring(0, 50)}...`)
       
       const response = await fetch(url)
-      console.log('3. Response status:', response.status)
-      console.log('4. Response ok:', response.ok)
+      addDebugInfo(`Response status: ${response.status}`)
+      addDebugInfo(`Response ok: ${response.ok}`)
       
       const data = await response.json()
-      console.log('5. Response data:', data)
+      addDebugInfo(`Response data keys: ${Object.keys(data).join(', ')}`)
 
       if (response.ok && data.valid) {
-        console.log('6. Token is valid, setting tokenValid')
+        addDebugInfo('Token is valid - proceeding to form')
         setTokenValid(data)
       } else {
-        console.log('6. Token is invalid, error:', data.error)
+        addDebugInfo(`Token validation failed: ${data.error || 'Unknown error'}`)
         setErrors({ token: data.error || 'Invalid or expired setup link' })
       }
     } catch (error) {
-      console.log('7. Caught error during validation:', error)
+      addDebugInfo(`API call failed: ${error instanceof Error ? error.message : String(error)}`)
       setErrors({ token: 'Failed to validate setup link' })
     } finally {
-      console.log('8. Setting loading to false')
+      addDebugInfo('Token validation completed - hiding loading')
       setLoading(false)
     }
   }
@@ -219,16 +241,46 @@ function SetupPasswordContent() {
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mx-auto"></div>
           <p className="mt-4 text-gray-600">Validating setup link...</p>
-          {/* Safari Debug Info */}
-          {typeof window !== 'undefined' && (
-            <div className="mt-4 p-4 bg-blue-100 rounded-lg text-left text-xs">
-              <p><strong>Debug Info:</strong></p>
-              <p>URL: {window.location.href}</p>
-              <p>Search: {window.location.search}</p>
-              <p>User Agent: {navigator.userAgent.includes('Safari') ? 'Safari' : 'Other'}</p>
-              <p>Token State: {token ? 'Found' : 'Not Found'}</p>
-            </div>
-          )}
+          {/* Production Debug Panel */}
+          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-left text-xs max-w-md mx-auto">
+            <details>
+              <summary className="font-semibold text-blue-800 cursor-pointer">🔍 Debug Information (Click to expand)</summary>
+              <div className="mt-3 space-y-2">
+                {debugInfo.length > 0 ? (
+                  <div className="bg-white p-3 rounded border max-h-64 overflow-y-auto">
+                    {debugInfo.map((info, index) => (
+                      <div key={index} className="text-xs text-gray-600 border-b border-gray-100 py-1">
+                        {info}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-blue-600">No debug info available yet...</p>
+                )}
+                <div className="mt-3 p-2 bg-gray-100 rounded text-xs">
+                  <p><strong>Current State:</strong></p>
+                  <p>Token: {token ? `${token.substring(0, 15)}...` : 'None'}</p>
+                  <p>Loading: {loading ? 'Yes' : 'No'}</p>
+                  <p>Errors: {Object.keys(errors).length > 0 ? 'Yes' : 'No'}</p>
+                  <p>Time: {new Date().toISOString()}</p>
+                </div>
+                {typeof window !== 'undefined' && (
+                  <button 
+                    onClick={() => {
+                      const logs = localStorage.getItem('safari-debug')
+                      if (logs) {
+                        console.log('Safari Debug Logs:', JSON.parse(logs))
+                        alert('Debug logs printed to console. Check developer tools.')
+                      }
+                    }}
+                    className="mt-2 px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                  >
+                    Export Logs to Console
+                  </button>
+                )}
+              </div>
+            </details>
+          </div>
         </div>
       </div>
     )
@@ -257,16 +309,46 @@ function SetupPasswordContent() {
                 <p className="text-sm text-gray-600 mb-6">
                   The password setup link may have expired or been used already. Please contact your administrator for a new setup link.
                 </p>
-                {/* Safari Debug Info in Error State */}
-                {typeof window !== 'undefined' && (
-                  <div className="mb-4 p-3 bg-yellow-100 rounded text-left text-xs">
-                    <p><strong>Safari Debug:</strong></p>
-                    <p>URL: {window.location.href}</p>
-                    <p>Search: {window.location.search}</p>
-                    <p>Token Found: {token || 'None'}</p>
-                    <p>Browser: {navigator.userAgent.includes('Safari') ? 'Safari' : 'Other'}</p>
-                  </div>
-                )}
+                {/* Production Debug Panel */}
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-left text-xs">
+                  <details>
+                    <summary className="font-semibold text-red-800 cursor-pointer">🔍 Debug Information (Click to expand)</summary>
+                    <div className="mt-3 space-y-2">
+                      {debugInfo.length > 0 ? (
+                        <div className="bg-white p-3 rounded border max-h-48 overflow-y-auto">
+                          {debugInfo.map((info, index) => (
+                            <div key={index} className="text-xs text-gray-600 border-b border-gray-100 py-1">
+                              {info}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-red-600">No debug info available...</p>
+                      )}
+                      <div className="mt-3 p-2 bg-gray-100 rounded text-xs">
+                        <p><strong>Error State Info:</strong></p>
+                        <p>Token: {token ? `${token.substring(0, 15)}...` : 'None'}</p>
+                        <p>Error: {errors.token || 'None'}</p>
+                        <p>URL: {typeof window !== 'undefined' ? window.location.href.substring(0, 50) + '...' : 'N/A'}</p>
+                        <p>User Agent: {typeof window !== 'undefined' ? (navigator.userAgent.includes('Safari') ? 'Safari' : 'Other') : 'N/A'}</p>
+                      </div>
+                      {typeof window !== 'undefined' && (
+                        <button 
+                          onClick={() => {
+                            const logs = localStorage.getItem('safari-debug')
+                            if (logs) {
+                              console.log('Safari Debug Logs:', JSON.parse(logs))
+                              alert('Debug logs printed to console. Check developer tools.')
+                            }
+                          }}
+                          className="mt-2 px-3 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
+                        >
+                          Export Logs to Console
+                        </button>
+                      )}
+                    </div>
+                  </details>
+                </div>
                 <Link href="/" className="text-indigo-600 hover:text-indigo-500">
                   Return to Home
                 </Link>
