@@ -55,9 +55,8 @@ function SetupPasswordContent() {
   const [token, setToken] = useState<string | null>(null)
 
   useEffect(() => {
-    logger.debug('=== Starting useEffect ===')
-    logger.debug('useEffect triggered by searchParams change')
-    logger.debug(`typeof window: ${typeof window}`)
+    logger.info('=== Setup Password Page Loaded ===')
+    logger.info(`Current URL: ${typeof window !== 'undefined' ? window.location.href : 'SSR'}`)
     
     // Safari Compatibility: Multiple extraction methods
     let tokenParam: string | null = null
@@ -66,32 +65,31 @@ function SetupPasswordContent() {
     // Method 1: Try searchParams if available
     try {
       if (searchParams) {
-        logger.debug('Method 1: Trying searchParams.get("token")')
+        logger.info('Attempting to extract token from searchParams')
         tokenParam = searchParams.get('token')
-        logger.debug(`Token from searchParams: ${tokenParam}`)
+        logger.info(`Token from searchParams: ${tokenParam ? 'Found (' + tokenParam.substring(0, 10) + '...)' : 'Not found'}`)
         extractionMethods.push('searchParams: ' + (tokenParam || 'null'))
       } else {
-        logger.debug('Method 1: searchParams is null/undefined')
+        logger.warn('searchParams object is null/undefined')
         extractionMethods.push('searchParams: unavailable')
       }
     } catch (e) {
-      logger.error(`Method 1 failed`, e)
+      logger.error(`Failed to extract token from searchParams`, e)
       extractionMethods.push('searchParams: error - ' + (e instanceof Error ? e.message : String(e)))
     }
     
     // Method 2: Direct window.location parsing
     if (!tokenParam && typeof window !== 'undefined') {
       try {
-        logger.debug('Method 2: Trying window.location fallback')
-        logger.debug(`window.location.href: ${window.location.href}`)
-        logger.debug(`window.location.search: ${window.location.search}`)
+        logger.info('Fallback: Trying window.location parsing')
+        logger.info(`window.location.search: ${window.location.search}`)
         
         const urlParams = new URLSearchParams(window.location.search)
         tokenParam = urlParams.get('token')
-        logger.debug(`Token from window.location: ${tokenParam}`)
+        logger.info(`Token from window.location: ${tokenParam ? 'Found (' + tokenParam.substring(0, 10) + '...)' : 'Not found'}`)
         extractionMethods.push('window.location: ' + (tokenParam || 'null'))
       } catch (e) {
-        logger.debug(`Method 2 failed: ${e instanceof Error ? e.message : String(e)}`)
+        logger.error(`Window.location parsing failed`, e)
         extractionMethods.push('window.location: error - ' + (e instanceof Error ? e.message : String(e)))
       }
     }
@@ -103,59 +101,61 @@ function SetupPasswordContent() {
         const tokenMatch = url.match(/[?&]token=([^&]+)/)
         if (tokenMatch) {
           tokenParam = decodeURIComponent(tokenMatch[1])
-          logger.debug(`Token from regex parsing: ${tokenParam}`)
-          extractionMethods.push('regex: ' + tokenParam)
+          logger.info(`Token from regex parsing: Found (${tokenParam.substring(0, 10)}...)`)
+          extractionMethods.push('regex: ' + tokenParam.substring(0, 10) + '...')
         } else {
-          logger.debug('Method 3: No regex match found')
+          logger.warn('No token found in URL using regex')
           extractionMethods.push('regex: no match')
         }
       } catch (e) {
-        logger.debug(`Method 3 failed: ${e instanceof Error ? e.message : String(e)}`)
+        logger.error(`Regex parsing failed`, e)
         extractionMethods.push('regex: error - ' + (e instanceof Error ? e.message : String(e)))
       }
     }
     
-    logger.debug(`All extraction methods: ${extractionMethods.join(', ')}`)
-    logger.debug(`Final token value: ${tokenParam}`)
+    logger.info(`Token extraction summary: ${extractionMethods.join(' | ')}`)
+    logger.info(`Final token: ${tokenParam ? 'Found (' + tokenParam.substring(0, 10) + '...)' : 'NOT FOUND'}`)
     setToken(tokenParam)
     
     if (tokenParam) {
-      logger.debug('Token found - calling validateToken')
+      logger.info('Token extracted successfully - validating with API')
       validateToken(tokenParam)
     } else {
-      logger.debug('No token found - showing error state')
+      logger.error('No token found in URL - cannot proceed with password setup')
       setLoading(false)
-      setErrors({ token: 'Invalid setup link' })
+      setErrors({ token: 'Invalid setup link - no token found in URL' })
     }
   }, [searchParams])
 
   const validateToken = async (tokenValue: string) => {
-    logger.debug('=== Starting Token Validation ===')
-    logger.debug(`Validating token: ${tokenValue.substring(0, 10)}...`)
+    logger.info('=== Validating Token with API ===')
+    logger.info(`Token to validate: ${tokenValue.substring(0, 10)}...`)
     
     try {
       const url = `/api/auth/setup-password?token=${tokenValue}`
-      logger.debug(`API URL: ${url.substring(0, 50)}...`)
+      logger.info(`Making API request to: ${url.substring(0, 50)}...`)
       
       const response = await fetch(url)
-      logger.debug(`Response status: ${response.status}`)
-      logger.debug(`Response ok: ${response.ok}`)
+      logger.info(`API Response: Status ${response.status} (${response.ok ? 'OK' : 'ERROR'})`)
       
       const data = await response.json()
-      logger.debug(`Response data keys: ${Object.keys(data).join(', ')}`)
+      logger.info(`API Response data: ${JSON.stringify(data)}`)
 
       if (response.ok && data.valid) {
-        logger.debug('Token is valid - proceeding to form')
+        logger.info('✅ Token is valid - showing password setup form')
+        logger.info(`User email: ${data.email}, Type: ${data.userType}`)
         setTokenValid(data)
       } else {
-        logger.debug(`Token validation failed: ${data.error || 'Unknown error'}`)
+        logger.error(`❌ Token validation failed: ${data.error || 'Unknown error'}`)
+        logger.error(`Full response: ${JSON.stringify(data)}`)
         setErrors({ token: data.error || 'Invalid or expired setup link' })
       }
     } catch (error) {
-      logger.debug(`API call failed: ${error instanceof Error ? error.message : String(error)}`)
-      setErrors({ token: 'Failed to validate setup link' })
+      logger.error(`API call failed completely`, error)
+      logger.error(`Error details: ${error instanceof Error ? error.message : String(error)}`)
+      setErrors({ token: 'Failed to validate setup link - API error' })
     } finally {
-      logger.debug('Token validation completed - hiding loading')
+      logger.info('Token validation completed')
       setLoading(false)
     }
   }
@@ -293,40 +293,67 @@ function SetupPasswordContent() {
                 </p>
                 {/* Production Debug Panel */}
                 <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg text-left text-xs">
-                  <details>
+                  <details open>
                     <summary className="font-semibold text-red-800 cursor-pointer">🔍 Debug Information (Click to expand)</summary>
                     <div className="mt-3 space-y-2">
-                      {debugInfo.length > 0 ? (
-                        <div className="bg-white p-3 rounded border max-h-48 overflow-y-auto">
-                          {debugInfo.map((info, index) => (
-                            <div key={index} className="text-xs text-gray-600 border-b border-gray-100 py-1">
-                              {info}
-                            </div>
-                          ))}
-                        </div>
-                      ) : (
-                        <p className="text-red-600">No debug info available...</p>
-                      )}
                       <div className="mt-3 p-2 bg-gray-100 rounded text-xs">
-                        <p><strong>Error State Info:</strong></p>
-                        <p>Token: {token ? `${token.substring(0, 15)}...` : 'None'}</p>
+                        <p><strong>Current State:</strong></p>
+                        <p>Token: {token ? `${token.substring(0, 15)}...` : 'NOT FOUND'}</p>
                         <p>Error: {errors.token || 'None'}</p>
-                        <p>URL: {typeof window !== 'undefined' ? window.location.href.substring(0, 50) + '...' : 'N/A'}</p>
-                        <p>User Agent: {typeof window !== 'undefined' ? (navigator.userAgent.includes('Safari') ? 'Safari' : 'Other') : 'N/A'}</p>
+                        <p>URL: {typeof window !== 'undefined' ? window.location.href : 'N/A'}</p>
+                        <p>Browser: {typeof window !== 'undefined' ? navigator.userAgent.substring(0, 50) + '...' : 'N/A'}</p>
                       </div>
+                      
+                      {/* Show stored logs */}
+                      <div className="bg-white p-3 rounded border max-h-48 overflow-y-auto">
+                        <p className="font-semibold mb-2">Recent Logs:</p>
+                        {typeof window !== 'undefined' && (() => {
+                          const logs = logger.getStoredLogs()
+                          if (logs.length > 0) {
+                            return logs.slice(-10).map((log, index) => (
+                              <div key={index} className={`text-xs py-1 border-b border-gray-100 ${
+                                log.level === 'error' ? 'text-red-600' : 
+                                log.level === 'warn' ? 'text-yellow-600' : 
+                                log.level === 'info' ? 'text-blue-600' : 
+                                'text-gray-600'
+                              }`}>
+                                <span className="font-semibold">[{log.level.toUpperCase()}]</span> {log.message}
+                                {log.data && <pre className="text-xs mt-1">{JSON.stringify(log.data, null, 2)}</pre>}
+                              </div>
+                            ))
+                          } else {
+                            return <p className="text-gray-500">No logs available</p>
+                          }
+                        })()}
+                      </div>
+                      
                       {typeof window !== 'undefined' && (
-                        <button 
-                          onClick={() => {
-                            const logs = localStorage.getItem('safari-debug')
-                            if (logs) {
-                              console.log('Safari Debug Logs:', JSON.parse(logs))
-                              alert('Debug logs printed to console. Check developer tools.')
-                            }
-                          }}
-                          className="mt-2 px-3 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
-                        >
-                          Export Logs to Console
-                        </button>
+                        <div className="flex gap-2">
+                          <button 
+                            onClick={() => {
+                              const logs = logger.exportLogs()
+                              const blob = new Blob([logs], { type: 'application/json' })
+                              const url = URL.createObjectURL(blob)
+                              const a = document.createElement('a')
+                              a.href = url
+                              a.download = `debug-logs-${Date.now()}.json`
+                              a.click()
+                              URL.revokeObjectURL(url)
+                            }}
+                            className="px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                          >
+                            Download Logs
+                          </button>
+                          <button 
+                            onClick={() => {
+                              logger.clearLogs()
+                              window.location.reload()
+                            }}
+                            className="px-3 py-1 bg-gray-500 text-white rounded text-xs hover:bg-gray-600"
+                          >
+                            Clear & Reload
+                          </button>
+                        </div>
                       )}
                     </div>
                   </details>
