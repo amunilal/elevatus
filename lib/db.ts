@@ -1,6 +1,7 @@
 import { Pool, neonConfig } from '@neondatabase/serverless'
 import { PrismaNeon } from '@prisma/adapter-neon'
 import { PrismaClient } from '@prisma/client'
+import { logger } from '@/lib/logger'
 
 // Enable connection caching for better performance
 neonConfig.fetchConnectionCache = true
@@ -67,7 +68,7 @@ export async function checkDatabaseHealth(): Promise<boolean> {
     await prisma.$queryRaw`SELECT 1`
     return true
   } catch (error) {
-    console.error('Database health check failed:', error)
+    logger.error('Database health check failed', error)
     return false
   }
 }

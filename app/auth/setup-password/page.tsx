@@ -7,6 +7,7 @@ import { Logo } from '@/components/ui/Logo'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card'
+import { logger } from '@/lib/logger'
 
 interface TokenValidation {
   valid: boolean
@@ -16,51 +17,32 @@ interface TokenValidation {
 }
 
 function SetupPasswordContent() {
-  // Production-friendly debugging methods
+  // Production-friendly debugging with Safari-compatible logger
   const [debugInfo, setDebugInfo] = useState<string[]>([])
-  
-  const addDebugInfo = (message: string) => {
-    setDebugInfo(prev => [...prev, `${new Date().toISOString()}: ${message}`])
-    console.log('SAFARI DEBUG:', message)
-    
-    // Also store in localStorage for persistent debugging
-    if (typeof window !== 'undefined') {
-      try {
-        const existing = localStorage.getItem('safari-debug') || '[]'
-        const logs = JSON.parse(existing)
-        logs.push(`${new Date().toISOString()}: ${message}`)
-        // Keep only last 50 entries
-        if (logs.length > 50) logs.splice(0, logs.length - 50)
-        localStorage.setItem('safari-debug', JSON.stringify(logs))
-      } catch (e) {
-        console.warn('Could not write to localStorage:', e)
-      }
-    }
-  }
   
   // Basic browser compatibility check
   if (typeof window !== 'undefined') {
-    addDebugInfo('Window object available')
-    addDebugInfo(`User Agent: ${navigator.userAgent}`)
-    addDebugInfo(`URL: ${window.location.href}`)
-    addDebugInfo(`Search params: ${window.location.search}`)
+    logger.debug('Window object available')
+    logger.debug(`User Agent: ${navigator.userAgent}`)
+    logger.debug(`URL: ${window.location.href}`)
+    logger.debug(`Search params: ${window.location.search}`)
     
     // Try to write to document title to see if basic DOM manipulation works
     try {
-      document.title = 'ElevatUs - Setup Password (Debug)'
-      addDebugInfo('Document title update successful')
+      document.title = 'ElevatUs - Setup Password'
+      logger.debug('Document title update successful')
     } catch (e) {
-      addDebugInfo(`Document title update failed: ${e}`)
+      logger.error(`Document title update failed`, e)
     }
   }
   
-  addDebugInfo('=== SetupPasswordContent Rendering ===')
-  addDebugInfo('Component mounted and starting initialization')
+  logger.debug('=== SetupPasswordContent Rendering ===')
+  logger.debug('Component mounted and starting initialization')
   
   const router = useRouter()
   const searchParams = useSearchParams()
   
-  addDebugInfo(`searchParams object: ${searchParams ? 'available' : 'null/undefined'}`)
+  logger.debug(`searchParams object: ${searchParams ? 'available' : 'null/undefined'}`)
   
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -73,9 +55,9 @@ function SetupPasswordContent() {
   const [token, setToken] = useState<string | null>(null)
 
   useEffect(() => {
-    addDebugInfo('=== Starting useEffect ===')
-    addDebugInfo('useEffect triggered by searchParams change')
-    addDebugInfo(`typeof window: ${typeof window}`)
+    logger.debug('=== Starting useEffect ===')
+    logger.debug('useEffect triggered by searchParams change')
+    logger.debug(`typeof window: ${typeof window}`)
     
     // Safari Compatibility: Multiple extraction methods
     let tokenParam: string | null = null
@@ -84,32 +66,32 @@ function SetupPasswordContent() {
     // Method 1: Try searchParams if available
     try {
       if (searchParams) {
-        addDebugInfo('Method 1: Trying searchParams.get("token")')
+        logger.debug('Method 1: Trying searchParams.get("token")')
         tokenParam = searchParams.get('token')
-        addDebugInfo(`Token from searchParams: ${tokenParam}`)
+        logger.debug(`Token from searchParams: ${tokenParam}`)
         extractionMethods.push('searchParams: ' + (tokenParam || 'null'))
       } else {
-        addDebugInfo('Method 1: searchParams is null/undefined')
+        logger.debug('Method 1: searchParams is null/undefined')
         extractionMethods.push('searchParams: unavailable')
       }
     } catch (e) {
-      addDebugInfo(`Method 1 failed: ${e instanceof Error ? e.message : String(e)}`)
+      logger.error(`Method 1 failed`, e)
       extractionMethods.push('searchParams: error - ' + (e instanceof Error ? e.message : String(e)))
     }
     
     // Method 2: Direct window.location parsing
     if (!tokenParam && typeof window !== 'undefined') {
       try {
-        addDebugInfo('Method 2: Trying window.location fallback')
-        addDebugInfo(`window.location.href: ${window.location.href}`)
-        addDebugInfo(`window.location.search: ${window.location.search}`)
+        logger.debug('Method 2: Trying window.location fallback')
+        logger.debug(`window.location.href: ${window.location.href}`)
+        logger.debug(`window.location.search: ${window.location.search}`)
         
         const urlParams = new URLSearchParams(window.location.search)
         tokenParam = urlParams.get('token')
-        addDebugInfo(`Token from window.location: ${tokenParam}`)
+        logger.debug(`Token from window.location: ${tokenParam}`)
         extractionMethods.push('window.location: ' + (tokenParam || 'null'))
       } catch (e) {
-        addDebugInfo(`Method 2 failed: ${e instanceof Error ? e.message : String(e)}`)
+        logger.debug(`Method 2 failed: ${e instanceof Error ? e.message : String(e)}`)
         extractionMethods.push('window.location: error - ' + (e instanceof Error ? e.message : String(e)))
       }
     }
@@ -121,59 +103,59 @@ function SetupPasswordContent() {
         const tokenMatch = url.match(/[?&]token=([^&]+)/)
         if (tokenMatch) {
           tokenParam = decodeURIComponent(tokenMatch[1])
-          addDebugInfo(`Token from regex parsing: ${tokenParam}`)
+          logger.debug(`Token from regex parsing: ${tokenParam}`)
           extractionMethods.push('regex: ' + tokenParam)
         } else {
-          addDebugInfo('Method 3: No regex match found')
+          logger.debug('Method 3: No regex match found')
           extractionMethods.push('regex: no match')
         }
       } catch (e) {
-        addDebugInfo(`Method 3 failed: ${e instanceof Error ? e.message : String(e)}`)
+        logger.debug(`Method 3 failed: ${e instanceof Error ? e.message : String(e)}`)
         extractionMethods.push('regex: error - ' + (e instanceof Error ? e.message : String(e)))
       }
     }
     
-    addDebugInfo(`All extraction methods: ${extractionMethods.join(', ')}`)
-    addDebugInfo(`Final token value: ${tokenParam}`)
+    logger.debug(`All extraction methods: ${extractionMethods.join(', ')}`)
+    logger.debug(`Final token value: ${tokenParam}`)
     setToken(tokenParam)
     
     if (tokenParam) {
-      addDebugInfo('Token found - calling validateToken')
+      logger.debug('Token found - calling validateToken')
       validateToken(tokenParam)
     } else {
-      addDebugInfo('No token found - showing error state')
+      logger.debug('No token found - showing error state')
       setLoading(false)
       setErrors({ token: 'Invalid setup link' })
     }
   }, [searchParams])
 
   const validateToken = async (tokenValue: string) => {
-    addDebugInfo('=== Starting Token Validation ===')
-    addDebugInfo(`Validating token: ${tokenValue.substring(0, 10)}...`)
+    logger.debug('=== Starting Token Validation ===')
+    logger.debug(`Validating token: ${tokenValue.substring(0, 10)}...`)
     
     try {
       const url = `/api/auth/setup-password?token=${tokenValue}`
-      addDebugInfo(`API URL: ${url.substring(0, 50)}...`)
+      logger.debug(`API URL: ${url.substring(0, 50)}...`)
       
       const response = await fetch(url)
-      addDebugInfo(`Response status: ${response.status}`)
-      addDebugInfo(`Response ok: ${response.ok}`)
+      logger.debug(`Response status: ${response.status}`)
+      logger.debug(`Response ok: ${response.ok}`)
       
       const data = await response.json()
-      addDebugInfo(`Response data keys: ${Object.keys(data).join(', ')}`)
+      logger.debug(`Response data keys: ${Object.keys(data).join(', ')}`)
 
       if (response.ok && data.valid) {
-        addDebugInfo('Token is valid - proceeding to form')
+        logger.debug('Token is valid - proceeding to form')
         setTokenValid(data)
       } else {
-        addDebugInfo(`Token validation failed: ${data.error || 'Unknown error'}`)
+        logger.debug(`Token validation failed: ${data.error || 'Unknown error'}`)
         setErrors({ token: data.error || 'Invalid or expired setup link' })
       }
     } catch (error) {
-      addDebugInfo(`API call failed: ${error instanceof Error ? error.message : String(error)}`)
+      logger.debug(`API call failed: ${error instanceof Error ? error.message : String(error)}`)
       setErrors({ token: 'Failed to validate setup link' })
     } finally {
-      addDebugInfo('Token validation completed - hiding loading')
+      logger.debug('Token validation completed - hiding loading')
       setLoading(false)
     }
   }

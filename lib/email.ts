@@ -2,6 +2,7 @@ import nodemailer from 'nodemailer'
 import type { SendMailOptions } from 'nodemailer'
 import { PrismaClient, EmailType, EmailStatus } from '@prisma/client'
 import crypto from 'crypto'
+import { logger } from '@/lib/logger'
 
 const prisma = new PrismaClient()
 
@@ -29,17 +30,17 @@ export async function verifyEmailConfig(): Promise<boolean> {
   const isMailHog = process.env.SMTP_HOST === 'localhost' && process.env.SMTP_PORT === '1025'
   
   if (!isDevelopment && !isMailHog && (!process.env.SMTP_USER || !process.env.SMTP_PASS)) {
-    console.error('Email configuration missing: SMTP_USER or SMTP_PASS not set')
+    logger.error('Email configuration missing: SMTP_USER or SMTP_PASS not set')
     return false
   }
 
   try {
     const transporter = createTransporter()
     await transporter.verify()
-    console.log('Email server connection verified successfully')
+    logger.info('Email server connection verified successfully')
     return true
   } catch (error) {
-    console.error('Email server connection failed:', error)
+    logger.error('Email server connection failed', error)
     return false
   }
 }
@@ -82,7 +83,7 @@ async function logEmail(options: EmailOptions, status: EmailStatus, failureReaso
       })
     }
   } catch (error) {
-    console.error('Failed to log email:', error)
+    logger.error('Failed to log email', error)
   }
 }
 
@@ -93,7 +94,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
   const isMailHog = process.env.SMTP_HOST === 'localhost' && process.env.SMTP_PORT === '1025'
   
   if (!isDevelopment && !isMailHog && (!process.env.SMTP_USER || !process.env.SMTP_PASS)) {
-    console.error('Email configuration missing: Cannot send email')
+    logger.error('Email configuration missing: Cannot send email')
     await logEmail(options, EmailStatus.FAILED, 'Email configuration missing')
     return false
   }
@@ -111,11 +112,11 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 
   try {
     const info = await transporter.sendMail(mailOptions)
-    console.log('Email sent successfully:', info.messageId)
+    logger.info('Email sent successfully', { messageId: info.messageId })
     await logEmail(options, EmailStatus.SENT)
     return true
   } catch (error) {
-    console.error('Failed to send email:', error)
+    logger.error('Failed to send email', error)
     await logEmail(options, EmailStatus.FAILED, error instanceof Error ? error.message : 'Unknown error')
     return false
   }
@@ -326,14 +327,14 @@ export async function sendWelcomeEmail(
     })
     
     if (success) {
-      console.log(`Welcome email sent successfully to ${userEmail}`)
+      logger.info(`Welcome email sent successfully to ${userEmail}`)
       return true
     } else {
-      console.error(`Failed to send welcome email to ${userEmail}`)
+      logger.error(`Failed to send welcome email to ${userEmail}`)
       return false
     }
   } catch (error) {
-    console.error('Error sending welcome email:', error)
+    logger.error('Error sending welcome email', error)
     return false
   }
 }

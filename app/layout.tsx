@@ -4,6 +4,7 @@ import './globals.css'
 import { ToastProvider } from '@/contexts/ToastContext'
 import { ActivityProvider } from '@/contexts/ActivityContext'
 import NextAuthSessionProvider from '@/components/providers/SessionProvider'
+import { DebugPanel } from '@/components/DebugPanel'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -24,6 +25,7 @@ export default function RootLayout({
           <ActivityProvider>
             <ToastProvider>
               {children}
+              <DebugPanel />
             </ToastProvider>
           </ActivityProvider>
         </NextAuthSessionProvider>
