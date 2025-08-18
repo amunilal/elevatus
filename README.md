@@ -554,6 +554,13 @@ The repository includes a GitHub Actions workflow that:
   - Updated quick actions grid to include "My Reviews" with professional styling
   - Fixed courses completed icon with proper success color scheme (green background)
 
+## 📝 Changelog
+
+### Version 1.0.3 (2025-01-18)
+- **Fixed Safari browser issue**: Added `/auth/setup-password` to public paths in middleware to prevent redirect loop
+- **Removed debug logging**: Cleaned up all debug logs, panels, and UI elements from setup-password flow
+- **Code cleanup**: Removed production debug features that were added for Safari troubleshooting
+
 ### Planned Features 🚧
 - Advanced review analytics and reporting features
 - Review templates and automated task generation

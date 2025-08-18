@@ -62,7 +62,6 @@ export async function POST(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Password setup error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -113,7 +112,6 @@ export async function GET(request: NextRequest) {
     })
 
   } catch (error) {
-    console.error('Token validation error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

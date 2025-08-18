@@ -11,6 +11,7 @@ export async function middleware(request: NextRequest) {
     '/employee/login',
     '/employer/forgot-password',
     '/employee/forgot-password',
+    '/auth/setup-password',
   ]
 
   // API auth paths that should always be accessible

@@ -1,9 +1,0 @@
-# Claude Alias: dev
-# Start development server
-# Usage: /dev
-
-echo "🧹 Cleaning build cache..."
-rm -rf .next
-
-echo "🚀 Starting development server..."
-npm run dev
