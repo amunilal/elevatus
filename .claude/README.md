@@ -54,7 +54,7 @@ This directory contains Claude Code aliases and scripts for streamlined developm
 # Quick commit and push
 /commit Fix Safari compatibility issues in password reset
 
-# Patch version release  
+# Patch version release.md  
 /patch Enhanced production debugging capabilities
 
 # Emergency deployment
@@ -153,8 +153,8 @@ For direct execution outside of Claude Code:
 ./.claude/scripts/deploy
 ./.claude/scripts/hotfix "Critical fix description"
 
-# Interactive release workflow
-./.claude/scripts/release
+# Interactive release.md workflow
+./.claude/scripts/release.md
 
 # Setup shell aliases
 ./.claude/setup-shortcuts.sh

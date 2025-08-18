@@ -17,12 +17,12 @@ get_current_version() {
 increment_version() {
     local version=$1
     local type=$2
-    
+
     IFS='.' read -ra VERSION_PARTS <<< "$version"
     local major=${VERSION_PARTS[0]}
     local minor=${VERSION_PARTS[1]}
     local patch=${VERSION_PARTS[2]}
-    
+
     case $type in
         "major")
             major=$((major + 1))
@@ -37,7 +37,7 @@ increment_version() {
             patch=$((patch + 1))
             ;;
     esac
-    
+
     echo "$major.$minor.$patch"
 }
 
@@ -91,15 +91,15 @@ esac
 
 if [ "$new_version" != "$current_version" ]; then
     echo "📝 Updating version to $new_version..."
-    
+
     # Update package.json
     sed -i '' "s/\"version\": \"$current_version\"/\"version\": \"$new_version\"/" package.json
-    
+
     # Update lib/version.ts
     today=$(date +%Y-%m-%d)
     sed -i '' "s/version: '$current_version'/version: '$new_version'/" lib/version.ts
     sed -i '' "s/releaseDate: '[^']*'/releaseDate: '$today'/" lib/version.ts
-    
+
     echo "✅ Version updated to $new_version"
 fi
 
@@ -112,14 +112,14 @@ read -p "Do you want to update the README with release notes? (y/N): " update_re
 if [[ $update_readme =~ ^[Yy]$ ]]; then
     echo "📝 Opening README for editing..."
     read -p "Enter release notes summary: " release_notes
-    
+
     if [ -n "$release_notes" ]; then
         # Add to security updates section if version changed
         if [ "$new_version" != "$current_version" ]; then
             # Create a temporary file with the new entry
             temp_file=$(mktemp)
-            
-            # Insert new release notes after the Security Updates header
+
+            # Insert new release.md notes after the Security Updates header
             awk -v version="$new_version" -v date="$today" -v notes="$release_notes" '
             /^## 🔐 Security Updates/ {
                 print $0
@@ -131,7 +131,7 @@ if [[ $update_readme =~ ^[Yy]$ ]]; then
             }
             {print}
             ' README.md > "$temp_file"
-            
+
             mv "$temp_file" README.md
             echo "✅ README updated with release notes"
         fi
@@ -178,37 +178,37 @@ $([ -n "$release_notes" ] && echo "- $release_notes")
 
 Co-Authored-By: Claude <noreply@anthropic.com>"
     fi
-    
+
     echo "📝 Commit message preview:"
     echo "------------------------"
     echo "$default_message"
     echo "------------------------"
     echo ""
-    
+
     read -p "Use this commit message? (Y/n): " use_default_msg
-    
+
     if [[ $use_default_msg =~ ^[Nn]$ ]]; then
         read -p "Enter custom commit message: " custom_message
         commit_message="$custom_message"
     else
         commit_message="$default_message"
     fi
-    
+
     # Stage and commit
     git add -A
     git commit -m "$commit_message"
     echo "✅ Changes committed"
-    
+
     echo ""
-    
+
     # Step 6: Push Confirmation
     read -p "🚀 Do you want to push to remote? (y/N): " push_confirm
-    
+
     if [[ $push_confirm =~ ^[Yy]$ ]]; then
         echo "📤 Pushing to remote..."
         git push origin main
         echo "✅ Changes pushed to remote"
-        
+
         echo ""
         echo "🎉 Release completed successfully!"
         [ "$new_version" != "$current_version" ] && echo "🏷️  Version: $new_version"

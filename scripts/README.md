@@ -6,13 +6,13 @@ Core development and deployment scripts for the ElevatUs project.
 
 ### Main Release Script
 ```bash
-# Interactive release workflow
-./scripts/release.sh
+# Interactive release.md workflow
+./scripts/release.md.sh
 ```
 
 ### Shell Alias Setup
 ```bash
-# Setup elevatus-release command
+# Setup elevatus-release.md command
 ./scripts/setup-alias.sh
 ```
 
@@ -79,8 +79,8 @@ Select version increment type:
 Enter choice (1-5): 1
 
 📖 Step 3: README Update
-Do you want to update the README with release notes? (y/N): y
-Enter release notes summary: Fixed Safari compatibility issues
+Do you want to update the README with release.md notes? (y/N): y
+Enter release.md notes summary: Fixed Safari compatibility issues
 
 📊 Step 4: Checking git status...
 📋 Changes to be committed:
@@ -120,7 +120,7 @@ Use this commit message? (Y/n): y
 ### 1. Make Scripts Executable (if needed)
 ```bash
 chmod +x scripts/*.sh
-chmod +x scripts/claude-release
+chmod +x scripts/claude-release.md
 ```
 
 ### 2. Setup Shell Alias (Optional)
@@ -133,13 +133,13 @@ This adds `elevatus-release` command to your shell configuration.
 ### 3. Verify Setup
 ```bash
 # Test direct execution
-./scripts/release.sh
+./scripts/release.md.sh
 
 # Test alias (if set up)
-elevatus-release
+elevatus-release.md
 
 # Test Claude Code integration
-./scripts/claude-release
+./scripts/claude-release.md
 ```
 
 ## 🔧 Configuration
@@ -184,7 +184,7 @@ scripts/
 ### Script Won't Run
 ```bash
 # Make executable
-chmod +x scripts/release.sh
+chmod +x scripts/release.md.sh
 
 # Check if in project root
 ls package.json lib/version.ts
@@ -195,8 +195,8 @@ ls package.json lib/version.ts
 # Fix TypeScript errors first
 npm run type-check
 
-# Then run release script
-./scripts/release.sh
+# Then run release.md script
+./scripts/release.md.sh
 ```
 
 ### Alias Not Found

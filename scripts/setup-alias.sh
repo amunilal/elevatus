@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Setup script for ElevatUs release alias
-# This adds a 'elevatus-release' command to your shell
+# Setup script for ElevatUs release.md alias
+# This adds a 'elevatus-release.md' command to your shell
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
@@ -35,10 +35,10 @@ echo "📝 Adding alias to $SHELL_RC..."
 if grep -q "alias elevatus-release=" "$SHELL_RC" 2>/dev/null; then
     echo "⚠️  Alias already exists in $SHELL_RC"
     read -p "Do you want to update it? (y/N): " update_alias
-    
+
     if [[ $update_alias =~ ^[Yy]$ ]]; then
         # Remove old alias and add new one
-        sed -i.bak '/alias elevatus-release=/d' "$SHELL_RC"
+        sed -i.bak '/alias elevatus-release.md=/d' "$SHELL_RC"
         echo "" >> "$SHELL_RC"
         echo "# ElevatUs Release Script Alias" >> "$SHELL_RC"
         echo "$ALIAS_COMMAND" >> "$SHELL_RC"
